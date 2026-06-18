@@ -16,6 +16,21 @@
 #gate.hidden { display: none; }
 .gate-logo { font-size: 28px; font-weight: 800; color: #f8fafc; }
 .gate-logo span { color: #6366f1; }
+/* IMPACT SYSTEMS brand wordmark */
+.brand-logo { display: flex; flex-direction: column; align-items: center; user-select: none; }
+.brand-impact {
+  font-family: 'Segoe UI', 'Arial Narrow', sans-serif;
+  font-size: 46px; font-weight: 800; letter-spacing: 6px;
+  color: #f8fafc; line-height: 1; text-transform: uppercase;
+}
+.brand-systems {
+  font-size: 15px; font-weight: 600; letter-spacing: 13px;
+  color: #2f6bff; text-transform: uppercase; margin-top: 4px; padding-left: 13px;
+}
+/* small inline version for the dashboard top bar */
+.brand-logo-sm .brand-impact { font-size: 22px; letter-spacing: 3px; }
+.brand-logo-sm .brand-systems { font-size: 9px; letter-spacing: 7px; margin-top: 1px; padding-left: 7px; }
+.brand-logo-sm { align-items: flex-start; }
 .gate-sub { font-size: 13px; color: #64748b; }
 .gate-box {
   background: #1e2230; border: 1px solid #2d3348; border-radius: 16px;
@@ -52,7 +67,7 @@ h1 { font-size: 22px; font-weight: 700; color: #f8fafc; margin-bottom: 4px; }
   color: #475569; margin-bottom: 16px; margin-top: 40px; padding-bottom: 8px;
   border-bottom: 1px solid #2d3348;
 }
-.cards { display: grid; grid-template-columns: repeat(5,1fr); gap: 16px; margin-bottom: 36px; }
+.cards { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 36px; }
 .card { background: #1e2230; border: 1px solid #2d3348; border-radius: 12px; padding: 20px; }
 .card-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; margin-bottom: 8px; }
 .card-value { font-size: 26px; font-weight: 700; color: #f1f5f9; }
@@ -211,6 +226,17 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 @media (max-width: 768px) {
   body { padding: 16px 12px; }
 
+  /* Brand logo scales down on phones */
+  .brand-impact  { font-size: 34px; letter-spacing: 4px; }
+  .brand-systems { font-size: 12px; letter-spacing: 9px; padding-left: 9px; }
+  .brand-logo-sm .brand-impact  { font-size: 20px; letter-spacing: 2px; }
+  .brand-logo-sm .brand-systems { font-size: 8px; letter-spacing: 6px; padding-left: 6px; }
+
+  /* Tighter section headers + titles */
+  .section-title { margin-top: 28px; }
+  h1 { font-size: 18px; }
+  .subtitle { font-size: 11px; }
+
   /* Gate / login */
   .gate-box { min-width: unset; width: 92vw; padding: 28px 20px; }
 
@@ -257,7 +283,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   thead th, td { padding: 8px 8px; }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 340px) {
   .cards { grid-template-columns: 1fr; }
   .aov-cards { grid-template-columns: 1fr; }
   .week-cards { grid-template-columns: 1fr; }
@@ -271,7 +297,10 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 
 <!-- LOGIN GATE -->
 <div id="gate">
-  <div class="gate-logo">Meta<span>Ads</span> Results</div>
+  <div class="brand-logo">
+    <div class="brand-impact">IMPACT</div>
+    <div class="brand-systems">SYSTEMS</div>
+  </div>
   <div class="gate-sub">Protected client report</div>
   <div class="gate-box">
     <h2>Sign In</h2>
@@ -300,6 +329,10 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 <div id="dashboard">
   <div class="dash-topbar">
     <div class="dash-topbar-titles">
+      <div class="brand-logo brand-logo-sm" style="margin-bottom:10px">
+        <div class="brand-impact">IMPACT</div>
+        <div class="brand-systems">SYSTEMS</div>
+      </div>
       <h1 id="dashTitle">Meta Ads Performance Report</h1>
       <p class="subtitle" id="dashSubtitle">Loading…</p>
     </div>
@@ -340,11 +373,6 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
       <div class="card-label">Avg CTR</div>
       <div class="card-value" id="avgCtr">—</div>
       <div class="card-sub">weighted avg (full period)</div>
-    </div>
-    <div class="card">
-      <div class="card-label">Avg CPC</div>
-      <div class="card-value" id="avgCpc">—</div>
-      <div class="card-sub">spend ÷ clicks (full period)</div>
     </div>
   </div>
 
@@ -726,6 +754,8 @@ function closeExitModal() {
   document.getElementById('exitModal').classList.remove('active');
 }
 function doExit() {
+  // Forget the saved session so a refresh now returns to the sign-in page
+  try { localStorage.removeItem('impactSession'); } catch(e) {}
   // Reset all live state
   window.G_funnelLPV = window.G_funnelCart = window.G_funnelCheckout = window.G_funnelPurch = null;
   G_adsets = []; G_liveCache.clear(); G_accountId = null;
@@ -749,6 +779,8 @@ function checkLogin() {
     document.getElementById('unInput').value = '';
     return;
   }
+  // Remember this session so a refresh keeps the user signed in (until they Exit)
+  try { localStorage.setItem('impactSession', un); } catch(e) {}
   document.getElementById('gate').classList.add('hidden');
   document.getElementById('dashboard').classList.add('visible');
   if (acc.noData) {
@@ -1129,7 +1161,6 @@ function renderRange(startIso, endIso) {
   const totImpr    = G_adsets.reduce((s,a)=>s+a.impressions, 0);
   const totAdSpend = G_adsets.reduce((s,a)=>s+a.spend, 0);
   document.getElementById('avgCtr').textContent = (totClicks/totImpr*100).toFixed(2)+'%';
-  document.getElementById('avgCpc').textContent = '$'+(totAdSpend/totClicks).toFixed(2);
 
   document.getElementById('revTitle').textContent   = `Daily Result Value Revenue — ${periodLabel}`;
   document.getElementById('spendTitle').textContent = `Daily Spend — ${periodLabel}`;
@@ -1395,6 +1426,19 @@ function campaignTag(c) {
   if(c.includes('SCALING'))  return `<span class="campaign-tag tag-retarget">SCALING</span>`;
   return `<span class="campaign-tag tag-testing">TESTING</span>`;
 }
+
+// ── AUTO-RESTORE SESSION ────────────────────────────────────────────────────────
+// If the user logged in before and hasn't exited, log them straight back in
+// after a page refresh (no need to re-enter the username).
+(function restoreSession() {
+  let saved = null;
+  try { saved = localStorage.getItem('impactSession'); } catch(e) {}
+  if (!saved) return;
+  const key = Object.keys(ACCOUNTS).find(k => k.toLowerCase() === saved.toLowerCase());
+  if (!key) { try { localStorage.removeItem('impactSession'); } catch(e) {} return; }
+  document.getElementById('unInput').value = key;
+  checkLogin();
+})();
 </script>
 </body>
 </html>
