@@ -1,0 +1,1400 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Meta Ads Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+#gate {
+  position: fixed; inset: 0; background: #0f1117;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 999; flex-direction: column; gap: 24px;
+}
+#gate.hidden { display: none; }
+.gate-logo { font-size: 28px; font-weight: 800; color: #f8fafc; }
+.gate-logo span { color: #6366f1; }
+.gate-sub { font-size: 13px; color: #64748b; }
+.gate-box {
+  background: #1e2230; border: 1px solid #2d3348; border-radius: 16px;
+  padding: 36px 40px; display: flex; flex-direction: column; gap: 16px;
+  min-width: 340px; text-align: center;
+}
+.gate-box h2 { font-size: 16px; color: #f1f5f9; font-weight: 600; }
+.gate-box p  { font-size: 12px; color: #64748b; }
+.gate-input {
+  background: #131720; border: 1px solid #2d3348; border-radius: 8px;
+  color: #f1f5f9; font-size: 14px; padding: 12px 16px; width: 100%; outline: none;
+}
+.gate-input:focus { border-color: #6366f1; }
+#loginBtn {
+  background: #6366f1; color: #fff; border: none; border-radius: 8px;
+  padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer;
+}
+#loginBtn:hover { background: #4f52d3; }
+#loginError { font-size: 12px; color: #f87171; min-height: 16px; }
+
+body {
+  background: #0f1117; color: #e2e8f0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+  font-size: 14px; line-height: 1.6;
+  padding: 32px 24px; max-width: 1400px; margin: 0 auto;
+}
+#dashboard { display: none; }
+#dashboard.visible { display: block; }
+
+h1 { font-size: 22px; font-weight: 700; color: #f8fafc; margin-bottom: 4px; }
+.subtitle { color: #64748b; font-size: 13px; margin-bottom: 24px; }
+.section-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+  color: #475569; margin-bottom: 16px; margin-top: 40px; padding-bottom: 8px;
+  border-bottom: 1px solid #2d3348;
+}
+.cards { display: grid; grid-template-columns: repeat(5,1fr); gap: 16px; margin-bottom: 36px; }
+.card { background: #1e2230; border: 1px solid #2d3348; border-radius: 12px; padding: 20px; }
+.card-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; margin-bottom: 8px; }
+.card-value { font-size: 26px; font-weight: 700; color: #f1f5f9; }
+.card-value.green { color: #4ade80; }
+.card-sub { font-size: 11px; color: #475569; margin-top: 4px; }
+
+.charts { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+.chart-box { background: #1e2230; border: 1px solid #2d3348; border-radius: 12px; padding: 24px; }
+.chart-title { font-size: 13px; font-weight: 600; color: #94a3b8; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+.table-box { background: #1e2230; border: 1px solid #2d3348; border-radius: 12px; padding: 24px; overflow-x: auto; margin-bottom: 24px; }
+.table-title { font-size: 13px; font-weight: 600; color: #94a3b8; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.06em; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { text-align: left; padding: 10px 14px; color: #64748b; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; border-bottom: 1px solid #2d3348; white-space: nowrap; }
+thead th.num { text-align: right; }
+tbody tr { border-bottom: 1px solid #1a1f2e; transition: background 0.15s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: #252b3b; }
+td { padding: 11px 14px; color: #cbd5e1; vertical-align: middle; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.campaign-tag { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 999px; display: inline-block; white-space: nowrap; }
+.tag-testing  { background: #1e3a5f; color: #60a5fa; }
+.tag-retarget { background: #1e3d2e; color: #4ade80; }
+.tag-message  { background: #3d2a1e; color: #fb923c; }
+.tag-ksa      { background: #2e1e3d; color: #c084fc; }
+.spend-bar-wrap { display: flex; align-items: center; gap: 10px; }
+.spend-bar { height: 6px; border-radius: 3px; background: linear-gradient(90deg,#3b82f6,#6366f1); min-width: 2px; }
+.pill-zero { color: #475569; }
+.cr-good { color: #4ade80; }
+.cr-ok   { color: #facc15; }
+.cr-bad  { color: #f87171; }
+
+/* ── DATE PICKER ── */
+.dp-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; position: relative; }
+.dp-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: #1e2230; border: 1px solid #2d3348; border-radius: 8px;
+  padding: 8px 14px; color: #e2e8f0; font-size: 13px; font-weight: 500;
+  cursor: pointer; user-select: none; transition: border-color 0.15s;
+}
+.dp-btn:hover { border-color: #6366f1; }
+.dp-btn-label { font-weight: 600; }
+
+.dp-panel {
+  position: absolute; top: calc(100% + 4px); left: 0; z-index: 200;
+  background: #1e2230; border: 1px solid #2d3348; border-radius: 12px;
+  box-shadow: 0 24px 64px rgba(0,0,0,.6);
+  display: none; flex-direction: row;
+}
+.dp-panel.open { display: flex; }
+
+.dp-presets { padding: 12px 8px; border-right: 1px solid #2d3348; min-width: 156px; }
+.dp-preset  { padding: 8px 12px; border-radius: 6px; font-size: 13px; color: #94a3b8; cursor: pointer; white-space: nowrap; }
+.dp-preset:hover  { background: #252b3b; color: #f1f5f9; }
+.dp-preset.active { background: #1e3a5f; color: #60a5fa; font-weight: 600; }
+.dp-preset-divider { border-top: 1px solid #2d3348; margin: 6px 8px; }
+
+.dp-right { display: flex; flex-direction: column; }
+.dp-calendars { padding: 16px 20px; display: flex; gap: 24px; }
+.dp-cal { min-width: 216px; }
+.dp-cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; font-size: 14px; font-weight: 600; color: #f1f5f9; }
+.dp-nav { background: none; border: none; color: #64748b; cursor: pointer; font-size: 18px; padding: 2px 8px; border-radius: 4px; }
+.dp-nav:hover { background: #252b3b; color: #f1f5f9; }
+.dp-weekdays { display: grid; grid-template-columns: repeat(7,1fr); text-align: center; margin-bottom: 4px; }
+.dp-wd { font-size: 10px; font-weight: 700; color: #475569; padding: 4px 0; }
+.dp-days { display: grid; grid-template-columns: repeat(7,1fr); }
+.dp-day { text-align: center; padding: 6px 2px; font-size: 12px; color: #94a3b8; cursor: pointer; border-radius: 6px; transition: background 0.1s; }
+.dp-day:hover:not(.dp-disabled):not(.dp-empty) { background: #252b3b; color: #f1f5f9; }
+.dp-empty    { cursor: default; }
+.dp-disabled { color: #2d3348 !important; cursor: default !important; }
+.dp-in-range { background: #1e3358; color: #93c5fd; border-radius: 0; }
+.dp-start, .dp-end { background: #6366f1 !important; color: #fff !important; font-weight: 700; border-radius: 6px !important; }
+
+.dp-footer {
+  padding: 12px 20px; border-top: 1px solid #2d3348;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.dp-range-display { font-size: 12px; color: #64748b; min-width: 240px; }
+.dp-footer-btns { display: flex; gap: 8px; }
+.dp-cancel { padding: 7px 16px; border-radius: 6px; border: 1px solid #2d3348; background: none; color: #94a3b8; font-size: 13px; cursor: pointer; }
+.dp-apply  { padding: 7px 16px; border-radius: 6px; border: none; background: #6366f1; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
+.dp-apply:hover    { background: #4f52d3; }
+.dp-apply:disabled { background: #2d3348; color: #475569; cursor: default; }
+
+/* Funnel — Shopify style */
+.funnel-wrap { background: #1e2230; border: 1px solid #2d3348; border-radius: 12px; padding: 28px 24px 24px; margin-bottom: 28px; }
+.funnel-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 24px; }
+.funnel-overall-pct { font-size: 36px; font-weight: 800; color: #f1f5f9; line-height: 1; }
+.funnel-overall-label { font-size: 13px; color: #64748b; }
+.funnel-stages { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+.funnel-stage { padding: 0 16px 0 0; border-right: 1px solid #2d3348; }
+.funnel-stage:last-child { border-right: none; padding-right: 0; }
+.funnel-stage:not(:first-child) { padding-left: 16px; }
+.funnel-stage-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: #64748b; margin-bottom: 6px; }
+.funnel-stage-pct { font-size: 22px; font-weight: 800; color: #f1f5f9; line-height: 1; margin-bottom: 3px; }
+.funnel-stage-count { font-size: 12px; color: #94a3b8; margin-bottom: 14px; }
+.funnel-bar-area { position: relative; height: 80px; display: flex; align-items: flex-end; }
+.funnel-bar { width: 100%; border-radius: 4px 4px 0 0; transition: height 0.4s ease; }
+.cr-row-bar-bg   { background: #131720; border-radius: 4px; height: 8px; width: 100%; margin-top: 6px; }
+.cr-row-bar-fill { height: 8px; border-radius: 4px; }
+
+/* Exit button */
+.dash-topbar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+.dash-topbar-titles { flex: 1; }
+.exit-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: transparent; border: 1px solid #2d3348; border-radius: 8px; color: #64748b; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap; margin-top: 4px; }
+.exit-btn:hover { background: #1e2230; border-color: #f87171; color: #f87171; }
+/* Confirm modal */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; }
+.modal-overlay.active { display: flex; }
+.modal-box { background: #1e2230; border: 1px solid #2d3348; border-radius: 14px; padding: 32px 28px 24px; max-width: 360px; width: 90%; text-align: center; }
+.modal-icon { font-size: 28px; margin-bottom: 12px; }
+.modal-title { font-size: 17px; font-weight: 700; color: #f1f5f9; margin-bottom: 8px; }
+.modal-body { font-size: 13px; color: #64748b; margin-bottom: 24px; line-height: 1.6; }
+.modal-btns { display: flex; gap: 10px; justify-content: center; }
+.modal-cancel { padding: 9px 22px; border-radius: 8px; border: 1px solid #2d3348; background: none; color: #94a3b8; font-size: 13px; font-weight: 600; cursor: pointer; }
+.modal-cancel:hover { background: #131720; }
+.modal-confirm { padding: 9px 22px; border-radius: 8px; border: none; background: #f87171; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; }
+.modal-confirm:hover { background: #ef4444; }
+
+/* Weekly */
+.week-cards { display: grid; grid-template-columns: repeat(5,1fr); gap: 14px; margin-bottom: 24px; }
+.week-card { background: #1e2230; border: 1px solid #2d3348; border-radius: 10px; padding: 16px; }
+.week-card-label   { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #475569; margin-bottom: 6px; }
+.week-card-revenue { font-size: 20px; font-weight: 800; color: #4ade80; }
+.week-card-spend   { font-size: 11px; color: #64748b; margin-top: 2px; }
+.week-card-roas    { font-size: 12px; font-weight: 700; margin-top: 6px; }
+.week-card-roas.good { color: #4ade80; }
+.week-card-roas.ok   { color: #facc15; }
+.week-card-roas.bad  { color: #f87171; }
+
+/* AOV */
+.aov-cards { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+.aov-card { background: #1e2230; border: 1px solid #2d3348; border-radius: 12px; padding: 20px; }
+.aov-card-label { font-size: 11px; color: #64748b; margin-bottom: 4px; }
+.aov-card-value { font-size: 22px; font-weight: 800; color: #f1f5f9; }
+.aov-card-sub   { font-size: 11px; color: #475569; margin-top: 3px; }
+
+/* Top Winning Ads */
+.winning-list { display: flex; flex-direction: column; gap: 0; }
+.winning-item { padding: 14px 0; border-bottom: 1px solid #1e2230; }
+.winning-item:last-child { border-bottom: none; padding-bottom: 0; }
+.winning-item-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; gap: 8px; }
+.winning-item-name { font-size: 12px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%; }
+.winning-item-roas { font-size: 13px; font-weight: 800; }
+.winning-item-roas.roas-good { color: #4ade80; }
+.winning-item-roas.roas-ok   { color: #facc15; }
+.winning-item-roas.roas-bad  { color: #f87171; }
+.winning-bar-row { display: flex; align-items: center; gap: 10px; }
+.winning-bar-bg  { flex: 1; background: #131720; border-radius: 3px; height: 7px; overflow: hidden; }
+.winning-bar-fill { height: 7px; border-radius: 3px; background: #3b82f6; transition: width 0.5s ease; }
+.winning-bar-val { font-size: 12px; font-weight: 700; color: #f1f5f9; white-space: nowrap; min-width: 70px; text-align: right; }
+.winning-meta { display: flex; gap: 12px; margin-top: 4px; }
+.winning-meta-item { font-size: 11px; color: #475569; }
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+  body { padding: 16px 12px; }
+
+  /* Gate / login */
+  .gate-box { min-width: unset; width: 92vw; padding: 28px 20px; }
+
+  /* Top bar */
+  .dash-topbar { flex-direction: column; gap: 10px; }
+  .exit-btn { align-self: flex-end; }
+
+  /* Summary cards: 2 columns */
+  .cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .card-value { font-size: 20px; }
+
+  /* Charts: stack vertically */
+  .charts { grid-template-columns: 1fr; gap: 14px; }
+
+  /* Date picker: full width, single calendar */
+  .dp-panel { flex-direction: column; width: 94vw; max-width: 360px; }
+  .dp-presets { border-right: none; border-bottom: 1px solid #2d3348; }
+  .dp-calendars { flex-direction: column; gap: 16px; padding: 12px 14px; }
+  .dp-cal { min-width: unset; width: 100%; }
+  .dp-range-display { min-width: unset; font-size: 11px; }
+  .dp-footer { flex-wrap: wrap; gap: 8px; }
+  .dp-footer-btns { width: 100%; justify-content: flex-end; }
+
+  /* Funnel: 2×2 grid on mobile */
+  .funnel-stages { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .funnel-stage { border-right: none; padding: 0; border-bottom: 1px solid #2d3348; padding-bottom: 16px; }
+  .funnel-stage:nth-child(2) { border-bottom: 1px solid #2d3348; }
+  .funnel-stage:nth-child(3), .funnel-stage:nth-child(4) { border-bottom: none; padding-bottom: 0; }
+  .funnel-overall-pct { font-size: 28px; }
+
+  /* Weekly cards: 2 columns then wrap */
+  .week-cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .week-card-revenue { font-size: 16px; }
+
+  /* AOV cards: 2 columns */
+  .aov-cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+  /* Winning ads: name can use full width */
+  .winning-item-name { max-width: 70%; }
+
+  /* Tables: allow horizontal scroll */
+  .table-box { padding: 14px 10px; }
+  table { font-size: 12px; }
+  thead th, td { padding: 8px 8px; }
+}
+
+@media (max-width: 400px) {
+  .cards { grid-template-columns: 1fr; }
+  .aov-cards { grid-template-columns: 1fr; }
+  .week-cards { grid-template-columns: 1fr; }
+  .funnel-stages { grid-template-columns: 1fr; }
+  .funnel-stage { border-bottom: 1px solid #2d3348!important; padding-bottom: 14px!important; }
+  .funnel-stage:last-child { border-bottom: none!important; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN GATE -->
+<div id="gate">
+  <div class="gate-logo">Meta<span>Ads</span> Results</div>
+  <div class="gate-sub">Protected client report</div>
+  <div class="gate-box">
+    <h2>Sign In</h2>
+    <p>Enter your username to access your ad account report.</p>
+    <input id="unInput" class="gate-input" type="text" placeholder="Username" maxlength="50"
+           onkeydown="if(event.key==='Enter')checkLogin()" autocomplete="off" />
+    <button id="loginBtn" onclick="checkLogin()">View My Report</button>
+    <div id="loginError"></div>
+  </div>
+  <!-- Token setup — shown only when no token is saved yet -->
+  <div id="tokenSetup" style="margin-top:8px;text-align:center">
+    <span id="tokenToggleLink" style="font-size:12px;color:#475569;cursor:pointer;text-decoration:underline"
+          onclick="document.getElementById('tokenBox').style.display=document.getElementById('tokenBox').style.display==='none'?'flex':'none'">
+      ⚙ Setup API token for live data
+    </span>
+    <div id="tokenBox" style="display:none;flex-direction:column;gap:10px;margin-top:12px;background:#1e2230;border:1px solid #2d3348;border-radius:12px;padding:20px;min-width:340px">
+      <p style="font-size:12px;color:#64748b;text-align:left">Paste your Meta access token once — it's saved locally in this browser and never sent anywhere except the Meta API.</p>
+      <input id="tokenInput" class="gate-input" type="password" placeholder="EAASnJz..." autocomplete="off" />
+      <button onclick="saveToken()" style="background:#6366f1;color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer">Save Token</button>
+      <div id="tokenMsg" style="font-size:12px;color:#4ade80;min-height:16px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="dash-topbar">
+    <div class="dash-topbar-titles">
+      <h1 id="dashTitle">Meta Ads Performance Report</h1>
+      <p class="subtitle" id="dashSubtitle">Loading…</p>
+    </div>
+    <button class="exit-btn" onclick="confirmExit()">&#x2715; Exit Report</button>
+  </div>
+
+  <!-- Exit confirmation modal -->
+  <div class="modal-overlay" id="exitModal" onclick="if(event.target===this)closeExitModal()">
+    <div class="modal-box">
+      <div class="modal-icon">&#x26A0;&#xFE0F;</div>
+      <div class="modal-title">Exit this report?</div>
+      <div class="modal-body">You'll be returned to the sign-in page. Any unsaved view settings will be lost.</div>
+      <div class="modal-btns">
+        <button class="modal-cancel" onclick="closeExitModal()">Stay</button>
+        <button class="modal-confirm" onclick="doExit()">Yes, Exit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMARY CARDS -->
+  <div class="cards">
+    <div class="card">
+      <div class="card-label">Total Spend</div>
+      <div class="card-value" id="totalSpend">—</div>
+      <div class="card-sub" id="cardPeriod">selected period</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Result Value</div>
+      <div class="card-value" id="totalRevenue">—</div>
+      <div class="card-sub">total purchase revenue</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Avg ROAS</div>
+      <div class="card-value green" id="avgRoas">—</div>
+      <div class="card-sub">revenue ÷ spend (daily)</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Avg CTR</div>
+      <div class="card-value" id="avgCtr">—</div>
+      <div class="card-sub">weighted avg (full period)</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Avg CPC</div>
+      <div class="card-value" id="avgCpc">—</div>
+      <div class="card-sub">spend ÷ clicks (full period)</div>
+    </div>
+  </div>
+
+  <!-- PERFORMANCE OVERVIEW -->
+  <div class="section-title">Performance Overview</div>
+
+  <!-- Date picker -->
+  <div class="dp-bar" id="dpBar">
+    <div class="dp-btn" id="dpToggle" onclick="dpToggle()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      <span class="dp-btn-label" id="dpLabel">Last 30 days</span>
+      <span style="color:#64748b;font-size:11px">▾</span>
+    </div>
+
+    <div class="dp-panel" id="dpPanel">
+      <div class="dp-presets">
+        <div class="dp-preset" onclick="dpPreset('today')">Today</div>
+        <div class="dp-preset" onclick="dpPreset('yesterday')">Yesterday</div>
+        <div class="dp-preset-divider"></div>
+        <div class="dp-preset" onclick="dpPreset('7')">Last 7 days</div>
+        <div class="dp-preset" onclick="dpPreset('14')">Last 14 days</div>
+        <div class="dp-preset active" onclick="dpPreset('30')">Last 30 days</div>
+        <div class="dp-preset" onclick="dpPreset('90')">Last 90 days</div>
+        <div class="dp-preset" onclick="dpPreset('180')">Last 180 days</div>
+        <div class="dp-preset" onclick="dpPreset('365')">Last 365 days</div>
+        <div class="dp-preset-divider"></div>
+        <div class="dp-preset" onclick="dpPreset('lastmonth')">Last month</div>
+        <div class="dp-preset" onclick="dpPreset('mtd')">Month to date</div>
+        <div class="dp-preset" onclick="dpPreset('ytd')">Year to date</div>
+        <div class="dp-preset" onclick="dpPreset('max')">All time</div>
+        <div class="dp-preset-divider"></div>
+        <div class="dp-preset" onclick="dpPreset('custom')">Custom range</div>
+      </div>
+      <div class="dp-right">
+        <div class="dp-calendars">
+          <div class="dp-cal" id="dpCal0"></div>
+          <div class="dp-cal" id="dpCal1"></div>
+        </div>
+        <div class="dp-footer">
+          <div class="dp-range-display" id="dpRangeDisplay">—</div>
+          <div class="dp-footer-btns">
+            <button class="dp-cancel" onclick="dpClose()">Cancel</button>
+            <button class="dp-apply" id="dpApply" onclick="dpApply()">Apply</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Revenue chart FIRST, full width -->
+  <div class="chart-box" style="margin-bottom:20px">
+    <div class="chart-title" id="revTitle">Daily Result Value Revenue</div>
+    <div style="position:relative;height:200px"><canvas id="revenueChart"></canvas></div>
+  </div>
+
+  <!-- ROAS trend line (excludes MESSAGE_CBO_SALES) -->
+  <div class="chart-box" style="margin-bottom:20px">
+    <div class="chart-title" id="roasTitle">Daily ROAS — excl. Message Campaigns</div>
+    <div style="position:relative;height:200px"><canvas id="roasTrendChart"></canvas></div>
+  </div>
+
+  <!-- Daily Spend + Ad Set Bar side by side -->
+  <div class="charts" style="margin-bottom:0">
+    <div class="chart-box">
+      <div class="chart-title" id="spendTitle">Daily Spend</div>
+      <div style="position:relative;height:280px"><canvas id="lineChart"></canvas></div>
+    </div>
+    <div class="chart-box">
+      <div class="chart-title">Spend by Ad Set (Top 10) — Full Period</div>
+      <div style="position:relative;height:280px"><canvas id="barChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- TOP 5 WINNING ADS -->
+  <div class="chart-box" style="margin-top:20px;margin-bottom:0">
+    <div class="chart-title">Top 5 Winning Ads — Full Period</div>
+    <div class="winning-list" id="winningList"></div>
+  </div>
+
+  <!-- CONVERSION RATE BREAKDOWN -->
+  <div class="section-title">Conversion Rate Breakdown</div>
+  <div class="funnel-wrap" id="funnelWrap">
+    <div class="funnel-header">
+      <div class="funnel-overall-pct" id="funnelOverallPct">—</div>
+      <div class="funnel-overall-label">overall conversion rate<br><span style="font-size:11px;color:#475569">Website Purchases ÷ Landing Page Views — Full Period</span></div>
+    </div>
+    <div class="funnel-stages" id="funnelStages"></div>
+  </div>
+  <div class="table-box" style="margin-top:0">
+    <div class="table-title">Conversion Funnel by Ad Set — Full Period</div>
+    <table>
+      <thead><tr>
+        <th>Ad Set</th><th>Campaign</th>
+        <th class="num">Impressions</th><th class="num">Link Clicks</th>
+        <th class="num">CTR</th><th class="num">Purchases</th>
+        <th class="num">CVR (LPV)</th><th style="width:180px">CVR Visual</th>
+      </tr></thead>
+      <tbody id="crTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- WEEKLY REVENUE (calendar weeks of the selected month) -->
+  <div class="section-title" id="weeklyTitle">Weekly Revenue — Monthly Breakdown</div>
+  <div class="week-cards" id="weekCards"></div>
+  <div class="charts">
+    <div class="chart-box">
+      <div class="chart-title">Revenue by Week</div>
+      <div style="position:relative;height:260px"><canvas id="weeklyRevenueChart"></canvas></div>
+    </div>
+    <div class="chart-box">
+      <div class="chart-title">Spend vs Revenue by Week</div>
+      <div style="position:relative;height:260px"><canvas id="weeklyCompareChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- AOV -->
+  <div class="section-title">AOV — Average Order Value</div>
+  <div class="aov-cards" id="aovSummary"></div>
+  <div class="charts">
+    <div class="chart-box">
+      <div class="chart-title">AOV by Ad Set</div>
+      <div style="position:relative;height:300px"><canvas id="aovChart"></canvas></div>
+    </div>
+    <div class="chart-box">
+      <div class="chart-title">AOV vs ROAS</div>
+      <div style="position:relative;height:300px"><canvas id="aovRoasChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ALL AD SETS TABLE -->
+  <div class="section-title">All Ad Sets — Full Period</div>
+  <div class="table-box">
+    <div class="table-title" id="adsetTableTitle">Sorted by Spend → Result Value → ROAS → CTR</div>
+    <table>
+      <thead><tr>
+        <th>Ad Set</th><th>Campaign</th>
+        <th class="num">Spend</th><th class="num">Impressions</th><th class="num">Link Clicks</th>
+        <th class="num">CTR</th><th class="num">CPC</th><th class="num">CPM</th>
+        <th class="num">Freq.</th><th class="num">Purchases</th><th class="num">CR</th>
+        <th class="num">ROAS</th><th class="num">Result Value</th><th class="num">AOV</th>
+      </tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div><!-- /dashboard -->
+
+<script>
+// Last refreshed: 2026-06-19 00:00
+
+// ── ACCOUNTS ──────────────────────────────────────────────────────────────────
+const ACCOUNTS = {
+  'bayan_impact2':  { id:'401990560846482',  name:'Bayan Impact',  adsets:null, dailySpend:null, dailyRevenue:null, dailyMsgSpend:null },
+  'amenaa_impact1': { id:'2638156416541971', name:'Amenaa Impact', adsets:null, dailySpend:null, dailyRevenue:null, dailyMsgSpend:null },
+  'SSD_impact':     { id:'1757389631850436', name:'SSD Impact',    noData:true }
+};
+
+// ── EMBEDDED DATA — replaced by update-dashboard.ps1 ──────────────────────────
+// @@DATA_START@@
+const ACCESS_TOKEN = '';
+const ISO_DATES = ['2025-02-24','2025-02-25','2025-02-26','2025-02-27','2025-02-28','2025-03-01','2025-03-02','2025-03-03','2025-03-04','2025-03-05','2025-03-06','2025-03-07','2025-03-08','2025-03-09','2025-03-10','2025-03-11','2025-03-12','2025-03-13','2025-03-14','2025-03-15','2025-03-16','2025-03-17','2025-03-18','2025-03-19','2025-03-20','2025-03-21','2025-03-22','2025-03-23','2025-03-24','2025-03-25','2025-03-26','2025-03-27','2025-03-28','2025-03-29','2025-03-30','2025-03-31','2025-04-01','2025-04-02','2025-04-03','2025-04-04','2025-04-05','2025-04-06','2025-04-07','2025-04-08','2025-04-09','2025-04-10','2025-04-11','2025-04-12','2025-04-13','2025-04-14','2025-04-15','2025-04-16','2025-04-17','2025-04-18','2025-04-19','2025-04-20','2025-04-21','2025-04-22','2025-04-23','2025-04-24','2025-04-25','2025-04-26','2025-04-27','2025-04-28','2025-04-29','2025-04-30','2025-05-01','2025-05-02','2025-05-03','2025-05-04','2025-05-05','2025-05-06','2025-05-07','2025-05-08','2025-05-09','2025-05-10','2025-05-11','2025-05-12','2025-05-13','2025-05-14','2025-05-15','2025-05-16','2025-05-17','2025-05-18','2025-05-19','2025-05-20','2025-05-21','2025-05-22','2025-05-23','2025-05-24','2025-05-25','2025-05-26','2025-05-27','2025-05-28','2025-05-29','2025-05-30','2025-05-31','2025-06-01','2025-06-02','2025-06-03','2025-06-04','2025-06-05','2025-06-06','2025-06-07','2025-06-08','2025-06-09','2025-06-10','2025-06-11','2025-06-12','2025-06-13','2025-06-14','2025-06-15','2025-06-16','2025-06-17','2025-06-18','2025-06-19','2025-06-20','2025-06-21','2025-06-22','2025-06-23','2025-06-24','2025-06-25','2025-06-26','2025-06-27','2025-06-28','2025-06-29','2025-06-30','2025-07-01','2025-07-02','2025-07-03','2025-07-04','2025-07-05','2025-07-06','2025-07-07','2025-07-08','2025-07-09','2025-07-10','2025-07-11','2025-07-12','2025-07-13','2025-07-14','2025-07-15','2025-07-16','2025-07-17','2025-07-18','2025-07-19','2025-07-20','2025-07-21','2025-07-22','2025-07-23','2025-07-24','2025-07-25','2025-07-26','2025-07-27','2025-07-28','2025-07-29','2025-07-30','2025-07-31','2025-08-01','2025-08-02','2025-08-03','2025-08-04','2025-08-05','2025-08-06','2025-08-07','2025-08-08','2025-08-09','2025-08-10','2025-08-11','2025-08-12','2025-08-13','2025-08-14','2025-08-15','2025-08-16','2025-08-17','2025-08-18','2025-08-19','2025-08-20','2025-08-21','2025-08-22','2025-08-23','2025-08-24','2025-08-25','2025-08-26','2025-08-27','2025-08-28','2025-08-29','2025-08-30','2025-08-31','2025-09-01','2025-09-02','2025-09-03','2025-09-04','2025-09-05','2025-09-06','2025-09-07','2025-09-08','2025-09-09','2025-09-10','2025-09-11','2025-09-12','2025-09-13','2025-09-14','2025-09-15','2025-09-16','2025-09-17','2025-09-18','2025-09-19','2025-09-20','2025-09-21','2025-09-22','2025-09-23','2025-09-24','2025-09-25','2025-09-26','2025-09-27','2025-09-28','2025-09-29','2025-09-30','2025-10-01','2025-10-02','2025-10-03','2025-10-04','2025-10-05','2025-10-06','2025-10-07','2025-10-08','2025-10-09','2025-10-10','2025-10-11','2025-10-12','2025-10-13','2025-10-14','2025-10-15','2025-10-16','2025-10-17','2025-10-18','2025-10-19','2025-10-20','2025-10-21','2025-10-22','2025-10-23','2025-10-24','2025-10-25','2025-10-26','2025-10-27','2025-10-28','2025-10-29','2025-10-30','2025-10-31','2025-11-01','2025-11-02','2025-11-03','2025-11-04','2025-11-05','2025-11-06','2025-11-07','2025-11-08','2025-11-09','2025-11-10','2025-11-11','2025-11-12','2025-11-13','2025-11-14','2025-11-15','2025-11-16','2025-11-17','2025-11-18','2025-11-19','2025-11-20','2025-11-21','2025-11-22','2025-11-23','2025-11-24','2025-11-25','2025-11-26','2025-11-27','2025-11-28','2025-11-29','2025-11-30','2025-12-01','2025-12-02','2025-12-03','2025-12-04','2025-12-05','2025-12-06','2025-12-07','2025-12-08','2025-12-09','2025-12-10','2025-12-11','2025-12-12','2025-12-13','2025-12-14','2025-12-15','2025-12-16','2025-12-17','2025-12-18','2025-12-19','2025-12-20','2025-12-21','2025-12-22','2025-12-23','2025-12-24','2025-12-25','2025-12-26','2025-12-27','2025-12-28','2025-12-29','2025-12-30','2025-12-31','2026-01-01','2026-01-02','2026-01-03','2026-01-04','2026-01-05','2026-01-06','2026-01-07','2026-01-08','2026-01-09','2026-01-10','2026-01-11','2026-01-12','2026-01-13','2026-01-14','2026-01-15','2026-01-16','2026-01-17','2026-01-18','2026-01-19','2026-01-20','2026-01-21','2026-01-22','2026-01-23','2026-01-24','2026-01-25','2026-01-26','2026-01-27','2026-01-28','2026-01-29','2026-01-30','2026-01-31','2026-02-01','2026-02-02','2026-02-03','2026-02-04','2026-02-05','2026-02-06','2026-02-07','2026-02-08','2026-02-09','2026-02-10','2026-02-11','2026-02-12','2026-02-13','2026-02-14','2026-02-15','2026-02-16','2026-02-17','2026-02-18','2026-02-19','2026-02-20','2026-02-21','2026-02-22','2026-02-23','2026-02-24','2026-02-25','2026-02-26','2026-02-27','2026-02-28','2026-03-01','2026-03-02','2026-03-03','2026-03-04','2026-03-05','2026-03-06','2026-03-07','2026-03-08','2026-03-09','2026-03-10','2026-03-11','2026-03-12','2026-03-13','2026-03-14','2026-03-15','2026-03-16','2026-03-17','2026-03-18','2026-03-19','2026-03-20','2026-03-21','2026-03-22','2026-03-23','2026-03-24','2026-03-25','2026-03-26','2026-03-27','2026-03-28','2026-03-29','2026-03-30','2026-03-31','2026-04-01','2026-04-02','2026-04-03','2026-04-04','2026-04-05','2026-04-06','2026-04-07','2026-04-08','2026-04-09','2026-04-10','2026-04-11','2026-04-12','2026-04-13','2026-04-14','2026-04-15','2026-04-16','2026-04-17','2026-04-18','2026-04-19','2026-04-20','2026-04-21','2026-04-22','2026-04-23','2026-04-24','2026-04-25','2026-04-26','2026-04-27','2026-04-28','2026-04-29','2026-04-30','2026-05-01','2026-05-02','2026-05-03','2026-05-04','2026-05-05','2026-05-06','2026-05-07','2026-05-08','2026-05-09','2026-05-10','2026-05-11','2026-05-12','2026-05-13','2026-05-14','2026-05-15','2026-05-16','2026-05-17','2026-05-18','2026-05-19','2026-05-20','2026-05-21','2026-05-22','2026-05-23','2026-05-24','2026-05-25','2026-05-26','2026-05-27','2026-05-28','2026-05-29','2026-05-30','2026-05-31','2026-06-01','2026-06-02','2026-06-03','2026-06-04','2026-06-05','2026-06-06','2026-06-07','2026-06-08','2026-06-09','2026-06-10','2026-06-11','2026-06-12','2026-06-13','2026-06-14','2026-06-15','2026-06-16','2026-06-17','2026-06-18','2026-06-19'];
+const LABELS    = ['Feb 24','Feb 25','Feb 26','Feb 27','Feb 28','Mar 1','Mar 2','Mar 3','Mar 4','Mar 5','Mar 6','Mar 7','Mar 8','Mar 9','Mar 10','Mar 11','Mar 12','Mar 13','Mar 14','Mar 15','Mar 16','Mar 17','Mar 18','Mar 19','Mar 20','Mar 21','Mar 22','Mar 23','Mar 24','Mar 25','Mar 26','Mar 27','Mar 28','Mar 29','Mar 30','Mar 31','Apr 1','Apr 2','Apr 3','Apr 4','Apr 5','Apr 6','Apr 7','Apr 8','Apr 9','Apr 10','Apr 11','Apr 12','Apr 13','Apr 14','Apr 15','Apr 16','Apr 17','Apr 18','Apr 19','Apr 20','Apr 21','Apr 22','Apr 23','Apr 24','Apr 25','Apr 26','Apr 27','Apr 28','Apr 29','Apr 30','May 1','May 2','May 3','May 4','May 5','May 6','May 7','May 8','May 9','May 10','May 11','May 12','May 13','May 14','May 15','May 16','May 17','May 18','May 19','May 20','May 21','May 22','May 23','May 24','May 25','May 26','May 27','May 28','May 29','May 30','May 31','Jun 1','Jun 2','Jun 3','Jun 4','Jun 5','Jun 6','Jun 7','Jun 8','Jun 9','Jun 10','Jun 11','Jun 12','Jun 13','Jun 14','Jun 15','Jun 16','Jun 17','Jun 18','Jun 19','Jun 20','Jun 21','Jun 22','Jun 23','Jun 24','Jun 25','Jun 26','Jun 27','Jun 28','Jun 29','Jun 30','Jul 1','Jul 2','Jul 3','Jul 4','Jul 5','Jul 6','Jul 7','Jul 8','Jul 9','Jul 10','Jul 11','Jul 12','Jul 13','Jul 14','Jul 15','Jul 16','Jul 17','Jul 18','Jul 19','Jul 20','Jul 21','Jul 22','Jul 23','Jul 24','Jul 25','Jul 26','Jul 27','Jul 28','Jul 29','Jul 30','Jul 31','Aug 1','Aug 2','Aug 3','Aug 4','Aug 5','Aug 6','Aug 7','Aug 8','Aug 9','Aug 10','Aug 11','Aug 12','Aug 13','Aug 14','Aug 15','Aug 16','Aug 17','Aug 18','Aug 19','Aug 20','Aug 21','Aug 22','Aug 23','Aug 24','Aug 25','Aug 26','Aug 27','Aug 28','Aug 29','Aug 30','Aug 31','Sep 1','Sep 2','Sep 3','Sep 4','Sep 5','Sep 6','Sep 7','Sep 8','Sep 9','Sep 10','Sep 11','Sep 12','Sep 13','Sep 14','Sep 15','Sep 16','Sep 17','Sep 18','Sep 19','Sep 20','Sep 21','Sep 22','Sep 23','Sep 24','Sep 25','Sep 26','Sep 27','Sep 28','Sep 29','Sep 30','Oct 1','Oct 2','Oct 3','Oct 4','Oct 5','Oct 6','Oct 7','Oct 8','Oct 9','Oct 10','Oct 11','Oct 12','Oct 13','Oct 14','Oct 15','Oct 16','Oct 17','Oct 18','Oct 19','Oct 20','Oct 21','Oct 22','Oct 23','Oct 24','Oct 25','Oct 26','Oct 27','Oct 28','Oct 29','Oct 30','Oct 31','Nov 1','Nov 2','Nov 3','Nov 4','Nov 5','Nov 6','Nov 7','Nov 8','Nov 9','Nov 10','Nov 11','Nov 12','Nov 13','Nov 14','Nov 15','Nov 16','Nov 17','Nov 18','Nov 19','Nov 20','Nov 21','Nov 22','Nov 23','Nov 24','Nov 25','Nov 26','Nov 27','Nov 28','Nov 29','Nov 30','Dec 1','Dec 2','Dec 3','Dec 4','Dec 5','Dec 6','Dec 7','Dec 8','Dec 9','Dec 10','Dec 11','Dec 12','Dec 13','Dec 14','Dec 15','Dec 16','Dec 17','Dec 18','Dec 19','Dec 20','Dec 21','Dec 22','Dec 23','Dec 24','Dec 25','Dec 26','Dec 27','Dec 28','Dec 29','Dec 30','Dec 31','Jan 1','Jan 2','Jan 3','Jan 4','Jan 5','Jan 6','Jan 7','Jan 8','Jan 9','Jan 10','Jan 11','Jan 12','Jan 13','Jan 14','Jan 15','Jan 16','Jan 17','Jan 18','Jan 19','Jan 20','Jan 21','Jan 22','Jan 23','Jan 24','Jan 25','Jan 26','Jan 27','Jan 28','Jan 29','Jan 30','Jan 31','Feb 1','Feb 2','Feb 3','Feb 4','Feb 5','Feb 6','Feb 7','Feb 8','Feb 9','Feb 10','Feb 11','Feb 12','Feb 13','Feb 14','Feb 15','Feb 16','Feb 17','Feb 18','Feb 19','Feb 20','Feb 21','Feb 22','Feb 23','Feb 24','Feb 25','Feb 26','Feb 27','Feb 28','Mar 1','Mar 2','Mar 3','Mar 4','Mar 5','Mar 6','Mar 7','Mar 8','Mar 9','Mar 10','Mar 11','Mar 12','Mar 13','Mar 14','Mar 15','Mar 16','Mar 17','Mar 18','Mar 19','Mar 20','Mar 21','Mar 22','Mar 23','Mar 24','Mar 25','Mar 26','Mar 27','Mar 28','Mar 29','Mar 30','Mar 31','Apr 1','Apr 2','Apr 3','Apr 4','Apr 5','Apr 6','Apr 7','Apr 8','Apr 9','Apr 10','Apr 11','Apr 12','Apr 13','Apr 14','Apr 15','Apr 16','Apr 17','Apr 18','Apr 19','Apr 20','Apr 21','Apr 22','Apr 23','Apr 24','Apr 25','Apr 26','Apr 27','Apr 28','Apr 29','Apr 30','May 1','May 2','May 3','May 4','May 5','May 6','May 7','May 8','May 9','May 10','May 11','May 12','May 13','May 14','May 15','May 16','May 17','May 18','May 19','May 20','May 21','May 22','May 23','May 24','May 25','May 26','May 27','May 28','May 29','May 30','May 31','Jun 1','Jun 2','Jun 3','Jun 4','Jun 5','Jun 6','Jun 7','Jun 8','Jun 9','Jun 10','Jun 11','Jun 12','Jun 13','Jun 14','Jun 15','Jun 16','Jun 17','Jun 18','Jun 19'];
+
+const adsets_bayan = [
+  {"name":"Soft_Olive_3_ad_5/24/26","campaign":"RETARGET_CBO_M0F_KW_UAE","spend":895.84,"impressions":59595,"clicks":1105,"landingPageViews":639,"ctr":4.5,"cpc":0.81,"cpm":15.03,"frequency":2.42,"purchases":22,"addToCart":243,"initiateCheckout":61,"cr":3.44,"purchaseValue":4283.88},
+  {"name":"FJ_1_ad_5/12/26","campaign":"TESTING_CBO_TOF_KW_UAE","spend":628.71,"impressions":42627,"clicks":854,"landingPageViews":495,"ctr":5.04,"cpc":0.74,"cpm":14.75,"frequency":1.99,"purchases":23,"addToCart":241,"initiateCheckout":52,"cr":4.65,"purchaseValue":3530.59},
+  {"name":"LEN_1_ad_6/6/26","campaign":"TESTING_CBO_TOF_KW_UAE","spend":549.5,"impressions":31992,"clicks":914,"landingPageViews":686,"ctr":6.89,"cpc":0.6,"cpm":17.18,"frequency":1.58,"purchases":13,"addToCart":239,"initiateCheckout":43,"cr":1.9,"purchaseValue":1910.77},
+  {"name":"T_Len_1_ad_6/10/26","campaign":"TESTING_CBO_TOF_KW_UAE","spend":533.02,"impressions":31399,"clicks":877,"landingPageViews":529,"ctr":6.44,"cpc":0.61,"cpm":16.98,"frequency":1.48,"purchases":9,"addToCart":260,"initiateCheckout":44,"cr":1.7,"purchaseValue":1606.05},
+  {"name":"BEST_SELLER_CTA_5/16/26","campaign":"RETARGET_CBO_M0F_KW_UAE","spend":420.24,"impressions":24972,"clicks":669,"landingPageViews":248,"ctr":4.47,"cpc":0.63,"cpm":16.83,"frequency":3.47,"purchases":12,"addToCart":85,"initiateCheckout":28,"cr":4.84,"purchaseValue":2102.59},
+  {"name":"Soft_Olive_1_ad_5/9/26","campaign":"TESTING_CBO_TOF_KW_UAE","spend":409.74,"impressions":24656,"clicks":563,"landingPageViews":371,"ctr":5.96,"cpc":0.73,"cpm":16.62,"frequency":1.83,"purchases":5,"addToCart":69,"initiateCheckout":18,"cr":1.35,"purchaseValue":1224.48},
+  {"name":"KSA_lines_1_ad_5/30/26","campaign":"TESTING_CBO_TOF_KSA","spend":389.46,"impressions":33135,"clicks":921,"landingPageViews":497,"ctr":6.71,"cpc":0.42,"cpm":11.75,"frequency":1.94,"purchases":9,"addToCart":198,"initiateCheckout":58,"cr":1.81,"purchaseValue":838.75},
+  {"name":"D31_1_ad_6/1/26","campaign":"TESTING_CBO_TOF_KW_UAE","spend":382.05,"impressions":29802,"clicks":584,"landingPageViews":390,"ctr":5.28,"cpc":0.65,"cpm":12.82,"frequency":1.82,"purchases":7,"addToCart":116,"initiateCheckout":22,"cr":1.79,"purchaseValue":827.91},
+  {"name":"Soft_Olive_2_ad_5/16/26","campaign":"TESTING_CBO_TOF_KW_UAE","spend":338.03,"impressions":21555,"clicks":420,"landingPageViews":245,"ctr":5.38,"cpc":0.8,"cpm":15.68,"frequency":1.5,"purchases":5,"addToCart":59,"initiateCheckout":12,"cr":2.04,"purchaseValue":1038.45},
+  {"name":"Soft_Olive_2_ad_5/15/26","campaign":"MESSAGE_CBO_SALES","spend":326.39,"impressions":19691,"clicks":232,"landingPageViews":5,"ctr":3.67,"cpc":1.41,"cpm":16.58,"frequency":1.9,"purchases":0,"addToCart":0,"initiateCheckout":0,"cr":0,"purchaseValue":0},
+  {"name":"LEN_1_ad_6/7/26","campaign":"MESSAGE_CBO_SALES","spend":248.08,"impressions":16024,"clicks":270,"landingPageViews":13,"ctr":5.2,"cpc":0.92,"cpm":15.48,"frequency":2.03,"purchases":0,"addToCart":0,"initiateCheckout":0,"cr":0,"purchaseValue":0},
+  {"name":"SV_1_ad_5/6/26","campaign":"TESTING_CBO_TOF_KW_UAE","spend":241.23,"impressions":11892,"clicks":296,"landingPageViews":166,"ctr":5.8,"cpc":0.81,"cpm":20.29,"frequency":1.82,"purchases":7,"addToCart":62,"initiateCheckout":13,"cr":4.22,"purchaseValue":1014.79},
+  {"name":"KRS_1_ad_5/19/26","campaign":"TESTING_CBO_TOF_KW_UAE","spend":226.39,"impressions":12598,"clicks":196,"landingPageViews":105,"ctr":4.67,"cpc":1.16,"cpm":17.97,"frequency":1.74,"purchases":4,"addToCart":38,"initiateCheckout":10,"cr":3.81,"purchaseValue":590.25},
+  {"name":"Tsb_1_ad_6/12/26","campaign":"TESTING_CBO_TOF_KW_UAE","spend":207.9,"impressions":9112,"clicks":287,"landingPageViews":200,"ctr":6.31,"cpc":0.72,"cpm":22.82,"frequency":1.59,"purchases":5,"addToCart":22,"initiateCheckout":7,"cr":2.5,"purchaseValue":897.36},
+  {"name":"LEN_2_ad_6/7/26","campaign":"RETARGET_CBO_M0F_KW_UAE","spend":182.75,"impressions":10416,"clicks":216,"landingPageViews":128,"ctr":4.79,"cpc":0.85,"cpm":17.55,"frequency":1.77,"purchases":2,"addToCart":46,"initiateCheckout":7,"cr":1.56,"purchaseValue":310.78},
+  {"name":"BEST_SELLER_CTA_5/14/26","campaign":"RETARGET_CBO_M0F_KW_UAE","spend":179.33,"impressions":11014,"clicks":271,"landingPageViews":102,"ctr":4.39,"cpc":0.66,"cpm":16.28,"frequency":2.81,"purchases":6,"addToCart":58,"initiateCheckout":20,"cr":5.88,"purchaseValue":829.45},
+  {"name":"EN_1_ad_4/15/26_DUP","campaign":"MESSAGE_CBO_SALES","spend":166.06,"impressions":8830,"clicks":172,"landingPageViews":3,"ctr":4.7,"cpc":0.97,"cpm":18.81,"frequency":1.99,"purchases":0,"addToCart":0,"initiateCheckout":0,"cr":0,"purchaseValue":0},
+  {"name":"IN_2_ad_6/4/26","campaign":"TESTING_CBO_TOF_KW_UAE","spend":161.38,"impressions":10177,"clicks":184,"landingPageViews":98,"ctr":4.4,"cpc":0.88,"cpm":15.86,"frequency":1.82,"purchases":5,"addToCart":43,"initiateCheckout":16,"cr":5.1,"purchaseValue":733.58},
+  {"name":"ft_1_ad_5/10/26","campaign":"MESSAGE_CBO_SALES","spend":159.85,"impressions":11199,"clicks":185,"landingPageViews":9,"ctr":4.28,"cpc":0.86,"cpm":14.27,"frequency":1.74,"purchases":0,"addToCart":0,"initiateCheckout":0,"cr":0,"purchaseValue":0},
+  {"name":"OM_1_ad_5/3/26","campaign":"TESTING_CBO_TOF_KW_UAE","spend":132.26,"impressions":7655,"clicks":181,"landingPageViews":94,"ctr":4.43,"cpc":0.73,"cpm":17.28,"frequency":1.42,"purchases":0,"addToCart":10,"initiateCheckout":3,"cr":0,"purchaseValue":0},
+  {"name":"KRS_2_ad_6/2/26","campaign":"TESTING_CBO_TOF_KW_UAE","spend":116.54,"impressions":9628,"clicks":144,"landingPageViews":72,"ctr":3.98,"cpc":0.81,"cpm":12.1,"frequency":1.52,"purchases":2,"addToCart":18,"initiateCheckout":2,"cr":2.78,"purchaseValue":278.13},
+  {"name":"Pant_h_1_ad_6/10/26","campaign":"TESTING_CBO_TOF_KW_UAE","spend":63.1,"impressions":4370,"clicks":82,"landingPageViews":48,"ctr":4.99,"cpc":0.77,"cpm":14.44,"frequency":1.14,"purchases":0,"addToCart":12,"initiateCheckout":1,"cr":0,"purchaseValue":0},
+  {"name":"ft_1_ad_5/3/26","campaign":"TESTING_CBO_TOF_KW","spend":18.77,"impressions":1429,"clicks":16,"landingPageViews":8,"ctr":3.71,"cpc":1.17,"cpm":13.14,"frequency":1.23,"purchases":0,"addToCart":0,"initiateCheckout":0,"cr":0,"purchaseValue":0},
+  {"name":"ksakl_1_ad_5/12/26","campaign":"TESTING_CBO_TOF_KSA","spend":12.95,"impressions":962,"clicks":17,"landingPageViews":6,"ctr":4.47,"cpc":0.76,"cpm":13.46,"frequency":1.44,"purchases":0,"addToCart":2,"initiateCheckout":1,"cr":0,"purchaseValue":0}
+];
+const dailySpend_bayan    = [9.67,30.95,56.77,60.72,59.62,55.07,65.16,69.97,57.14,61.54,50.02,49.78,50.95,85.12,95.39,75.56,50.56,108.24,68.42,76.18,68.99,70.27,56.66,55.8,13.8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,72.24,90.29,92.02,85.89,84.99,82.75,89.64,96.82,75.67,72.61,75.7,68.43,80.98,99.36,97.54,116.38,120.93,118.1,143.96,135.05,160.51,179.36,166.15,141.15,137.45,144.95,129.37,146.52,143.8,153.8,159.87,146.76,139.52,129.54,162.91,53.23,189.55,177.42,153.92,148.82,136.11,147.23,150.01,141.35,137.33,138.7,145.37,100.63,141.79,153.53,145.35,129.43,138.46,144.15,133.75,156.13,157.12,146.04,149.45,154.65,134.47,137.4,164.31,149.76,164.05,144.52,137.3,138.31,135.45,155.93,158.34,145.07,150.61,159.78,163.08,144.3,189.85,188.61,197.53,206.35,70.92,251.77,214.38,271.57,264.05,272.35,315.78,313.1,290.5,241.6,311.08,311.47,293.59,269.33,235.13,50.76,429.02,292.75,287.06,271.86,260.22,210.71,202.75,188.3,241.56,257.64,240.13,220.64,236.18,248.82,267.29,284.93,286.7,305.77,317.21,301.13,318.39,300.79,342.02,375.11,340.41,365.69,366.06,385.7,347.93,448.36,441.8,404.81,407.75,432.46,435.14,405.82,460.64,516.82,422.27,413.93,354.41,354.17,344.45,398.74,395.05,436.83,426.33,428.28,398.54,406.56,456.3,463.67,424.01,386.01,343.23,342.7,335.82,371.48,415.19,391.25,346.76,329.72,285.58,250.89,308.51,298.8,279.46,285.93,273.24,266.76,249.49,283.59,286.74,274.63,283.69,290.97,290.3,279.11,344.13,346.33,340.23,291.56,281.69,285.07,296.9,323.74,196.82,330.56,352.05,286.73,198.85,351.08,333.28,346.4,290.45,289.43,301.25,216.75,0,275.81,272.3,294.07,251.44,241.02,276.58,263.38,342.36,364.04,294.73,265.17,14.94,0,475.86,351.66,230.76,259.8,206.96,195.24,205.94,201.41,235.22,256.22,228.43,240.62,183.85,226.78,205.61,239.35,236.23,205.25,172.38,178.24,202.23,204.71,229.81,109.02,240.7,268.19,183.09,186.64,186.7,220.63,230.28,192.71,181.13,181.31,197.9,178.3,249.58,196.85,189.96,176.66,153.7,180.67,167.2,218.59,214.44,184.65,136.04,327.92,421.95,255.51,300.62,271.79,249.9,232.99,229.43,263.26,46.83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9.65,18.33,59.53,57.41,62.12,41.36,38.08,19.29,34.77,41.38,26.71,1.67,31.5,25.33,34.19,31.3,41.66,45.97,52.87,101.65,86.8,61.52,63.63,73.77,71.63,71.8,70.32,77.25,71.09,83.66,74.8,50.15,53.01,44.93,34.42,34.32,32.8,0,0,0,0,0,23.7,36.11,29.15,43.29,42.99,111.66,93.28,64.56,66.88,9.86,0,0,66.82,122.02,110.97,115.86,66.23,67.75,77.12,72.58,67.48,66.9,66.93,114.39,131.11,134.69,114.01,49.9,37.43,20.05,21.08,19.61,21.5,19.89,20.65,19.32,0.49,0,0,0,0,0,63.78,49.62,60.92,65.29,51.93,77.31,53.62,108.78,70.95,65.67,71.62,118.45,125.08,90.5,168.22,145.73,179.2,143.07,180.06,167.8,158.22,221.44,176.43,173.08,246.88,221.85,214.42,261.7,237.25,242.16,260.78,263.55,258.87,262.44,203.88,267.83,273.56,256.21,250.86,268.25,273.31,212.07,216.36,236.69,219.94,189,257.6,242.5,230.87,207.31,230.17,237.58,230.25,295.23,244.23,233.82,202.57,241.27,253.75,246.46,265.74,241.74,249.08,229.49,253.66,0];
+const dailyRevenue_bayan  = [0,0,263.71,0,0,0,286.51,208.36,208.36,123.72,74.88,0,0,0,123.72,0,0,0,0,74.88,74.88,312.55,140,123.72,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,146.51,419.98,270.22,0,0,0,0,0,0,0,0,0,0,172.55,140,475.33,209.99,1353.06,838.01,480.22,847.46,1040.52,548.58,284.22,237.67,113.95,559.99,527.43,198.6,123.72,312.55,771.6,312.55,369.52,717.87,599.7,451.89,727.32,620.2,112.32,744.58,468.82,1054.83,576.91,103.53,543.69,535.23,493.23,639.74,866.01,667.74,548.58,930.8,0,933.73,710.87,337.41,431.95,715.24,512.15,0,371.64,657.54,810.76,616.79,387.94,141.81,674.82,603.1,593.32,112.47,979.63,581.91,357.62,626.9,121.27,289.49,417.28,342.3,718.83,775.55,892.26,1244.99,1006.52,2262.1,2324.84,361.86,938.88,1180.12,860.64,981.26,638.96,1000.82,863.9,123.88,280.36,502.04,179.3,502.04,74.98,815,257.54,485.74,0,189.08,594.46,510.35,213.53,1030.13,3031.46,1391.52,1090.46,519.15,1153.56,789.09,318.83,670.9,1748.01,1249.07,1678.25,975.88,1156.65,1306.76,444.98,258.35,1729.26,966.1,827.54,338.23,1689.16,1405.21,1330.4,774.25,911.33,762.83,311.98,1039.61,659.17,425.59,762.35,1774.89,3468.62,2823.95,1625.41,1722.42,1566.42,1308.21,340.67,685.9,2461.13,442.21,608.31,255.91,516.38,626.73,383.05,241.23,849.88,353.54,212.55,428.69,397.88,459.66,297.47,0,347.02,472.05,860.8,600.98,584.68,1114.59,1748.5,1007.5,465.85,494.37,1168.54,1155.99,500.08,1173.28,1293.4,246.78,229.18,395.48,486.83,884.42,391.85,120.62,813.7,106.76,0,482.48,309.7,232.11,0,166.26,140.18,0,508.56,841.4,768.54,866.66,841.73,505.3,283.62,295.03,429.67,959.09,172.78,112.47,430.32,449.88,724.37,1027.55,531.38,224.94,485.74,884.44,356.32,505.3,112.47,123.88,272.21,114.1,0,112.47,580.28,351.1,643.52,308.07,0,720.46,0,330.24,859.01,361.21,1331.71,681.99,485.74,114.1,312.96,156.48,606.36,140.18,374.9,156.48,303.18,0,394.46,0,0,0,0,0,202.12,0,169.52,0,371.64,1271.4,521.6,348.82,156.48,498.78,407.5,224.94,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,133.66,156.48,303.18,114.1,0,0,0,156.48,114.1,0,221.68,0,0,0,0,0,0,449.88,140.18,0,0,0,433.58,0,505.3,140.18,0,0,0,0,0,0,91.28,0,0,0,0,0,0,0,0,0,0,0,0,114.1,0,0,0,0,0,0,0,503.51,134.47,246.78,0,148.33,0,0,0,0,0,0,0,0,252.33,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,90.95,342.7,204.76,76.35,488.82,272.93,354.43,595.22,478.7,532.24,841.79,536.13,90.98,1059.7,958.28,839.41,451.42,374.89,839.29,444.5,541.66,605.1,1444.04,383.41,603.32,515.77,164.92,1005.16,2174.54,578.75,175.59,1806.35,487.42,865.32,1569.59,497.54,401.59,950.73,773.75,566.13,569.45,810.42,1420.17,449.98,320.31,1044.48,359.04,1082.65,1323.66,347.22,466.82,84.34,667.02,539.13,0];
+const dailyMsgSpend_bayan = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,63.78,49.62,60.92,65.29,51.93,77.31,53.62,108.78,70.95,65.67,71.62,73.42,84.7,64.56,86.38,79.78,58.75,54.09,65.69,72.99,66.4,79.98,48.04,53.2,67.65,65.46,64.8,67.08,56.49,57.06,76.84,67.24,58.84,54.44,35.43,42.92,40.73,42.11,41.29,41.21,51.89,41.23,40.37,37.72,32.47,28.89,45.05,41.17,26.52,23.59,22.16,22.05,24.74,34.17,26.97,25.24,17.16,20.73,15.09,35.62,27.21,28.51,23.09,20.96,22.44,0];
+
+const adsets_amenaa = [
+  {"name":"CAT_EID_3/26/26","campaign":"RETARGET_CBO_M0F","spend":7899.01,"impressions":73946,"clicks":4914,"landingPageViews":4083,"ctr":7.36,"cpc":1.61,"cpm":106.82,"frequency":4.76,"purchases":78,"addToCart":255,"initiateCheckout":103,"cr":1.91,"purchaseValue":156610},
+  {"name":"New_Gabardine_Vest_2_ad_5/7/26 – Copy","campaign":"SCALING_CBO_TOF","spend":7565.44,"impressions":80113,"clicks":1697,"landingPageViews":1460,"ctr":3.61,"cpc":4.46,"cpm":94.43,"frequency":1.85,"purchases":42,"addToCart":148,"initiateCheckout":54,"cr":2.88,"purchaseValue":83125},
+  {"name":"CAT_EID_6/2/26","campaign":"RETARGET_CBO_M0F","spend":6880.38,"impressions":51525,"clicks":3636,"landingPageViews":3219,"ctr":7.75,"cpc":1.89,"cpm":133.53,"frequency":2.84,"purchases":46,"addToCart":172,"initiateCheckout":70,"cr":1.43,"purchaseValue":80230},
+  {"name":"Boho_Crochet_Lace_Kimono_1_ad_5/12/26 – Copy","campaign":"TESTING_CBO_TOF","spend":3647.22,"impressions":29267,"clicks":1219,"landingPageViews":978,"ctr":6.96,"cpc":2.99,"cpm":124.62,"frequency":1.32,"purchases":20,"addToCart":54,"initiateCheckout":26,"cr":2.04,"purchaseValue":46300},
+  {"name":"CAT_Kimonos_3/8/26","campaign":"RETARGET_CBO_M0F","spend":2630.08,"impressions":26736,"clicks":1161,"landingPageViews":999,"ctr":5.32,"cpc":2.27,"cpm":98.37,"frequency":3.17,"purchases":20,"addToCart":59,"initiateCheckout":29,"cr":2,"purchaseValue":47635},
+  {"name":"Linen_Shirt_1_ad_6/1/26","campaign":"TESTING_CBO_TOF","spend":2579.87,"impressions":11766,"clicks":622,"landingPageViews":593,"ctr":7.47,"cpc":4.15,"cpm":219.26,"frequency":1.6,"purchases":17,"addToCart":38,"initiateCheckout":17,"cr":2.87,"purchaseValue":38030},
+  {"name":"Shirt_Dress_1_ad_6/13/26","campaign":"TESTING_CBO_TOF","spend":2516.24,"impressions":22441,"clicks":1171,"landingPageViews":1078,"ctr":8.14,"cpc":2.15,"cpm":112.13,"frequency":1.75,"purchases":28,"addToCart":89,"initiateCheckout":41,"cr":2.6,"purchaseValue":55085},
+  {"name":"Geometric_Print_Kimono_1_ad_6/3/26","campaign":"TESTING_CBO_TOF","spend":1367.85,"impressions":12675,"clicks":376,"landingPageViews":324,"ctr":5.84,"cpc":3.64,"cpm":107.92,"frequency":1.41,"purchases":4,"addToCart":24,"initiateCheckout":6,"cr":1.23,"purchaseValue":7025},
+  {"name":"Balloon_Pants_1_ad_4/21/26","campaign":"RETARGET_CBO_M0F","spend":1056.21,"impressions":8047,"clicks":404,"landingPageViews":328,"ctr":7.07,"cpc":2.61,"cpm":131.26,"frequency":2.13,"purchases":5,"addToCart":31,"initiateCheckout":6,"cr":1.52,"purchaseValue":9000},
+  {"name":"New_Arrivals_3_ad_5/24/26","campaign":"RETARGET_CBO_M0F","spend":999.7,"impressions":11357,"clicks":760,"landingPageViews":599,"ctr":9.63,"cpc":1.32,"cpm":88.03,"frequency":2.05,"purchases":2,"addToCart":12,"initiateCheckout":2,"cr":0.33,"purchaseValue":2765},
+  {"name":"New_Arrivals_2_ad_5/21/26","campaign":"RETARGET_CBO_M0F","spend":925.4,"impressions":9547,"clicks":569,"landingPageViews":430,"ctr":8.43,"cpc":1.63,"cpm":96.93,"frequency":2.33,"purchases":6,"addToCart":33,"initiateCheckout":4,"cr":1.4,"purchaseValue":12475},
+  {"name":"Maxi_Denim_Dress _1_ad_5/20/26","campaign":"TESTING_CBO_TOF","spend":854.25,"impressions":9985,"clicks":386,"landingPageViews":331,"ctr":6.98,"cpc":2.21,"cpm":85.55,"frequency":1.41,"purchases":2,"addToCart":9,"initiateCheckout":4,"cr":0.6,"purchaseValue":4665},
+  {"name":"Boho_Crochet_Lace_Kimono_2_ad_6/1/26","campaign":"TESTING_CBO_TOF","spend":419.84,"impressions":2632,"clicks":74,"landingPageViews":63,"ctr":4.83,"cpc":5.67,"cpm":159.51,"frequency":1.25,"purchases":1,"addToCart":6,"initiateCheckout":2,"cr":1.59,"purchaseValue":1820},
+  {"name":"Boho_Crochet_Lace_Kimono_3_ad_6/7/26","campaign":"RETARGET_CBO_M0F","spend":327.36,"impressions":2469,"clicks":87,"landingPageViews":73,"ctr":6.36,"cpc":3.76,"cpm":132.59,"frequency":1.54,"purchases":3,"addToCart":6,"initiateCheckout":3,"cr":4.11,"purchaseValue":5660},
+  {"name":"Modest _Skirt_Set _1_ad_6/16/26","campaign":"TESTING_CBO_TOF","spend":319.58,"impressions":2772,"clicks":113,"landingPageViews":100,"ctr":6.13,"cpc":2.83,"cpm":115.29,"frequency":1.4,"purchases":1,"addToCart":13,"initiateCheckout":2,"cr":1,"purchaseValue":2570},
+  {"name":"Embroidered_Lace_Kimono_1_ad_4/15/26","campaign":"TESTING_CBO_TOF","spend":317.11,"impressions":1991,"clicks":43,"landingPageViews":37,"ctr":3.57,"cpc":7.37,"cpm":159.27,"frequency":1.2,"purchases":1,"addToCart":3,"initiateCheckout":1,"cr":2.7,"purchaseValue":2885},
+  {"name":"Wide_Leg_Pants_1_ad_3/29/26","campaign":"RETARGET_CBO_M0F","spend":118.27,"impressions":1176,"clicks":52,"landingPageViews":48,"ctr":6.55,"cpc":2.27,"cpm":100.57,"frequency":1.55,"purchases":0,"addToCart":3,"initiateCheckout":0,"cr":0,"purchaseValue":0},
+  {"name":"Flowy_Skirt_Set_1_ad_5/9/26","campaign":"TESTING_CBO_TOF","spend":85.43,"impressions":811,"clicks":23,"landingPageViews":20,"ctr":4.19,"cpc":3.71,"cpm":105.34,"frequency":1.37,"purchases":1,"addToCart":1,"initiateCheckout":0,"cr":5,"purchaseValue":2320},
+  {"name":"Floral_Kimono_1_ad_6/15/26","campaign":"TESTING_CBO_TOF","spend":9.82,"impressions":96,"clicks":2,"landingPageViews":1,"ctr":3.12,"cpc":4.91,"cpm":102.29,"frequency":1.14,"purchases":0,"addToCart":0,"initiateCheckout":0,"cr":0,"purchaseValue":0}
+];
+const dailySpend_amenaa    = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,616.76,483.24,564.92,559.95,814.39,794.53,588.92,699.35,455.71,331.84,517.19,511.38,531.17,820.8,723.32,466.12,577.99,578.53,861.52,839.4,507.39,1137.91,959.47,1320.23,1258.08,1285.81,1579.5,1682.97,1120.65,1058.37,1276.58,1311.24,938.34,1124.79,1232.55,1005.83,1216.78,1703.96,1162.73,1070.13,1008.37,1503.49,1498.57,1063.03,1100.24,1251.74,1359.74,1504.7,953.98,684.84,995.97,1073.41,936.33,1074.28,874.57,812.48,859.47,823.75,929.34,819.92,863.83,866.98,745.38,846.84,867.48,1013.63,884.02,845.57,822.17,851.56,724.93,805.44,844.88,846.01,786.6,1065.56,696.18,952.91,1020.68,1397.06,988.61,903.48,1098.05,1172.5,1473.82,1005.17,1208.99,939.68,953.72,894.76,1104.99,1335.38,999.73,1200.39,978.7,959.78,890.3,999.32,1283.98,1010,1229.99,935.92,1063.63,800.69,1521.26,1731.48,1372.29,1428.42,1155.7,1561.73,1185.79,1423.9,1687.19,1312.23,1721.41,1152,1137.35,1009.15,1499.83,1961.12,1511.85,1848.46,1276.87,1346.63,1172.95,1188.54,1066.72,983.45,696.02,1768.57,1276.02,1401.04,1349.59,1448.78,1408.54,1696.65,1431.13,1421.9,1359.21,1282.82,1235.42,1258.25,1590.58,1534.8,1524.88,1523.74,1454.7,0];
+const dailyRevenue_amenaa  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,20380,10580,21480,15125,10915,9675,8095,11090,0,11635,11030,10980,1565,12515,5735,2055,6935,8305,12205,2380,9915,18270,14325,23815,6010,12985,11810,14935,15110,6090,8540,3545,2605,6080,7185,15310,26290,46450,15210,11440,0,31730,72285,28710,31715,19790,37450,40470,30420,18670,24725,42565,33325,21945,13100,14040,14740,23535,24485,6730,10640,9845,12430,18720,9740,26495,22380,11010,2790,24890,16840,8720,14000,5780,7025,33770,11100,23005,52235,44740,33870,14430,35495,37740,35585,28885,35605,34870,34780,17890,27365,31940,21950,24955,28850,21895,30925,26845,27400,21645,19845,21085,37945,22085,21390,14525,44105,17585,27360,35780,46900,28275,33400,29980,19365,29665,26100,17305,24820,18940,32650,21335,25200,1820,18050,9920,12520,5390,10155,16710,12640,9515,14065,13335,8105,23800,23120,6115,26305,19480,20605,39440,45540,36735,32895,18475,10520,0];
+const dailyMsgSpend_amenaa = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+
+ACCOUNTS['bayan_impact2'].adsets        = adsets_bayan;
+ACCOUNTS['bayan_impact2'].dailySpend    = dailySpend_bayan;
+ACCOUNTS['bayan_impact2'].dailyRevenue  = dailyRevenue_bayan;
+ACCOUNTS['bayan_impact2'].dailyMsgSpend = dailyMsgSpend_bayan;
+ACCOUNTS['amenaa_impact1'].adsets        = adsets_amenaa;
+ACCOUNTS['amenaa_impact1'].dailySpend    = dailySpend_amenaa;
+ACCOUNTS['amenaa_impact1'].dailyRevenue  = dailyRevenue_amenaa;
+ACCOUNTS['amenaa_impact1'].dailyMsgSpend = dailyMsgSpend_amenaa;
+// @@DATA_END@@
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let G_adsets;
+let charts = {};
+let G_accountId = null;   // current logged-in account id
+let G_liveCache = new Map(); // iso → {spend, revenue}
+let G_selStart = null, G_selEnd = null; // currently displayed range (ISO strings)
+
+const GC = '#2d3348', TC = '#64748b';
+const fmt$  = (v, d=2) => '$' + v.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtN  = v => v.toLocaleString();
+const META_API = 'https://graph.facebook.com/v19.0';
+const PROXY_API = '/api/meta';
+// Proxy mode turns on automatically when no token is embedded in the page
+// (i.e. the hosted/secure deployment). The serverless function adds the token.
+const USE_PROXY = !(typeof ACCESS_TOKEN !== 'undefined' && ACCESS_TOKEN) &&
+                  !localStorage.getItem('metaToken');
+const API_BASE  = USE_PROXY ? PROXY_API : META_API;
+// Direct mode appends the token to each request; proxy mode lets the server add it
+function metaAuth(token) { return USE_PROXY ? '' : `access_token=${token}&`; }
+
+// Return the best available token: embedded → localStorage → 'proxy' sentinel
+function effectiveToken() {
+  if (USE_PROXY) return 'proxy';
+  return (typeof ACCESS_TOKEN !== 'undefined' && ACCESS_TOKEN) ||
+         localStorage.getItem('metaToken') || '';
+}
+
+function saveToken() {
+  const val = document.getElementById('tokenInput').value.trim();
+  if (!val) return;
+  localStorage.setItem('metaToken', val);
+  document.getElementById('tokenMsg').textContent = '✓ Token saved — log in to load your data';
+  document.getElementById('tokenInput').value = '';
+}
+
+// On page load: hide the setup link if a token is already saved or embedded
+(function checkTokenOnLoad() {
+  if (effectiveToken()) {
+    const el = document.getElementById('tokenSetup');
+    if (el) el.style.display = 'none';
+  }
+})();
+
+// Build array of ISO date strings between two ISO strings (inclusive)
+function buildDateRange(startIso, endIso) {
+  const out = [];
+  const cur = new Date(startIso + 'T12:00:00');
+  const fin = new Date(endIso   + 'T12:00:00');
+  while (cur <= fin) { out.push(cur.toISOString().slice(0,10)); cur.setDate(cur.getDate()+1); }
+  return out;
+}
+
+// Seed the live cache from the embedded arrays so cached dates are instant
+function seedCache(isoList, spendArr, revArr, msgSpendArr) {
+  isoList.forEach((iso, i) => G_liveCache.set(iso, {
+    spend:    spendArr[i]    || 0,
+    revenue:  revArr[i]      || 0,
+    msgSpend: msgSpendArr ? (msgSpendArr[i] || 0) : 0
+  }));
+}
+
+// Fetch any missing dates from Meta API and add them to cache
+async function ensureDates(startIso, endIso) {
+  const token = effectiveToken();
+  if (!token || !G_accountId) return;
+  const needed = buildDateRange(startIso, endIso).filter(d => !G_liveCache.has(d));
+  if (!needed.length) return;
+
+  const tr  = encodeURIComponent(`{"since":"${needed[0]}","until":"${needed[needed.length-1]}"}`);
+  const url = `${API_BASE}/act_${G_accountId}/insights?${metaAuth(token)}level=account&time_increment=1&time_range=${tr}&fields=spend,action_values&limit=500`;
+  // Also fetch MESSAGE_CBO_SALES daily spend for accurate ROAS
+  const msgFilter = encodeURIComponent('[{"field":"campaign.name","operator":"CONTAIN","value":"MESSAGE_CBO_SALES"}]');
+  const msgUrl = `${API_BASE}/act_${G_accountId}/insights?${metaAuth(token)}level=campaign&time_increment=1&time_range=${tr}&filtering=${msgFilter}&fields=spend&limit=500`;
+
+  try {
+    let next = url;
+    while (next) {
+      const res  = await fetch(next);
+      const json = await res.json();
+      if (json.error) { console.warn('Meta API:', json.error.message); break; }
+      (json.data || []).forEach(row => {
+        const rev = (row.action_values || []).find(a => a.action_type === 'purchase');
+        const existing = G_liveCache.get(row.date_start) || {};
+        G_liveCache.set(row.date_start, {
+          spend:    parseFloat(row.spend) || 0,
+          revenue:  rev ? parseFloat(rev.value) : 0,
+          msgSpend: existing.msgSpend || 0
+        });
+      });
+      next = json.paging?.next || null;
+    }
+    // Fetch MESSAGE_CBO_SALES spend and merge into cache
+    let mnext = msgUrl;
+    while (mnext) {
+      const res  = await fetch(mnext);
+      const json = await res.json();
+      if (json.error) break;
+      (json.data || []).forEach(row => {
+        const existing = G_liveCache.get(row.date_start) || { spend:0, revenue:0, msgSpend:0 };
+        G_liveCache.set(row.date_start, { ...existing, msgSpend: parseFloat(row.spend) || 0 });
+      });
+      mnext = json.paging?.next || null;
+    }
+  } catch(e) { console.warn('Fetch failed:', e); }
+
+  needed.forEach(d => { if (!G_liveCache.has(d)) G_liveCache.set(d, { spend:0, revenue:0, msgSpend:0 }); });
+}
+
+// Silently prefetch 2 years of history in the background right after login
+async function prefetchHistory() {
+  const token = effectiveToken();
+  if (!token || !G_accountId) return;
+  const todayIso  = dpTodayIso();
+  const twoYrsAgo = new Date(); twoYrsAgo.setFullYear(twoYrsAgo.getFullYear() - 2);
+  const startIso  = twoYrsAgo.toISOString().slice(0, 10);
+  // Find uncached stretches and fetch in ~180-day chunks to stay within API limits
+  const allDates  = buildDateRange(startIso, todayIso);
+  const missing   = allDates.filter(d => !G_liveCache.has(d));
+  if (!missing.length) return;
+  const CHUNK = 180;
+  for (let i = 0; i < missing.length; i += CHUNK) {
+    const chunk = missing.slice(i, i + CHUNK);
+    await ensureDates(chunk[0], chunk[chunk.length - 1]);
+  }
+  // Refresh the currently displayed range with newly cached data
+  if (G_selStart && G_selEnd) renderRange(G_selStart, G_selEnd);
+}
+
+// Pull spend/revenue/msgSpend/labels from cache for a date range
+function sliceFromCache(startIso, endIso) {
+  const isoList = buildDateRange(startIso, endIso);
+  return {
+    isoList,
+    spends:    isoList.map(d => G_liveCache.get(d)?.spend    ?? 0),
+    revenues:  isoList.map(d => G_liveCache.get(d)?.revenue  ?? 0),
+    msgSpends: isoList.map(d => G_liveCache.get(d)?.msgSpend ?? 0),
+    labels:    isoList.map(d => {
+      const dt = new Date(d + 'T12:00:00');
+      return dt.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+    })
+  };
+}
+
+// ── EXIT ──────────────────────────────────────────────────────────────────────
+function confirmExit() {
+  document.getElementById('exitModal').classList.add('active');
+}
+function closeExitModal() {
+  document.getElementById('exitModal').classList.remove('active');
+}
+function doExit() {
+  // Reset all live state
+  window.G_funnelLPV = window.G_funnelCart = window.G_funnelCheckout = window.G_funnelPurch = null;
+  G_adsets = []; G_liveCache.clear(); G_accountId = null;
+  document.getElementById('exitModal').classList.remove('active');
+  // Use the same class-based toggles as checkLogin so re-login works
+  document.getElementById('dashboard').classList.remove('visible');
+  document.getElementById('gate').classList.remove('hidden');
+  document.getElementById('unInput').value = '';
+  document.getElementById('loginError').textContent = '';
+}
+
+// ── LOGIN ─────────────────────────────────────────────────────────────────────
+function checkLogin() {
+  const raw = document.getElementById('unInput').value.trim();
+  // case-insensitive: find the key whose lowercase matches
+  const key = Object.keys(ACCOUNTS).find(k => k.toLowerCase() === raw.toLowerCase());
+  const un  = key || raw;
+  const acc = ACCOUNTS[un];
+  if (!acc) {
+    document.getElementById('loginError').textContent = 'Username not found. Try again.';
+    document.getElementById('unInput').value = '';
+    return;
+  }
+  document.getElementById('gate').classList.add('hidden');
+  document.getElementById('dashboard').classList.add('visible');
+  if (acc.noData) {
+    document.getElementById('dashboard').innerHTML = `
+      <div style="text-align:center;padding:80px 24px">
+        <div style="font-size:40px;margin-bottom:16px">🔒</div>
+        <h2 style="color:#f1f5f9;font-size:20px;margin-bottom:8px">Data Unavailable</h2>
+        <p style="color:#64748b">Access for account ${acc.id} has not been granted yet.</p>
+      </div>`;
+    return;
+  }
+  G_accountId = acc.id;
+  G_liveCache.clear();
+  seedCache(ISO_DATES, acc.dailySpend, acc.dailyRevenue, acc.dailyMsgSpend);
+
+  document.getElementById('dashTitle').textContent    = acc.name + ' — Performance Report';
+  document.getElementById('dashSubtitle').textContent = `Account ${acc.id} · Loading 2 years of history…`;
+  initDashboard(acc.adsets);
+
+  // Background prefetch — updates subtitle and refreshes view when done
+  prefetchHistory().then(() => {
+    const todayIso = dpTodayIso();
+    document.getElementById('dashSubtitle').textContent =
+      `Account ${acc.id} · Live data · ${G_liveCache.size} days loaded · Updated ${new Date().toLocaleTimeString()}`;
+  });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+function initDashboard(adsets) {
+  G_adsets = adsets;
+  // Default: last 30 days ending at the most recent embedded date
+  const today   = new Date();
+  const todayIso= today.toISOString().slice(0,10);
+  const ago30   = new Date(today); ago30.setDate(ago30.getDate()-29);
+  const ago30Iso= ago30.toISOString().slice(0,10);
+  G_selEnd   = ISO_DATES[ISO_DATES.length-1]; // last embedded date
+  G_selStart = ISO_DATES[Math.max(0, ISO_DATES.length-30)];
+  buildStaticSections();
+  renderDynamicSync(); // render from cache (instant, no API needed for default range)
+  dpInit();
+}
+
+// ── STATIC SECTIONS ───────────────────────────────────────────────────────────
+function buildStaticSections() {
+  buildAdsetTable();
+  buildFunnel();
+  buildWinningAds();
+  buildAOV();
+  buildWeekly();
+  buildBarChart();
+}
+
+function buildAdsetTable() {
+  const sorted = [...G_adsets].sort((a,b) => {
+    if (b.spend !== a.spend) return b.spend - a.spend;
+    if (b.purchaseValue !== a.purchaseValue) return b.purchaseValue - a.purchaseValue;
+    const rA = a.spend>0 ? a.purchaseValue/a.spend : 0;
+    const rB = b.spend>0 ? b.purchaseValue/b.spend : 0;
+    if (rB !== rA) return rB - rA;
+    return b.ctr - a.ctr;
+  });
+  const maxSpend = sorted[0]?.spend || 1;
+  document.getElementById('adsetTableTitle').textContent =
+    `Sorted by Spend → Result Value → ROAS → CTR · ${ISO_DATES[0]} → ${ISO_DATES[ISO_DATES.length-1]}`;
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+  sorted.forEach(a => {
+    const barW = Math.round((a.spend / maxSpend) * 80);
+    const roas  = a.purchaseValue > 0 ? a.purchaseValue / a.spend : 0;
+    const aov   = a.purchases > 0 ? (a.purchaseValue / a.purchases).toFixed(2) : null;
+    tbody.innerHTML += `<tr>
+      <td>${a.name}</td><td>${campaignTag(a.campaign)}</td>
+      <td class="num"><div class="spend-bar-wrap"><div class="spend-bar" style="width:${barW}px"></div>${fmt$(a.spend)}</div></td>
+      <td class="num">${fmtN(a.impressions)}</td><td class="num">${fmtN(a.clicks)}</td>
+      <td class="num">${a.ctr}%</td><td class="num">$${a.cpc}</td><td class="num">$${a.cpm}</td>
+      <td class="num">${a.frequency}x</td>
+      <td class="num">${a.purchases>0?a.purchases:'<span class="pill-zero">—</span>'}</td>
+      <td class="num ${a.cr>=2?'cr-good':a.cr>=1?'cr-ok':a.cr>0?'cr-bad':'pill-zero'}">${a.cr>0?a.cr+'%':'<span class="pill-zero">—</span>'}</td>
+      <td class="num ${roas>=2?'cr-good':roas>0?'cr-ok':'pill-zero'}">${roas>0?roas.toFixed(2)+'x':'<span class="pill-zero">—</span>'}</td>
+      <td class="num">${a.purchaseValue>0?fmt$(a.purchaseValue):'<span class="pill-zero">—</span>'}</td>
+      <td class="num">${aov?'$'+aov:'<span class="pill-zero">—</span>'}</td>
+    </tr>`;
+  });
+}
+
+function buildWinningAds() {
+  // Sort by revenue desc, take top 5 with real spend
+  const top5 = [...G_adsets]
+    .filter(a => a.spend > 0 && a.purchaseValue > 0)
+    .sort((a,b) => b.purchaseValue - a.purchaseValue)
+    .slice(0, 5);
+
+  const maxRev = top5.length ? top5[0].purchaseValue : 1;
+  const container = document.getElementById('winningList');
+  if (!container) return;
+
+  if (!top5.length) {
+    container.innerHTML = '<div style="color:#475569;font-size:13px;padding:20px 0">No ad set data available</div>';
+    return;
+  }
+
+  container.innerHTML = top5.map((a, i) => {
+    const roas     = a.spend > 0 ? (a.purchaseValue / a.spend).toFixed(2) : 0;
+    const roasCls  = roas >= 2 ? 'roas-good' : roas >= 1 ? 'roas-ok' : 'roas-bad';
+    const barPct   = (a.purchaseValue / maxRev * 100).toFixed(1);
+    const rankColor= ['#3b82f6','#6366f1','#8b5cf6','#a78bfa','#c4b5fd'][i];
+    const shortName= a.name.length > 38 ? a.name.slice(0,36)+'…' : a.name;
+    return `
+      <div class="winning-item">
+        <div class="winning-item-header">
+          <span class="winning-item-name" title="${a.name}">${shortName}</span>
+          <span class="winning-item-roas ${roasCls}">${roas}x ROAS</span>
+        </div>
+        <div class="winning-bar-row">
+          <div class="winning-bar-bg">
+            <div class="winning-bar-fill" style="width:${barPct}%;background:${rankColor}"></div>
+          </div>
+          <span class="winning-bar-val">${fmt$(a.purchaseValue, 0)}</span>
+        </div>
+        <div class="winning-meta">
+          <span class="winning-meta-item">Spend: ${fmt$(a.spend, 0)}</span>
+          <span class="winning-meta-item">Purchases: ${fmtN(a.purchases)}</span>
+          <span class="winning-meta-item">CTR: ${a.ctr}%</span>
+        </div>
+      </div>`;
+  }).join('');
+
+}
+
+function buildFunnel() {
+  // Prefer adset-level LPV globals (set by refreshAdsForRange) — exact Meta CVR formula
+  // Fall back to ad-level aggregates from G_adsets for embedded/offline mode
+  const totalLPV      = (window.G_funnelLPV      != null) ? window.G_funnelLPV      : G_adsets.reduce((s,a)=>s+(a.landingPageViews||0),0);
+  const totalCart     = (window.G_funnelCart     != null) ? window.G_funnelCart     : G_adsets.reduce((s,a)=>s+(a.addToCart||0),0);
+  const totalCheckout = (window.G_funnelCheckout != null) ? window.G_funnelCheckout : G_adsets.reduce((s,a)=>s+(a.initiateCheckout||0),0);
+  const totalPurch    = (window.G_funnelPurch    != null) ? window.G_funnelPurch    : G_adsets.reduce((s,a)=>s+(a.purchases||0),0);
+  const totalClicks   = G_adsets.reduce((s,a) => s+(a.clicks||0), 0);
+  const totalRev      = G_adsets.reduce((s,a) => s+(a.purchaseValue||0), 0);
+
+  // Use landing page views as the session base (Meta's official CVR: purchases ÷ LPV)
+  const base = totalLPV > 0 ? totalLPV : totalClicks;
+  const overallCR = base > 0 ? (totalPurch/base*100).toFixed(2)+'%' : '—';
+  document.getElementById('funnelOverallPct').textContent = overallCR;
+
+  const pct = (n) => base > 0 ? (n/base*100).toFixed(2)+'%' : '—';
+  const stages = [
+    { label: totalLPV > 0 ? 'Landing Page Views' : 'Link Clicks', count: base,          pct: '100%',              color: '#6366f1' },
+    { label:'Added to Cart',      count: totalCart,     pct: pct(totalCart),      color: '#818cf8' },
+    { label:'Reached Checkout',   count: totalCheckout, pct: pct(totalCheckout),  color: '#a5b4fc' },
+    { label:'Purchases',          count: totalPurch,    pct: pct(totalPurch),     color: '#c7d2fe' }
+  ];
+
+  const container = document.getElementById('funnelStages');
+  container.innerHTML = '';
+  stages.forEach(s => {
+    const barPct = totalClicks > 0 ? Math.max(2, s.count / totalClicks * 100) : 2;
+    container.innerHTML += `
+      <div class="funnel-stage">
+        <div class="funnel-stage-label">${s.label}</div>
+        <div class="funnel-stage-pct">${s.pct}</div>
+        <div class="funnel-stage-count">${fmtN(s.count)}</div>
+        <div class="funnel-bar-area">
+          <div class="funnel-bar" style="height:${barPct}%;background:${s.color}"></div>
+        </div>
+      </div>`;
+  });
+
+  const maxCr = Math.max(...G_adsets.map(a=>a.cr||0));
+  const crBody = document.getElementById('crTableBody');
+  crBody.innerHTML = '';
+  [...G_adsets].sort((a,b)=>b.cr-a.cr).forEach(a=>{
+    const cls      = a.cr>=2?'cr-good':a.cr>=1?'cr-ok':a.cr>0?'cr-bad':'pill-zero';
+    const barPct   = maxCr>0?(a.cr/maxCr*100).toFixed(0):0;
+    const barColor = a.cr>=2?'#4ade80':a.cr>=1?'#facc15':a.cr>0?'#f87171':'#2d3348';
+    crBody.innerHTML += `<tr>
+      <td>${a.name}</td><td>${campaignTag(a.campaign)}</td>
+      <td class="num">${fmtN(a.impressions)}</td><td class="num">${fmtN(a.clicks)}</td>
+      <td class="num">${a.ctr}%</td>
+      <td class="num">${a.purchases>0?a.purchases:'<span class="pill-zero">—</span>'}</td>
+      <td class="num ${cls}">${a.cr>0?a.cr+'%':'<span class="pill-zero">—</span>'}</td>
+      <td style="padding:8px 14px;vertical-align:middle">
+        <div class="cr-row-bar-bg"><div class="cr-row-bar-fill" style="width:${barPct}%;background:${barColor}"></div></div>
+      </td></tr>`;
+  });
+}
+
+function buildAOV() {
+  const aovAds = G_adsets.filter(a=>a.purchases>0);
+  if (!aovAds.length) return;
+  const allAovs = aovAds.map(a=>a.purchaseValue/a.purchases);
+  const avgAov  = allAovs.reduce((s,v)=>s+v,0)/allAovs.length;
+  const maxAov  = Math.max(...allAovs);
+  const bestAd  = aovAds.reduce((b,a)=>a.purchaseValue/a.purchases>b.purchaseValue/b.purchases?a:b);
+  const totP    = aovAds.reduce((s,a)=>s+a.purchases,0);
+  const totR    = aovAds.reduce((s,a)=>s+a.purchaseValue,0);
+  document.getElementById('aovSummary').innerHTML=`
+    <div class="aov-card"><div class="aov-card-label">Avg Order Value</div><div class="aov-card-value">${fmt$(avgAov)}</div><div class="aov-card-sub">across converting ad sets</div></div>
+    <div class="aov-card"><div class="aov-card-label">Highest AOV Ad Set</div><div class="aov-card-value">${fmt$(maxAov)}</div><div class="aov-card-sub">${bestAd.name.slice(0,30)}</div></div>
+    <div class="aov-card"><div class="aov-card-label">Total Purchases</div><div class="aov-card-value">${totP}</div><div class="aov-card-sub">converting ad sets</div></div>
+    <div class="aov-card"><div class="aov-card-label">Blended AOV</div><div class="aov-card-value">${fmt$(totR/totP)}</div><div class="aov-card-sub">revenue ÷ purchases</div></div>`;
+  const aovS=[...aovAds].sort((a,b)=>(b.purchaseValue/b.purchases)-(a.purchaseValue/a.purchases));
+  mkChart('aovChart','bar',{
+    labels:aovS.map(a=>a.name.length>26?a.name.slice(0,24)+'…':a.name),
+    datasets:[{data:aovS.map(a=>+(a.purchaseValue/a.purchases).toFixed(2)),
+      backgroundColor:aovS.map(a=>a.campaign.includes('RETARGET')?'rgba(74,222,128,.75)':a.campaign.includes('KSA')?'rgba(192,132,252,.75)':'rgba(96,165,250,.75)'),
+      borderRadius:4,borderSkipped:false}]},
+    {indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' $'+c.raw}}},
+     scales:{x:{grid:{color:GC},ticks:{color:TC,callback:v=>'$'+v}},y:{grid:{display:false},ticks:{color:'#94a3b8',font:{size:11}}}}});
+  mkChart('aovRoasChart','scatter',{
+    datasets:[{data:aovAds.map(a=>({x:+(a.purchaseValue/a.purchases).toFixed(2),y:+(a.purchaseValue/a.spend).toFixed(2),label:a.name})),
+      backgroundColor:'rgba(99,102,241,.7)',pointRadius:7,pointHoverRadius:9}]},
+    {plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>[' '+c.raw.label,'AOV: $'+c.raw.x,'ROAS: '+c.raw.y+'x']}}},
+     scales:{x:{grid:{color:GC},ticks:{color:TC,callback:v=>'$'+v},title:{display:true,text:'AOV ($)',color:TC}},
+             y:{grid:{color:GC},ticks:{color:TC,callback:v=>v+'x'},title:{display:true,text:'ROAS',color:TC}}}});
+}
+
+function buildWeekly(anchorIso) {
+  // Calendar weeks of the selected month: 1–7, 8–14, 15–21, 22–28, 29–end of month.
+  // Anchored to the month of the selected end date.
+  const endAnchor = anchorIso || G_selEnd || ISO_DATES[ISO_DATES.length-1];
+  const anchorDt  = new Date(endAnchor + 'T12:00:00');
+  const year = anchorDt.getFullYear();
+  const mon  = anchorDt.getMonth();           // 0-based
+  const lastDay = new Date(year, mon+1, 0).getDate(); // 28/29/30/31
+  const mkIso = day => `${year}-${String(mon+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+  const fmtLbl = iso => new Date(iso+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const bounds = [[1,7],[8,14],[15,21],[22,28],[29,lastDay]];
+  const weeks = bounds.map(([s,e], idx) => {
+    const startIsoCur = mkIso(s), endIsoCur = mkIso(Math.min(e,lastDay));
+    return { startIso:startIsoCur, endIso:endIsoCur, label:'Wk '+(idx+1),
+             range: fmtLbl(startIsoCur)+'–'+fmtLbl(endIsoCur) };
+  });
+  const wRevs  = weeks.map(w=>sliceFromCache(w.startIso,w.endIso).revenues.reduce((s,v)=>s+v,0));
+  const wSpends= weeks.map(w=>sliceFromCache(w.startIso,w.endIso).spends.reduce((s,v)=>s+v,0));
+  const wt = document.getElementById('weeklyTitle');
+  if (wt) wt.textContent = `Weekly Revenue — ${anchorDt.toLocaleDateString('en-US',{month:'long',year:'numeric'})}`;
+  const wc = document.getElementById('weekCards');
+  wc.innerHTML = '';
+  weeks.forEach((w,i)=>{
+    const roas=wSpends[i]>0?(wRevs[i]/wSpends[i]).toFixed(2):'—';
+    const rc=parseFloat(roas)>=2?'good':parseFloat(roas)>=1?'ok':'bad';
+    wc.innerHTML+=`<div class="week-card">
+      <div class="week-card-label">${w.label} · ${w.range}</div>
+      <div class="week-card-revenue">${fmt$(wRevs[i],0)}</div>
+      <div class="week-card-spend">Spend: ${fmt$(wSpends[i],0)}</div>
+      <div class="week-card-roas ${rc}">ROAS ${roas}x</div></div>`;
+  });
+  mkChart('weeklyRevenueChart','bar',{
+    labels:weeks.map(w=>w.label+'\n'+w.range),
+    datasets:[{data:wRevs,backgroundColor:'rgba(74,222,128,.7)',borderRadius:6,borderSkipped:false}]},
+    {plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt$(c.raw)}}},
+     scales:{x:{grid:{display:false},ticks:{color:TC}},y:{grid:{color:GC},ticks:{color:TC,callback:v=>'$'+v.toLocaleString()}}}});
+  mkChart('weeklyCompareChart','bar',{
+    labels:weeks.map(w=>w.label),
+    datasets:[
+      {label:'Spend',  data:wSpends,backgroundColor:'rgba(99,102,241,.7)',borderRadius:6,borderSkipped:false},
+      {label:'Revenue',data:wRevs,  backgroundColor:'rgba(74,222,128,.7)',borderRadius:6,borderSkipped:false}
+    ]},
+    {plugins:{legend:{display:true,labels:{color:'#94a3b8',boxWidth:12}},tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+fmt$(c.raw)}}},
+     scales:{x:{grid:{display:false},ticks:{color:TC}},y:{grid:{color:GC},ticks:{color:TC,callback:v=>'$'+v.toLocaleString()}}}});
+}
+
+function buildBarChart() {
+  const top10=[...G_adsets].sort((a,b)=>b.spend-a.spend).slice(0,10).reverse();
+  mkChart('barChart','bar',{
+    labels:top10.map(a=>a.name.length>28?a.name.slice(0,26)+'…':a.name),
+    datasets:[{data:top10.map(a=>a.spend),
+      backgroundColor:top10.map(a=>a.campaign.includes('RETARGET')?'rgba(74,222,128,.75)':a.campaign.includes('MESSAGE')?'rgba(251,146,60,.75)':a.campaign.includes('KSA')?'rgba(192,132,252,.75)':'rgba(96,165,250,.75)'),
+      borderRadius:4,borderSkipped:false}]},
+    {indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt$(c.raw)}}},
+     scales:{x:{grid:{color:GC},ticks:{color:TC,callback:v=>'$'+v.toLocaleString()}},y:{grid:{display:false},ticks:{color:'#94a3b8',font:{size:11}}}}});
+}
+
+// ── DYNAMIC RENDER ────────────────────────────────────────────────────────────
+// Renders summary cards + daily charts from the live cache for the given ISO range.
+function renderDynamicSync() {
+  renderRange(G_selStart, G_selEnd);
+}
+
+// Fetch ad-level data for the selected date range and rebuild the sections that depend on it
+async function fetchPages(url) {
+  let rows = [], after = null, hasMore = true;
+  while (hasMore) {
+    const paged = after ? url + '&after=' + after : url;
+    const r = await fetch(paged);
+    const j = await r.json();
+    if (j.error) break;
+    rows = rows.concat(j.data || []);
+    after   = j.paging?.cursors?.after;
+    hasMore = !!j.paging?.next;
+  }
+  return rows;
+}
+
+async function refreshAdsForRange(startIso, endIso) {
+  const token = effectiveToken();
+  if (!token || !G_accountId) return;
+  const tr = encodeURIComponent(JSON.stringify({since: startIso, until: endIso}));
+
+  try {
+    // Fetch ad-level data (for names, ROAS, Top 5) — no LPV at this level
+    const adUrl = `${API_BASE}/act_${G_accountId}/insights?${metaAuth(token)}level=ad&time_range=${tr}&fields=ad_name,adset_name,campaign_name,spend,impressions,inline_link_clicks,ctr,cpc,cpm,frequency,actions,action_values&limit=500`;
+    const ads = await fetchPages(adUrl);
+    if (!ads.length) return;
+
+    G_adsets = ads.filter(a => +a.spend > 0 && !(a.campaign_name||'').includes('MESSAGE_CBO_SALES')).map(a => {
+      const acts  = a.actions || [];
+      const avs   = a.action_values || [];
+      const gact  = type => +((acts.find(x=>x.action_type===type)||{}).value||0);
+      const gav   = type => +((avs.find(x=>x.action_type===type)||{}).value||0);
+      const purch = gact('purchase');
+      const clicks= +(a.inline_link_clicks||0);
+      return {
+        name:            a.ad_name || a.adset_name || '—',
+        campaign:        a.campaign_name || '',
+        spend:           +a.spend,
+        impressions:     +(a.impressions||0),
+        clicks,
+        landingPageViews: 0,  // filled below from adset fetch
+        ctr:             +((a.ctr||0)*1).toFixed(2),
+        cpc:             clicks > 0 ? +(+a.spend/clicks).toFixed(2) : 0,
+        cpm:             +(a.cpm||0),
+        frequency:       +(a.frequency||0),
+        purchases:       purch,
+        addToCart:       gact('add_to_cart'),
+        initiateCheckout:gact('initiate_checkout'),
+        cr:              clicks > 0 ? +(purch/clicks*100).toFixed(2) : 0,
+        purchaseValue:   gav('purchase')
+      };
+    });
+
+    // Adset-level fetch for funnel metrics (landing_page_view is in actions array)
+    // Used exclusively for the Conversion Rate funnel — excludes MESSAGE_CBO_SALES
+    const adsetUrl = `${API_BASE}/act_${G_accountId}/insights?${metaAuth(token)}level=adset&time_range=${tr}&fields=adset_name,campaign_name,actions,action_values&limit=500`;
+    const adsets = await fetchPages(adsetUrl);
+    const salesAdsets = adsets.filter(a => !(a.campaign_name||'').includes('MESSAGE_CBO_SALES'));
+    const gact2 = (rows, type) => rows.reduce((s,a) => {
+      const acts = a.actions || [];
+      return s + +((acts.find(x=>x.action_type===type)||{}).value||0);
+    }, 0);
+    // Store funnel totals globally so buildFunnel can use them
+    window.G_funnelLPV      = gact2(salesAdsets, 'landing_page_view');
+    window.G_funnelCart     = gact2(salesAdsets, 'add_to_cart');
+    window.G_funnelCheckout = gact2(salesAdsets, 'initiate_checkout');
+    window.G_funnelPurch    = gact2(salesAdsets, 'purchase');
+
+    buildWinningAds();
+    buildFunnel();
+    buildBarChart();
+    buildAdsetTable();
+    buildAOV();
+  } catch(e) { /* silently skip — embedded data stays */ }
+}
+
+function renderRange(startIso, endIso) {
+  const { isoList, spends, revenues, msgSpends, labels } = sliceFromCache(startIso, endIso);
+  const days        = isoList.length;
+  const totalSpend  = spends.reduce((a,v)=>a+v, 0);
+  const totalRev    = revenues.reduce((a,v)=>a+v, 0);
+
+  // Exact per-day MESSAGE_CBO_SALES spend from cache — subtract for ROAS denominator
+  const adjSpends   = spends.map((v,i) => Math.max(0, v - (msgSpends[i] || 0)));
+  const adjTotal    = adjSpends.reduce((a,v)=>a+v, 0);
+  const roas        = adjTotal > 0 ? (totalRev / adjTotal).toFixed(2) : '—';
+
+  // Daily ROAS line (skip days with zero adjusted spend to avoid noise)
+  const dailyRoas   = isoList.map((_,i) => adjSpends[i] > 0 ? +(revenues[i]/adjSpends[i]).toFixed(2) : null);
+
+  const fmtLbl = iso => new Date(iso+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const periodLabel = days === 1 ? fmtLbl(startIso) : `${fmtLbl(startIso)} – ${fmtLbl(endIso)}`;
+
+  document.getElementById('totalSpend').textContent   = fmt$(totalSpend);
+  document.getElementById('totalRevenue').textContent = fmt$(totalRev);
+  document.getElementById('avgRoas').textContent      = roas + (roas !== '—' ? 'x' : '');
+  document.getElementById('cardPeriod').textContent   = periodLabel;
+
+  const totClicks  = G_adsets.reduce((s,a)=>s+a.clicks, 0);
+  const totImpr    = G_adsets.reduce((s,a)=>s+a.impressions, 0);
+  const totAdSpend = G_adsets.reduce((s,a)=>s+a.spend, 0);
+  document.getElementById('avgCtr').textContent = (totClicks/totImpr*100).toFixed(2)+'%';
+  document.getElementById('avgCpc').textContent = '$'+(totAdSpend/totClicks).toFixed(2);
+
+  document.getElementById('revTitle').textContent   = `Daily Result Value Revenue — ${periodLabel}`;
+  document.getElementById('spendTitle').textContent = `Daily Spend — ${periodLabel}`;
+
+  const singleDay = days === 1;
+  const tickLimit = Math.max(6, Math.min(16, Math.ceil(days/14)));
+  const revType   = singleDay ? 'bar' : 'line';
+  const spendType = singleDay ? 'bar' : 'line';
+
+  const revDS = singleDay
+    ? {data:revenues, backgroundColor:'rgba(74,222,128,.8)', borderRadius:8, borderSkipped:false}
+    : {data:revenues, borderColor:'#4ade80', backgroundColor:'rgba(74,222,128,.08)', tension:.35, fill:true, pointRadius:days>90?0:3, pointBackgroundColor:'#4ade80', pointHoverRadius:5};
+  const spendDS = singleDay
+    ? {data:spends,   backgroundColor:'rgba(99,102,241,.8)', borderRadius:8, borderSkipped:false}
+    : {data:spends,   borderColor:'#6366f1', backgroundColor:'rgba(99,102,241,.12)', tension:.35, fill:true, pointRadius:days>90?0:3, pointBackgroundColor:'#6366f1', pointHoverRadius:5};
+
+  if (charts['revenueChart'] && charts['revenueChart'].config.type !== revType)   { charts['revenueChart'].destroy(); delete charts['revenueChart']; }
+  if (charts['lineChart']    && charts['lineChart'].config.type    !== spendType) { charts['lineChart'].destroy();    delete charts['lineChart'];    }
+
+  if (charts['revenueChart']) {
+    charts['revenueChart'].data.labels = labels;
+    charts['revenueChart'].data.datasets[0] = revDS;
+    if (!singleDay) charts['revenueChart'].options.scales.x.ticks.maxTicksLimit = tickLimit;
+    charts['revenueChart'].update();
+  } else {
+    mkChart('revenueChart', revType, {labels, datasets:[revDS]},
+      {plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt$(c.raw)}}},
+       scales:{x:{grid:{display:false},ticks:{color:TC,font:{size:10},maxTicksLimit:singleDay?10:tickLimit}},
+               y:{grid:{color:GC},ticks:{color:TC,callback:v=>'$'+v.toLocaleString()}}}});
+  }
+  if (charts['lineChart']) {
+    charts['lineChart'].data.labels = labels;
+    charts['lineChart'].data.datasets[0] = spendDS;
+    if (!singleDay) charts['lineChart'].options.scales.x.ticks.maxTicksLimit = tickLimit;
+    charts['lineChart'].update();
+  } else {
+    mkChart('lineChart', spendType, {labels, datasets:[spendDS]},
+      {plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt$(c.raw)}}},
+       scales:{x:{grid:{display:false},ticks:{color:TC,font:{size:10},maxTicksLimit:singleDay?10:tickLimit}},
+               y:{grid:{color:GC},ticks:{color:TC,callback:v=>'$'+v.toLocaleString()}}}});
+  }
+
+  // ROAS trend line chart
+  document.getElementById('roasTitle').textContent = `Daily ROAS — excl. Message Campaigns — ${periodLabel}`;
+  const roasDS = singleDay
+    ? {data:dailyRoas, backgroundColor:'rgba(250,204,21,.8)', borderRadius:8, borderSkipped:false}
+    : {data:dailyRoas, borderColor:'#facc15', backgroundColor:'rgba(250,204,21,.06)', tension:.35, fill:true,
+       pointRadius:days>90?0:3, pointBackgroundColor:'#facc15', pointHoverRadius:5, spanGaps:true};
+  if (charts['roasTrendChart'] && charts['roasTrendChart'].config.type !== (singleDay?'bar':'line'))
+    { charts['roasTrendChart'].destroy(); delete charts['roasTrendChart']; }
+  if (charts['roasTrendChart']) {
+    charts['roasTrendChart'].data.labels = labels;
+    charts['roasTrendChart'].data.datasets[0] = roasDS;
+    if (!singleDay) charts['roasTrendChart'].options.scales.x.ticks.maxTicksLimit = tickLimit;
+    charts['roasTrendChart'].update();
+  } else {
+    mkChart('roasTrendChart', singleDay?'bar':'line', {labels, datasets:[roasDS]},
+      {plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw!=null?' '+c.raw+'x':' no data'}}},
+       scales:{x:{grid:{display:false},ticks:{color:TC,font:{size:10},maxTicksLimit:singleDay?10:tickLimit}},
+               y:{grid:{color:GC},ticks:{color:TC,callback:v=>v+'x'},min:0}}});
+  }
+
+  // Weekly section: 5 weeks ending at the selected end date (reads from cache)
+  buildWeekly(endIso);
+
+  // Refresh ad-level breakdown sections to match selected date range
+  refreshAdsForRange(startIso, endIso);
+}
+
+function mkChart(id,type,data,options) {
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(document.getElementById(id),{type,data,options:{responsive:true,maintainAspectRatio:false,...options}});
+}
+
+// ── DATE PICKER ───────────────────────────────────────────────────────────────
+let dpSelStart=null, dpSelEnd=null, dpPickingEnd=false;
+let dpCalY=[2026,2026], dpCalM=[4,5];
+
+// "today" from the browser clock, capped so we never ask for future data
+function dpToday() {
+  const d=new Date(); d.setHours(12,0,0,0); return d;
+}
+function dpTodayIso() { return dpToday().toISOString().slice(0,10); }
+// Earliest allowed date: 2 years back
+function dpEarliestDate() {
+  const d=dpToday(); d.setFullYear(d.getFullYear()-2); return d;
+}
+
+function dpInit() {
+  // Show the two most recent months in the calendar
+  const t=dpToday();
+  dpCalY[1]=t.getFullYear(); dpCalM[1]=t.getMonth();
+  dpCalY[0]=dpCalM[1]===0?dpCalY[1]-1:dpCalY[1];
+  dpCalM[0]=dpCalM[1]===0?11:dpCalM[1]-1;
+  // Default selection = last 30 days
+  dpSelEnd  =dpToday();
+  dpSelStart=new Date(dpToday()); dpSelStart.setDate(dpSelStart.getDate()-29);
+  // Use embedded data for the initial render (instant)
+  G_selStart=ISO_DATES[Math.max(0,ISO_DATES.length-30)];
+  G_selEnd  =ISO_DATES[ISO_DATES.length-1];
+  dpRefreshLabel();
+}
+
+function dpToggle() {
+  const p=document.getElementById('dpPanel');
+  const opening = !p.classList.contains('open');
+  p.classList.toggle('open');
+  if (opening) {
+    dpPickingEnd = false; // always start fresh when reopening
+    dpRenderCals();
+  }
+}
+function dpClose() { document.getElementById('dpPanel').classList.remove('open'); }
+
+function dpPreset(key) {
+  document.querySelectorAll('.dp-preset').forEach(el=>el.classList.remove('active'));
+  event.target.classList.add('active');
+  const today=dpToday();
+  const ago=n=>{const d=new Date(today);d.setDate(d.getDate()-n+1);return d;};
+  if      (key==='today')     { dpSelStart=new Date(today);   dpSelEnd=new Date(today); }
+  else if (key==='yesterday') { dpSelStart=ago(2);             dpSelEnd=ago(2); }
+  else if (key==='7')         { dpSelStart=ago(7);             dpSelEnd=new Date(today); }
+  else if (key==='14')        { dpSelStart=ago(14);            dpSelEnd=new Date(today); }
+  else if (key==='30')        { dpSelStart=ago(30);            dpSelEnd=new Date(today); }
+  else if (key==='90')        { dpSelStart=ago(90);            dpSelEnd=new Date(today); }
+  else if (key==='180')       { dpSelStart=ago(180);           dpSelEnd=new Date(today); }
+  else if (key==='365')       { dpSelStart=ago(365);           dpSelEnd=new Date(today); }
+  else if (key==='lastmonth') {
+    const lm=new Date(today.getFullYear(),today.getMonth()-1,1,12);
+    dpSelStart=lm; dpSelEnd=new Date(today.getFullYear(),today.getMonth(),0,12);
+  }
+  else if (key==='mtd') { dpSelStart=new Date(today.getFullYear(),today.getMonth(),1,12); dpSelEnd=new Date(today); }
+  else if (key==='ytd') { dpSelStart=new Date(today.getFullYear(),0,1,12);               dpSelEnd=new Date(today); }
+  else if (key==='max') { dpSelStart=dpEarliestDate();                                    dpSelEnd=new Date(today); }
+  else { dpPickingEnd=false; dpSelStart=null; dpSelEnd=null; dpRenderCals(); return; }
+  dpRenderCals(); dpRenderRangeDisplay();
+}
+
+async function dpApply() {
+  if (!dpSelStart||!dpSelEnd) return;
+  const startIso = dpIso(dpSelStart < dpSelEnd ? dpSelStart : dpSelEnd);
+  const endIso   = dpIso(dpSelStart < dpSelEnd ? dpSelEnd   : dpSelStart);
+
+  // Show loading state
+  const btn=document.getElementById('dpApply');
+  btn.textContent='Loading…'; btn.disabled=true;
+
+  await ensureDates(startIso, endIso);
+
+  btn.textContent='Apply'; btn.disabled=false;
+
+  G_selStart=startIso; G_selEnd=endIso;
+  dpPickingEnd=false;
+  dpRefreshLabel(); dpClose();
+  renderRange(startIso, endIso);
+}
+
+function dpIso(d) { return d.toISOString().slice(0,10); }
+
+function dpRefreshLabel() {
+  if (!dpSelStart||!dpSelEnd) return;
+  const fmt=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const a=dpSelStart<dpSelEnd?dpSelStart:dpSelEnd;
+  const b=dpSelStart<dpSelEnd?dpSelEnd:dpSelStart;
+  document.getElementById('dpLabel').textContent=fmt(a)+(dpIso(a)===dpIso(b)?'':' – '+fmt(b));
+}
+
+function dpRenderRangeDisplay() {
+  const fmt=d=>d?d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'…';
+  document.getElementById('dpRangeDisplay').textContent=fmt(dpSelStart)+' → '+fmt(dpSelEnd||dpSelStart);
+  document.getElementById('dpApply').disabled=!dpSelStart||!dpSelEnd;
+}
+
+function dpRenderCals() {
+  const todayIso = dpTodayIso();
+  const selA = dpSelStart&&dpSelEnd
+    ? (dpIso(dpSelStart)<=dpIso(dpSelEnd) ? dpIso(dpSelStart) : dpIso(dpSelEnd))
+    : (dpSelStart ? dpIso(dpSelStart) : null);
+  const selB = dpSelStart&&dpSelEnd
+    ? (dpIso(dpSelStart)<=dpIso(dpSelEnd) ? dpIso(dpSelEnd) : dpIso(dpSelStart))
+    : null;
+
+  [0,1].forEach(ci => {
+    const y = dpCalY[ci], m = dpCalM[ci];
+    const monthName = new Date(y,m,1).toLocaleString('en-US',{month:'long',year:'numeric'});
+    const firstDay  = new Date(y,m,1).getDay();
+    const daysInMon = new Date(y,m+1,0).getDate();
+
+    let html = `<div class="dp-cal-header">`;
+    html += ci===0
+      ? `<button class="dp-nav" onclick="dpNav(event,-1)">&#8249;</button>`
+      : `<span></span>`;
+    html += `<span>${monthName}</span>`;
+    html += ci===1
+      ? `<button class="dp-nav" onclick="dpNav(event,1)">&#8250;</button>`
+      : `<span></span>`;
+    html += `</div><div class="dp-weekdays">`;
+    ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(wd => html += `<div class="dp-wd">${wd}</div>`);
+    html += `</div><div class="dp-days">`;
+    for (let i = 0; i < firstDay; i++) html += `<div class="dp-day dp-empty"></div>`;
+
+    for (let dd = 1; dd <= daysInMon; dd++) {
+      const mm  = String(m+1).padStart(2,'0');
+      const d2  = String(dd).padStart(2,'0');
+      const iso = y+'-'+mm+'-'+d2;
+      const isFuture = iso > todayIso;
+      let cls = 'dp-day';
+      if      (isFuture)                      cls += ' dp-disabled';
+      else if (iso===selA && iso===selB)       cls += ' dp-start dp-end';
+      else if (iso===selA)                     cls += ' dp-start';
+      else if (iso===selB)                     cls += ' dp-end';
+      else if (selA&&selB&&iso>selA&&iso<selB) cls += ' dp-in-range';
+      else if (iso===todayIso)                 cls += ' dp-today';
+      const oc = isFuture ? '' : ` onclick="dpDayClick(event,'${iso}')"`;
+      html += `<div class="${cls}"${oc}>${dd}</div>`;
+    }
+    html += `</div>`;
+    document.getElementById('dpCal'+ci).innerHTML = html;
+  });
+  dpRenderRangeDisplay();
+}
+
+function dpNav(e, dir) {
+  e.stopPropagation();
+  for (let i = 0; i < 2; i++) {
+    dpCalM[i] += dir;
+    if (dpCalM[i] < 0)  { dpCalM[i] = 11; dpCalY[i]--; }
+    if (dpCalM[i] > 11) { dpCalM[i] = 0;  dpCalY[i]++; }
+  }
+  dpRenderCals();
+}
+
+function dpDayClick(e, iso) {
+  e.stopPropagation();
+  const dt = new Date(iso+'T12:00:00');
+  document.querySelectorAll('.dp-preset').forEach(el => el.classList.remove('active'));
+  if (!dpPickingEnd || !dpSelStart) {
+    dpSelStart = dt; dpSelEnd = new Date(dt); dpPickingEnd = true;
+  } else {
+    if (iso === dpIso(dpSelStart)) {
+      dpPickingEnd = false;
+    } else if (dt < dpSelStart) {
+      dpSelEnd = new Date(dpSelStart); dpSelStart = dt; dpPickingEnd = false;
+    } else {
+      dpSelEnd = dt; dpPickingEnd = false;
+    }
+  }
+  dpRenderCals();
+}
+
+// Close picker when clicking outside both the panel and the toggle button
+document.addEventListener('click', e => {
+  const panel  = document.getElementById('dpPanel');
+  const toggle = document.getElementById('dpToggle');
+  if (panel && toggle && !panel.contains(e.target) && !toggle.contains(e.target)) dpClose();
+});
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function campaignTag(c) {
+  if(c.includes('RETARGET')) return `<span class="campaign-tag tag-retarget">RETARGET</span>`;
+  if(c.includes('MESSAGE'))  return `<span class="campaign-tag tag-message">MESSAGE</span>`;
+  if(c.includes('KSA'))      return `<span class="campaign-tag tag-ksa">TESTING KSA</span>`;
+  if(c.includes('SCALING'))  return `<span class="campaign-tag tag-retarget">SCALING</span>`;
+  return `<span class="campaign-tag tag-testing">TESTING</span>`;
+}
+</script>
+</body>
+</html>

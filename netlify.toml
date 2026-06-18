@@ -1,0 +1,10 @@
+# Netlify configuration for the Meta Ads dashboard (secure proxy deployment)
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+# Cache the static HTML lightly so clients always get fresh live data on open
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
