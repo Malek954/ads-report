@@ -284,9 +284,13 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   .dash-topbar { gap: 10px; align-items: flex-start; }
   .exit-btn { padding: 7px 12px; }
 
-  /* Summary cards: 2 columns */
-  .cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .card-value { font-size: 20px; }
+  /* Summary cards: 2 columns — shrink numbers so long EGP values fit, never overflow */
+  .cards { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+  .card { padding: 14px; min-width: 0; }
+  .card-value { font-size: 16px; letter-spacing: 0; overflow-wrap: anywhere; }
+  .card-label { font-size: 10px; }
+  .card-sub { font-size: 10px; }
+  .card-delta { font-size: 11px; }
 
   /* Charts: stack vertically */
   .charts { grid-template-columns: 1fr; gap: 14px; }
@@ -308,11 +312,15 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   .funnel-overall-pct { font-size: 28px; }
 
   /* Weekly cards: 2 columns then wrap */
-  .week-cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .week-card-revenue { font-size: 16px; }
+  .week-cards { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+  .week-card-revenue { font-size: 15px; overflow-wrap: anywhere; }
+  .week-card-spend { overflow-wrap: anywhere; }
 
   /* AOV cards: 2 columns */
-  .aov-cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .aov-cards { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+  .aov-card { padding: 14px; min-width: 0; }
+  .aov-card-value { font-size: 16px; overflow-wrap: anywhere; }
+  .week-card { padding: 12px; min-width: 0; }
 
   /* Winning ads: name can use full width */
   .winning-item-name { max-width: 70%; }
@@ -447,9 +455,9 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
       <span class="dp-compare-label">Compare to</span>
       <select id="cmpSelect" class="dp-compare-select" onchange="onCompareChange()">
         <option value="none">No comparison</option>
-        <option value="prev">Previous period</option>
-        <option value="prevmonth">Previous month</option>
-        <option value="prevyear">Previous year</option>
+        <option value="prevmonth">Previous month (same dates)</option>
+        <option value="prev">Previous period (preceding days)</option>
+        <option value="prevyear">Previous year (same dates)</option>
       </select>
     </div>
 
