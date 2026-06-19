@@ -45,8 +45,8 @@
   font-size: 13px; font-weight: 400; letter-spacing: 16px;
   color: #3263C1; text-transform: uppercase; margin-top: 8px; padding-left: 16px;
 }
-.brand-img    { height: 54px; width: auto; display: block; filter: brightness(0) invert(1); }
-.brand-img-sm { height: 30px; width: auto; display: block; filter: brightness(0) invert(1); }
+.brand-img    { height: 80px; width: auto; display: block; }
+.brand-img-sm { height: 46px; width: auto; display: block; }
 /* small inline version for the dashboard top bar */
 .brand-logo-sm .brand-impact { font-size: 22px; letter-spacing: 3px; }
 .brand-logo-sm .brand-systems { font-size: 9px; letter-spacing: 7px; margin-top: 1px; padding-left: 7px; }
@@ -212,8 +212,10 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 /* Exit button */
 .dash-topbar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
 .dash-topbar-titles { flex: 1; }
+.topbar-btns { display: flex; gap: 8px; flex-shrink: 0; }
 .exit-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: transparent; border: 1px solid #24262B; border-radius: 6px; color: #A0A3AB; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
 .exit-btn:hover { background: #0A0A0C; border-color: #f87171; color: #f87171; }
+.lang-btn:hover { border-color: #3263C1; color: #4374D6; background: #0A0A0C; }
 /* Confirm modal */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; }
 .modal-overlay.active { display: flex; }
@@ -397,7 +399,10 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
       <h1 id="dashTitle">Meta Ads Performance Report</h1>
       <p class="subtitle" id="dashSubtitle">Loading…</p>
     </div>
-    <button class="exit-btn" onclick="confirmExit()">&#x2715; Exit Report</button>
+    <div class="topbar-btns">
+      <button class="exit-btn lang-btn" id="langBtn" onclick="toggleLang()">العربية</button>
+      <button class="exit-btn" onclick="confirmExit()">&#x2715; Exit Report</button>
+    </div>
   </div>
 
   <!-- Exit confirmation modal -->
@@ -548,7 +553,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   <div class="aov-cards" id="aovSummary"></div>
   <div class="charts">
     <div class="chart-box">
-      <div class="chart-title">AOV by Ad Set</div>
+      <div class="chart-title">AOV by Ads</div>
       <div style="position:relative;height:300px"><canvas id="aovChart"></canvas></div>
     </div>
     <div class="chart-box">
@@ -1551,6 +1556,122 @@ function campaignTag(c) {
   if(c.includes('SCALING'))  return `<span class="campaign-tag tag-retarget">SCALING</span>`;
   return `<span class="campaign-tag tag-testing">TESTING</span>`;
 }
+
+// ── ARABIC TRANSLATION (RTL) ────────────────────────────────────────────────────
+const I18N = {
+  // Buttons / gate
+  'Exit Report':'خروج', '✕ Exit Report':'✕ خروج', '× Exit Report':'✕ خروج', 'العربية':'العربية', 'Sign In':'تسجيل الدخول',
+  'Protected client report':'تقرير عميل محمي',
+  'Enter your username to access your ad account report.':'أدخل اسم المستخدم للوصول إلى تقرير حسابك الإعلاني.',
+  'View My Report':'عرض تقريري', 'Username':'اسم المستخدم',
+  '⚙ Setup API token for live data':'⚙ إعداد رمز API للبيانات المباشرة',
+  // Cards
+  'Total Spend':'إجمالي الإنفاق', 'Result Value':'قيمة النتائج', 'Avg ROAS':'متوسط العائد على الإنفاق',
+  'Avg CTR':'متوسط نسبة النقر', 'total purchase revenue':'إجمالي إيرادات الشراء',
+  'revenue ÷ spend (daily)':'الإيراد ÷ الإنفاق (يومي)', 'weighted avg (full period)':'متوسط مرجّح (كامل الفترة)',
+  'selected period':'الفترة المحددة',
+  // Sections / charts
+  'Performance Overview':'نظرة عامة على الأداء', 'Conversion Rate Breakdown':'تفصيل معدل التحويل',
+  'Weekly Revenue':'الإيرادات الأسبوعية', 'AOV — Average Order Value':'متوسط قيمة الطلب',
+  'AOV':'متوسط قيمة الطلب', 'Average Order Value':'متوسط قيمة الطلب',
+  'Daily Result Value Revenue':'إيرادات قيمة النتائج اليومية', 'Daily Spend':'الإنفاق اليومي',
+  'Revenue by Week':'الإيرادات حسب الأسبوع', 'Spend vs Revenue by Week':'الإنفاق مقابل الإيرادات حسب الأسبوع',
+  'AOV by Ads':'متوسط قيمة الطلب حسب الإعلان', 'AOV vs ROAS':'متوسط قيمة الطلب مقابل العائد',
+  'Top 5 Winning Ads':'أفضل 5 إعلانات', 'Full Period':'كامل الفترة',
+  'Conversion Funnel by Ad Set':'قمع التحويل حسب الإعلان',
+  'Performance Report':'تقرير الأداء',
+  // Comparison
+  'Compare to':'مقارنة بـ', 'No comparison':'بدون مقارنة',
+  'Previous month (same dates)':'الشهر السابق (نفس التواريخ)',
+  'Previous period (preceding days)':'الفترة السابقة (الأيام السابقة)',
+  'Previous year (same dates)':'العام السابق (نفس التواريخ)',
+  // Funnel
+  'overall conversion rate':'معدل التحويل الإجمالي',
+  'Landing Page Views':'مشاهدات الصفحة المقصودة', 'Link Clicks':'نقرات الرابط',
+  'Added to Cart':'أُضيف للسلة', 'Reached Checkout':'وصل إلى الدفع', 'Purchases':'المشتريات',
+  // Table headers
+  'Ad Set':'الإعلان', 'Campaign':'الحملة', 'Impressions':'مرات الظهور',
+  'CTR':'نسبة النقر', 'CVR (LPV)':'معدل التحويل', 'CVR Visual':'مخطط التحويل',
+  // AOV cards
+  'Avg Order Value':'متوسط قيمة الطلب', 'Highest AOV Ad Set':'أعلى متوسط قيمة طلب',
+  'Total Purchases':'إجمالي المشتريات', 'Blended AOV':'متوسط القيمة المدمج',
+  'across converting ad sets':'عبر الإعلانات المُحقِّقة', 'converting ad sets':'الإعلانات المُحقِّقة',
+  'revenue ÷ purchases':'الإيراد ÷ المشتريات',
+  // Date presets
+  'Today':'اليوم','Yesterday':'أمس','Last 7 days':'آخر 7 أيام','Last 14 days':'آخر 14 يوم',
+  'Last 30 days':'آخر 30 يوم','Last 90 days':'آخر 90 يوم','Last 180 days':'آخر 180 يوم',
+  'Last 365 days':'آخر 365 يوم','Last month':'الشهر الماضي','Month to date':'الشهر حتى اليوم',
+  'Year to date':'السنة حتى اليوم','All time':'كل الفترات','Custom range':'نطاق مخصص',
+  // Modal
+  'Exit this report?':'الخروج من هذا التقرير؟',
+  "You'll be returned to the sign-in page. Any unsaved view settings will be lost.":'ستتم إعادتك إلى صفحة تسجيل الدخول. ستفقد أي إعدادات عرض غير محفوظة.',
+  'Stay':'البقاء', 'Yes, Exit':'نعم، خروج', 'Cancel':'إلغاء', 'Apply':'تطبيق'
+};
+let G_lang = 'en';
+let i18nObserver = null;
+
+function trPhrase(s) {
+  const key = s.trim();
+  if (!key) return null;
+  if (I18N[key] !== undefined) return s.replace(key, I18N[key]);
+  if (key.indexOf('—') !== -1) {           // "PREFIX — rest" (em dash)
+    const parts = key.split('—').map(p => p.trim());
+    let changed = false;
+    const tp = parts.map(p => { if (I18N[p] !== undefined) { changed = true; return I18N[p]; } return p; });
+    if (changed) return tp.join(' — ');
+  }
+  return null;
+}
+
+function translateTextNodes(root) {
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const nodes = []; while (w.nextNode()) nodes.push(w.currentNode);
+  nodes.forEach(n => {
+    const src = (n.__en != null) ? n.__en : n.nodeValue;
+    const tr = trPhrase(src);
+    if (tr !== null) { if (n.__en == null) n.__en = src; if (n.nodeValue !== tr) n.nodeValue = tr; }
+  });
+}
+function restoreTextNodes(root) {
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const nodes = []; while (w.nextNode()) nodes.push(w.currentNode);
+  nodes.forEach(n => { if (n.__en != null && n.nodeValue !== n.__en) n.nodeValue = n.__en; });
+}
+function setLang(lang) {
+  G_lang = lang;
+  try { localStorage.setItem('impactLang', lang); } catch(e) {}
+  const html = document.documentElement;
+  const btn = document.getElementById('langBtn');
+  if (lang === 'ar') {
+    html.dir = 'rtl'; html.lang = 'ar';
+    translateTextNodes(document.body);
+    const ui = document.getElementById('unInput'); if (ui && I18N[ui.placeholder]) { ui.__ph = ui.placeholder; ui.placeholder = I18N[ui.placeholder]; }
+    if (!i18nObserver) {
+      i18nObserver = new MutationObserver(muts => {
+        if (G_lang !== 'ar') return;
+        muts.forEach(m => {
+          m.addedNodes.forEach(nd => {
+            if (nd.nodeType === 1) translateTextNodes(nd);
+            else if (nd.nodeType === 3) { const tr = trPhrase(nd.nodeValue); if (tr !== null) { if (nd.__en == null) nd.__en = nd.nodeValue; nd.nodeValue = tr; } }
+          });
+          if (m.type === 'characterData') { const nd = m.target; const tr = trPhrase(nd.__en != null ? nd.__en : nd.nodeValue); if (tr !== null && nd.nodeValue !== tr) { if (nd.__en == null) nd.__en = nd.nodeValue; nd.nodeValue = tr; } }
+        });
+      });
+    }
+    i18nObserver.observe(document.body, { childList: true, subtree: true, characterData: true });
+    if (btn) btn.textContent = 'English';
+  } else {
+    html.dir = 'ltr'; html.lang = 'en';
+    if (i18nObserver) i18nObserver.disconnect();
+    restoreTextNodes(document.body);
+    const ui = document.getElementById('unInput'); if (ui && ui.__ph) ui.placeholder = ui.__ph;
+    if (btn) btn.textContent = 'العربية';
+  }
+}
+function toggleLang() { setLang(G_lang === 'ar' ? 'en' : 'ar'); }
+
+// Apply saved language preference on load
+(function initLang(){ try { if (localStorage.getItem('impactLang') === 'ar') setTimeout(()=>setLang('ar'), 50); } catch(e) {} })();
 
 // ── AUTO-RESTORE SESSION ────────────────────────────────────────────────────────
 // If the user logged in before and hasn't exited, log them straight back in
