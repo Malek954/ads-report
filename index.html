@@ -197,7 +197,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 /* Exit button */
 .dash-topbar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
 .dash-topbar-titles { flex: 1; }
-.exit-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: transparent; border: 1px solid #24262B; border-radius: 8px; color: #A0A3AB; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap; margin-top: 4px; }
+.exit-btn { position: fixed; top: 20px; right: 20px; z-index: 500; display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(0,0,0,.7); backdrop-filter: blur(6px); border: 1px solid #24262B; border-radius: 6px; color: #A0A3AB; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
 .exit-btn:hover { background: #0A0A0C; border-color: #f87171; color: #f87171; }
 /* Confirm modal */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; }
