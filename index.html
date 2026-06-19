@@ -534,8 +534,8 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 
 // ── ACCOUNTS ──────────────────────────────────────────────────────────────────
 const ACCOUNTS = {
-  'bayan_impact2':  { id:'401990560846482',  name:'Bayan Impact',  adsets:null, dailySpend:null, dailyRevenue:null, dailyMsgSpend:null },
-  'amenaa_impact1': { id:'2638156416541971', name:'Amenaa Impact', adsets:null, dailySpend:null, dailyRevenue:null, dailyMsgSpend:null },
+  'bayan_impact2':  { id:'401990560846482',  name:'Bayan Impact',  currency:'$',  adsets:null, dailySpend:null, dailyRevenue:null, dailyMsgSpend:null },
+  'amenaa_impact1': { id:'2638156416541971', name:'Amenaa Impact', currency:'E£', adsets:null, dailySpend:null, dailyRevenue:null, dailyMsgSpend:null },
   'SSD_impact':     { id:'1757389631850436', name:'SSD Impact',    noData:true }
 };
 
@@ -616,9 +616,10 @@ let charts = {};
 let G_accountId = null;   // current logged-in account id
 let G_liveCache = new Map(); // iso → {spend, revenue}
 let G_selStart = null, G_selEnd = null; // currently displayed range (ISO strings)
+let G_curr = '$';         // currency symbol for the current account (e.g. '$' or 'E£')
 
 const GC = '#24262B', TC = '#A0A3AB';
-const fmt$  = (v, d=2) => '$' + v.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmt$  = (v, d=2) => G_curr + v.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
 const fmtN  = v => v.toLocaleString();
 const META_API = 'https://graph.facebook.com/v19.0';
 const PROXY_API = '/api/meta';
@@ -800,6 +801,7 @@ function checkLogin() {
     return;
   }
   G_accountId = acc.id;
+  G_curr = acc.currency || '$';   // account currency ($ for USD accounts, E£ for EGP)
   G_liveCache.clear();
   seedCache(ISO_DATES, acc.dailySpend, acc.dailyRevenue, acc.dailyMsgSpend);
 
@@ -996,12 +998,12 @@ function buildAOV() {
       backgroundColor:aovS.map(a=>a.campaign.includes('RETARGET')?'rgba(74,222,128,.75)':a.campaign.includes('KSA')?'rgba(192,132,252,.75)':'rgba(96,165,250,.75)'),
       borderRadius:4,borderSkipped:false}]},
     {indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' $'+c.raw}}},
-     scales:{x:{grid:{color:GC},ticks:{color:TC,callback:v=>'$'+v}},y:{grid:{display:false},ticks:{color:'#94a3b8',font:{size:11}}}}});
+     scales:{x:{grid:{color:GC},ticks:{color:TC,callback:v=>G_curr+v}},y:{grid:{display:false},ticks:{color:'#94a3b8',font:{size:11}}}}});
   mkChart('aovRoasChart','scatter',{
     datasets:[{data:aovAds.map(a=>({x:+(a.purchaseValue/a.purchases).toFixed(2),y:+(a.purchaseValue/a.spend).toFixed(2),label:a.name})),
       backgroundColor:'rgba(50,99,193,.7)',pointRadius:7,pointHoverRadius:9}]},
-    {plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>[' '+c.raw.label,'AOV: $'+c.raw.x,'ROAS: '+c.raw.y+'x']}}},
-     scales:{x:{grid:{color:GC},ticks:{color:TC,callback:v=>'$'+v},title:{display:true,text:'AOV ($)',color:TC}},
+    {plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>[' '+c.raw.label,'AOV: '+G_curr+c.raw.x,'ROAS: '+c.raw.y+'x']}}},
+     scales:{x:{grid:{color:GC},ticks:{color:TC,callback:v=>G_curr+v},title:{display:true,text:'AOV ('+G_curr+')',color:TC}},
              y:{grid:{color:GC},ticks:{color:TC,callback:v=>v+'x'},title:{display:true,text:'ROAS',color:TC}}}});
 }
 
@@ -1040,7 +1042,7 @@ function buildWeekly(anchorIso) {
     labels:weeks.map(w=>w.label+'\n'+w.range),
     datasets:[{data:wRevs,backgroundColor:'rgba(74,222,128,.7)',borderRadius:6,borderSkipped:false}]},
     {plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt$(c.raw)}}},
-     scales:{x:{grid:{display:false},ticks:{color:TC}},y:{grid:{color:GC},ticks:{color:TC,callback:v=>'$'+v.toLocaleString()}}}});
+     scales:{x:{grid:{display:false},ticks:{color:TC}},y:{grid:{color:GC},ticks:{color:TC,callback:v=>G_curr+v.toLocaleString()}}}});
   mkChart('weeklyCompareChart','bar',{
     labels:weeks.map(w=>w.label),
     datasets:[
@@ -1048,7 +1050,7 @@ function buildWeekly(anchorIso) {
       {label:'Revenue',data:wRevs,  backgroundColor:'rgba(74,222,128,.7)',borderRadius:6,borderSkipped:false}
     ]},
     {plugins:{legend:{display:true,labels:{color:'#94a3b8',boxWidth:12}},tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+fmt$(c.raw)}}},
-     scales:{x:{grid:{display:false},ticks:{color:TC}},y:{grid:{color:GC},ticks:{color:TC,callback:v=>'$'+v.toLocaleString()}}}});
+     scales:{x:{grid:{display:false},ticks:{color:TC}},y:{grid:{color:GC},ticks:{color:TC,callback:v=>G_curr+v.toLocaleString()}}}});
 }
 
 function buildBarChart() {
@@ -1059,7 +1061,7 @@ function buildBarChart() {
       backgroundColor:top10.map(a=>a.campaign.includes('RETARGET')?'rgba(74,222,128,.75)':a.campaign.includes('MESSAGE')?'rgba(251,146,60,.75)':a.campaign.includes('KSA')?'rgba(192,132,252,.75)':'rgba(96,165,250,.75)'),
       borderRadius:4,borderSkipped:false}]},
     {indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt$(c.raw)}}},
-     scales:{x:{grid:{color:GC},ticks:{color:TC,callback:v=>'$'+v.toLocaleString()}},y:{grid:{display:false},ticks:{color:'#94a3b8',font:{size:11}}}}});
+     scales:{x:{grid:{color:GC},ticks:{color:TC,callback:v=>G_curr+v.toLocaleString()}},y:{grid:{display:false},ticks:{color:'#94a3b8',font:{size:11}}}}});
 }
 
 // ── DYNAMIC RENDER ────────────────────────────────────────────────────────────
@@ -1197,7 +1199,7 @@ function renderRange(startIso, endIso) {
     mkChart('revenueChart', revType, {labels, datasets:[revDS]},
       {plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt$(c.raw)}}},
        scales:{x:{grid:{display:false},ticks:{color:TC,font:{size:10},maxTicksLimit:singleDay?10:tickLimit}},
-               y:{grid:{color:GC},ticks:{color:TC,callback:v=>'$'+v.toLocaleString()}}}});
+               y:{grid:{color:GC},ticks:{color:TC,callback:v=>G_curr+v.toLocaleString()}}}});
   }
   if (charts['lineChart']) {
     charts['lineChart'].data.labels = labels;
@@ -1208,7 +1210,7 @@ function renderRange(startIso, endIso) {
     mkChart('lineChart', spendType, {labels, datasets:[spendDS]},
       {plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt$(c.raw)}}},
        scales:{x:{grid:{display:false},ticks:{color:TC,font:{size:10},maxTicksLimit:singleDay?10:tickLimit}},
-               y:{grid:{color:GC},ticks:{color:TC,callback:v=>'$'+v.toLocaleString()}}}});
+               y:{grid:{color:GC},ticks:{color:TC,callback:v=>G_curr+v.toLocaleString()}}}});
   }
 
   // ROAS trend line chart
