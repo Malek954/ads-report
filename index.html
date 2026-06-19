@@ -212,7 +212,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 /* Exit button */
 .dash-topbar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
 .dash-topbar-titles { flex: 1; }
-.exit-btn { position: fixed; top: 20px; right: 20px; z-index: 500; display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(0,0,0,.7); backdrop-filter: blur(6px); border: 1px solid #24262B; border-radius: 6px; color: #A0A3AB; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.exit-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: transparent; border: 1px solid #24262B; border-radius: 6px; color: #A0A3AB; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
 .exit-btn:hover { background: #0A0A0C; border-color: #f87171; color: #f87171; }
 /* Confirm modal */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; }
@@ -281,8 +281,8 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   .gate-box { min-width: unset; width: 92vw; padding: 28px 20px; }
 
   /* Top bar */
-  .dash-topbar { flex-direction: column; gap: 10px; }
-  .exit-btn { align-self: flex-end; }
+  .dash-topbar { gap: 10px; align-items: flex-start; }
+  .exit-btn { padding: 7px 12px; }
 
   /* Summary cards: 2 columns */
   .cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
@@ -811,7 +811,7 @@ function clearDeltas() {
   });
 }
 
-function setDelta(elId, cur, prev) {
+function setDelta(elId, cur, prev, cmpLabel) {
   const el = document.getElementById(elId);
   if (!el) return;
   if (prev == null || !isFinite(prev) || prev === 0 || cur == null || !isFinite(cur)) {
@@ -820,7 +820,7 @@ function setDelta(elId, cur, prev) {
   const pct = (cur - prev) / Math.abs(prev) * 100;
   const up  = pct >= 0;                       // up = green, down = grey (per brand spec)
   el.className = 'card-delta show ' + (up ? 'up' : 'down');
-  el.innerHTML = `<span class="cmp-arrow">${up ? '↗' : '↘'}</span>${Math.abs(pct).toFixed(0)}%<span class="cmp-base">vs prev</span>`;
+  el.innerHTML = `<span class="cmp-arrow">${up ? '↗' : '↘'}</span>${Math.abs(pct).toFixed(0)}%<span class="cmp-base">vs ${cmpLabel}</span>`;
 }
 
 async function applyComparison(startIso, endIso, cur) {
@@ -835,9 +835,11 @@ async function applyComparison(startIso, endIso, cur) {
   const pRev   = revenues.reduce((a,v) => a + v, 0);
   const pAdj   = spends.reduce((a,v,i) => a + Math.max(0, v - (msgSpends[i] || 0)), 0);
   const pRoas  = pAdj > 0 ? pRev / pAdj : null;
-  setDelta('deltaSpend',   cur.spend, pSpend);
-  setDelta('deltaRevenue', cur.rev,   pRev);
-  setDelta('deltaRoas',    cur.roas,  pRoas);
+  const sf = d => new Date(d + 'T12:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric'});
+  const cmpLabel = sf(cr.start) + '–' + sf(cr.end);
+  setDelta('deltaSpend',   cur.spend, pSpend, cmpLabel);
+  setDelta('deltaRevenue', cur.rev,   pRev,   cmpLabel);
+  setDelta('deltaRoas',    cur.roas,  pRoas,  cmpLabel);
 }
 
 // ── EXIT ──────────────────────────────────────────────────────────────────────
@@ -1217,11 +1219,19 @@ async function refreshAdsForRange(startIso, endIso) {
       const acts = a.actions || [];
       return s + +((acts.find(x=>x.action_type===type)||{}).value||0);
     }, 0);
+    // Website purchases only — matches Meta's "Website CVR" (offsite pixel purchases,
+    // not the omni/all-sources "purchase" total which over-counts conversions)
+    const gactWebPurch = (rows) => rows.reduce((s,a) => {
+      const acts = a.actions || [];
+      const web  = acts.find(x=>x.action_type==='offsite_conversion.fb_pixel_purchase');
+      const gen  = acts.find(x=>x.action_type==='purchase');
+      return s + +((web || gen || {}).value || 0);
+    }, 0);
     // Store funnel totals globally so buildFunnel can use them
     window.G_funnelLPV      = gact2(salesAdsets, 'landing_page_view');
     window.G_funnelCart     = gact2(salesAdsets, 'add_to_cart');
     window.G_funnelCheckout = gact2(salesAdsets, 'initiate_checkout');
-    window.G_funnelPurch    = gact2(salesAdsets, 'purchase');
+    window.G_funnelPurch    = gactWebPurch(salesAdsets);
 
     buildWinningAds();
     buildFunnel();
