@@ -45,6 +45,8 @@
   font-size: 13px; font-weight: 400; letter-spacing: 16px;
   color: #3263C1; text-transform: uppercase; margin-top: 8px; padding-left: 16px;
 }
+.brand-img    { height: 64px; width: auto; display: block; }
+.brand-img-sm { height: 34px; width: auto; display: block; }
 /* small inline version for the dashboard top bar */
 .brand-logo-sm .brand-impact { font-size: 22px; letter-spacing: 3px; }
 .brand-logo-sm .brand-systems { font-size: 9px; letter-spacing: 7px; margin-top: 1px; padding-left: 7px; }
@@ -321,8 +323,12 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 <!-- LOGIN GATE -->
 <div id="gate">
   <div class="brand-logo">
-    <div class="brand-impact">IMPACT</div>
-    <div class="brand-systems">SYSTEMS</div>
+    <img src="logo.png" alt="Impact Systems" class="brand-img"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <div class="brand-fallback" style="display:none;flex-direction:column;align-items:center">
+      <div class="brand-impact">IMPACT</div>
+      <div class="brand-systems">SYSTEMS</div>
+    </div>
   </div>
   <div class="gate-sub">Protected client report</div>
   <div class="gate-box">
@@ -353,8 +359,12 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   <div class="dash-topbar">
     <div class="dash-topbar-titles">
       <div class="brand-logo brand-logo-sm" style="margin-bottom:10px">
-        <div class="brand-impact">IMPACT</div>
-        <div class="brand-systems">SYSTEMS</div>
+        <img src="logo.png" alt="Impact Systems" class="brand-img-sm"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="brand-fallback" style="display:none;flex-direction:column;align-items:flex-start">
+          <div class="brand-impact">IMPACT</div>
+          <div class="brand-systems">SYSTEMS</div>
+        </div>
       </div>
       <h1 id="dashTitle">Meta Ads Performance Report</h1>
       <p class="subtitle" id="dashSubtitle">Loading…</p>
@@ -460,16 +470,10 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
     <div style="position:relative;height:200px"><canvas id="roasTrendChart"></canvas></div>
   </div>
 
-  <!-- Daily Spend + Ad Set Bar side by side -->
-  <div class="charts" style="margin-bottom:0">
-    <div class="chart-box">
-      <div class="chart-title" id="spendTitle">Daily Spend</div>
-      <div style="position:relative;height:280px"><canvas id="lineChart"></canvas></div>
-    </div>
-    <div class="chart-box">
-      <div class="chart-title">Spend by Ad Set (Top 10) — Full Period</div>
-      <div style="position:relative;height:280px"><canvas id="barChart"></canvas></div>
-    </div>
+  <!-- Daily Spend -->
+  <div class="chart-box" style="margin-bottom:0">
+    <div class="chart-title" id="spendTitle">Daily Spend</div>
+    <div style="position:relative;height:280px"><canvas id="lineChart"></canvas></div>
   </div>
 
   <!-- TOP 5 WINNING ADS -->
@@ -487,18 +491,6 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
     </div>
     <div class="funnel-stages" id="funnelStages"></div>
   </div>
-  <div class="table-box" style="margin-top:0">
-    <div class="table-title">Conversion Funnel by Ad Set — Full Period</div>
-    <table>
-      <thead><tr>
-        <th>Ad Set</th><th>Campaign</th>
-        <th class="num">Impressions</th><th class="num">Link Clicks</th>
-        <th class="num">CTR</th><th class="num">Purchases</th>
-        <th class="num">CVR (LPV)</th><th style="width:180px">CVR Visual</th>
-      </tr></thead>
-      <tbody id="crTableBody"></tbody>
-    </table>
-  </div>
 
   <!-- WEEKLY REVENUE (calendar weeks of the selected month) -->
   <div class="section-title" id="weeklyTitle">Weekly Revenue — Monthly Breakdown</div>
@@ -512,6 +504,19 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
       <div class="chart-title">Spend vs Revenue by Week</div>
       <div style="position:relative;height:260px"><canvas id="weeklyCompareChart"></canvas></div>
     </div>
+  </div>
+
+  <div class="table-box" style="margin-top:0">
+    <div class="table-title">Conversion Funnel by Ad Set — Full Period</div>
+    <table>
+      <thead><tr>
+        <th>Ad Set</th><th>Campaign</th>
+        <th class="num">Impressions</th><th class="num">Link Clicks</th>
+        <th class="num">CTR</th><th class="num">Purchases</th>
+        <th class="num">CVR (LPV)</th><th style="width:180px">CVR Visual</th>
+      </tr></thead>
+      <tbody id="crTableBody"></tbody>
+    </table>
   </div>
 
   <!-- AOV -->
@@ -528,21 +533,6 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
     </div>
   </div>
 
-  <!-- ALL AD SETS TABLE -->
-  <div class="section-title">All Ad Sets — Full Period</div>
-  <div class="table-box">
-    <div class="table-title" id="adsetTableTitle">Sorted by Spend → Result Value → ROAS → CTR</div>
-    <table>
-      <thead><tr>
-        <th>Ad Set</th><th>Campaign</th>
-        <th class="num">Spend</th><th class="num">Impressions</th><th class="num">Link Clicks</th>
-        <th class="num">CTR</th><th class="num">CPC</th><th class="num">CPM</th>
-        <th class="num">Freq.</th><th class="num">Purchases</th><th class="num">CR</th>
-        <th class="num">ROAS</th><th class="num">Result Value</th><th class="num">AOV</th>
-      </tr></thead>
-      <tbody id="tableBody"></tbody>
-    </table>
-  </div>
 </div><!-- /dashboard -->
 
 <script>
@@ -819,7 +809,7 @@ function checkLogin() {
   G_liveCache.clear();
   seedCache(ISO_DATES, acc.dailySpend, acc.dailyRevenue, acc.dailyMsgSpend);
 
-  document.getElementById('dashTitle').textContent    = acc.name + ' — Performance Report';
+  document.getElementById('dashTitle').textContent    = acc.name.split(' ')[0] + ' — Performance Report';
   document.getElementById('dashSubtitle').textContent = `Account ${acc.id} · Loading 2 years of history…`;
   initDashboard(acc.adsets);
 
@@ -857,6 +847,7 @@ function buildStaticSections() {
 }
 
 function buildAdsetTable() {
+  if (!document.getElementById('tableBody')) return; // section removed
   const sorted = [...G_adsets].sort((a,b) => {
     if (b.spend !== a.spend) return b.spend - a.spend;
     if (b.purchaseValue !== a.purchaseValue) return b.purchaseValue - a.purchaseValue;
@@ -1254,8 +1245,10 @@ function renderRange(startIso, endIso) {
 }
 
 function mkChart(id,type,data,options) {
+  const el = document.getElementById(id);
+  if (!el) return; // canvas removed from layout — skip
   if (charts[id]) charts[id].destroy();
-  charts[id] = new Chart(document.getElementById(id),{type,data,options:{responsive:true,maintainAspectRatio:false,...options}});
+  charts[id] = new Chart(el,{type,data,options:{responsive:true,maintainAspectRatio:false,...options}});
 }
 
 // ── DATE PICKER ───────────────────────────────────────────────────────────────
