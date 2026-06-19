@@ -1362,7 +1362,28 @@ function mkChart(id,type,data,options) {
   const el = document.getElementById(id);
   if (!el) return; // canvas removed from layout — skip
   if (charts[id]) charts[id].destroy();
-  charts[id] = new Chart(el,{type,data,options:{responsive:true,maintainAspectRatio:false,...options}});
+  const o = {responsive:true,maintainAspectRatio:false,...options};
+  if (typeof G_lang !== 'undefined' && G_lang === 'ar') {
+    // Mirror charts for Arabic: reverse the category axis, move value axis to the right
+    o.rtl = true;
+    o.scales = o.scales || {};
+    if (o.scales.x) o.scales.x = { ...o.scales.x, reverse: true };
+    if (o.scales.y) o.scales.y = { ...o.scales.y, position: 'right' };
+    o.plugins = o.plugins || {};
+    if (o.plugins.legend)  o.plugins.legend  = { ...o.plugins.legend,  rtl: true, textDirection: 'rtl' };
+    if (o.plugins.tooltip) o.plugins.tooltip = { ...o.plugins.tooltip, rtl: true, textDirection: 'rtl' };
+  }
+  charts[id] = new Chart(el,{type,data,options:o});
+}
+
+// Rebuild every chart so it picks up the current LTR/RTL direction
+function rerenderAllCharts() {
+  Object.keys(charts).forEach(k => { if (charts[k]) { charts[k].destroy(); delete charts[k]; } });
+  try {
+    if (G_selStart && G_selEnd) renderRange(G_selStart, G_selEnd);
+    buildWeekly();
+    buildAOV();
+  } catch (e) {}
 }
 
 // ── DATE PICKER ───────────────────────────────────────────────────────────────
@@ -1673,6 +1694,10 @@ function setLang(lang) {
     restoreTextNodes(document.body);
     const ui = document.getElementById('unInput'); if (ui && ui.__ph) ui.placeholder = ui.__ph;
     if (btn) btn.textContent = 'العربية';
+  }
+  // Rebuild charts so the axes mirror to match the new direction
+  if (document.getElementById('dashboard') && document.getElementById('dashboard').classList.contains('visible')) {
+    rerenderAllCharts();
   }
 }
 function toggleLang() { setLang(G_lang === 'ar' ? 'en' : 'ar'); }
