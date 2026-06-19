@@ -1276,7 +1276,7 @@ function renderRange(startIso, endIso) {
   const fmtLbl = iso => new Date(iso+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
   const periodLabel = days === 1 ? fmtLbl(startIso) : `${fmtLbl(startIso)} – ${fmtLbl(endIso)}`;
 
-  document.getElementById('totalSpend').textContent   = fmt$(totalSpend);
+  document.getElementById('totalSpend').textContent   = fmt$(Math.floor(totalSpend), 0);
   document.getElementById('totalRevenue').textContent = fmt$(totalRev);
   document.getElementById('avgRoas').textContent      = roas + (roas !== '—' ? 'x' : '');
   document.getElementById('cardPeriod').textContent   = periodLabel;
