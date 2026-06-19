@@ -464,12 +464,6 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
     <div style="position:relative;height:200px"><canvas id="revenueChart"></canvas></div>
   </div>
 
-  <!-- ROAS trend line (excludes MESSAGE_CBO_SALES) -->
-  <div class="chart-box" style="margin-bottom:20px">
-    <div class="chart-title" id="roasTitle">Daily ROAS — excl. Message Campaigns</div>
-    <div style="position:relative;height:200px"><canvas id="roasTrendChart"></canvas></div>
-  </div>
-
   <!-- Daily Spend -->
   <div class="chart-box" style="margin-bottom:0">
     <div class="chart-title" id="spendTitle">Daily Spend</div>
@@ -1218,7 +1212,8 @@ function renderRange(startIso, endIso) {
   }
 
   // ROAS trend line chart
-  document.getElementById('roasTitle').textContent = `Daily ROAS — excl. Message Campaigns — ${periodLabel}`;
+  const roasTitleEl = document.getElementById('roasTitle');
+  if (roasTitleEl) roasTitleEl.textContent = `Daily ROAS — excl. Message Campaigns — ${periodLabel}`;
   const roasDS = singleDay
     ? {data:dailyRoas, backgroundColor:'rgba(250,204,21,.8)', borderRadius:8, borderSkipped:false}
     : {data:dailyRoas, borderColor:'#facc15', backgroundColor:'rgba(250,204,21,.06)', tension:.35, fill:true,
