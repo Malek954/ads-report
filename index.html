@@ -295,11 +295,16 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   /* Charts: stack vertically */
   .charts { grid-template-columns: 1fr; gap: 14px; }
 
-  /* Date picker: full width, single calendar */
-  .dp-panel { flex-direction: column; width: 94vw; max-width: 360px; }
-  .dp-presets { border-right: none; border-bottom: 1px solid #24262B; }
-  .dp-calendars { flex-direction: column; gap: 16px; padding: 12px 14px; }
-  .dp-cal { min-width: unset; width: 100%; }
+  /* Date picker: presets on top, two months side by side (horizontal, Shopify-style) */
+  .dp-panel { flex-direction: column; width: 96vw; max-width: 380px; left: 50%; transform: translateX(-50%); }
+  .dp-presets { border-right: none; border-bottom: 1px solid #24262B; display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; }
+  .dp-preset { padding: 6px 10px; font-size: 12px; }
+  .dp-preset-divider { display: none; }
+  .dp-calendars { flex-direction: row; gap: 8px; padding: 10px; }
+  .dp-cal { min-width: 0; width: 50%; }
+  .dp-cal-header { font-size: 12px; margin-bottom: 8px; }
+  .dp-wd { font-size: 8px; padding: 2px 0; }
+  .dp-day { padding: 4px 0; font-size: 11px; }
   .dp-range-display { min-width: unset; font-size: 11px; }
   .dp-footer { flex-wrap: wrap; gap: 8px; }
   .dp-footer-btns { width: 100%; justify-content: flex-end; }
