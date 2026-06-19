@@ -936,6 +936,10 @@ function initDashboard(adsets) {
   buildStaticSections();
   renderDynamicSync(); // render from cache (instant, no API needed for default range)
   dpInit();
+  // Move the date picker directly below the header (above the summary cards)
+  const dpBar = document.getElementById('dpBar');
+  const cards = document.querySelector('#dashboard .cards');
+  if (dpBar && cards && cards.parentNode) cards.parentNode.insertBefore(dpBar, cards);
 }
 
 // ── STATIC SECTIONS ───────────────────────────────────────────────────────────
