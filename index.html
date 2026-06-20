@@ -909,7 +909,11 @@ function checkLogin() {
   G_accountId = acc.id;
   G_curr = acc.currency || '$';   // account currency ($ for USD accounts, E£ for EGP)
   G_liveCache.clear();
-  seedCache(ISO_DATES, acc.dailySpend || [], acc.dailyRevenue || [], acc.dailyMsgSpend);
+  // Only seed from embedded data when it exists; otherwise leave the cache empty
+  // so the live prefetch actually fetches this account's data (e.g. SSD).
+  if (acc.dailySpend && acc.dailySpend.length) {
+    seedCache(ISO_DATES, acc.dailySpend, acc.dailyRevenue, acc.dailyMsgSpend);
+  }
 
   document.getElementById('dashTitle').textContent    = acc.name.split(' ')[0] + ' — Performance Report';
   document.getElementById('dashSubtitle').textContent = `Account ${acc.id} · Loading 2 years of history…`;
