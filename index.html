@@ -584,7 +584,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 const ACCOUNTS = {
   'bayan_impact2':  { id:'401990560846482',  name:'Bayan Impact',  currency:'$',  adsets:null, dailySpend:null, dailyRevenue:null, dailyMsgSpend:null },
   'amenaa_impact1': { id:'2638156416541971', name:'Amenaa Impact', currency:'E£', adsets:null, dailySpend:null, dailyRevenue:null, dailyMsgSpend:null },
-  'SSD_impact':     { id:'1757389631850436', name:'SSD Impact',    noData:true }
+  'SSD_impact':     { id:'1757389631850436', name:'SSD Impact',    currency:'E£', adsets:null, dailySpend:null, dailyRevenue:null, dailyMsgSpend:null }
 };
 
 // ── EMBEDDED DATA — replaced by update-dashboard.ps1 ──────────────────────────
@@ -909,11 +909,11 @@ function checkLogin() {
   G_accountId = acc.id;
   G_curr = acc.currency || '$';   // account currency ($ for USD accounts, E£ for EGP)
   G_liveCache.clear();
-  seedCache(ISO_DATES, acc.dailySpend, acc.dailyRevenue, acc.dailyMsgSpend);
+  seedCache(ISO_DATES, acc.dailySpend || [], acc.dailyRevenue || [], acc.dailyMsgSpend);
 
   document.getElementById('dashTitle').textContent    = acc.name.split(' ')[0] + ' — Performance Report';
   document.getElementById('dashSubtitle').textContent = `Account ${acc.id} · Loading 2 years of history…`;
-  initDashboard(acc.adsets);
+  initDashboard(acc.adsets || []);
 
   // Background prefetch — updates subtitle and refreshes view when done
   prefetchHistory().then(() => {

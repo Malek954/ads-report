@@ -7,11 +7,6 @@
 export async function onRequest(context) {
   const { request, env, params } = context;
 
-  const TOKEN = env.META_TOKEN;
-  if (!TOKEN) {
-    return json({ error: { message: 'META_TOKEN is not configured on the server.' } }, 500);
-  }
-
   // params.path is the catch-all after /api/meta/  e.g. ['act_123','insights']
   const segs = Array.isArray(params.path) ? params.path : [params.path];
   const subPath = '/' + segs.join('/');
@@ -19,6 +14,15 @@ export async function onRequest(context) {
   // Only allow read-style insight calls — never expose write endpoints
   if (!/^\/act_\d+\/insights\/?$/.test(subPath)) {
     return json({ error: { message: 'Endpoint not allowed.' } }, 403);
+  }
+
+  // The SSD account lives in a different app, so it uses its own token.
+  const SSD_ACCT = '1757389631850436';
+  const TOKEN = subPath.includes('act_' + SSD_ACCT)
+    ? (env.META_TOKEN_SSD || env.META_TOKEN)
+    : env.META_TOKEN;
+  if (!TOKEN) {
+    return json({ error: { message: 'Server token is not configured.' } }, 500);
   }
 
   const inUrl = new URL(request.url);

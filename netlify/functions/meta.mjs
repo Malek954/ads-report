@@ -5,14 +5,6 @@
 // and this function forwards it to graph.facebook.com with the token attached.
 
 export default async (req) => {
-  const TOKEN = process.env.META_TOKEN;
-  if (!TOKEN) {
-    return new Response(
-      JSON.stringify({ error: { message: 'META_TOKEN is not configured on the server.' } }),
-      { status: 500, headers: { 'content-type': 'application/json' } }
-    );
-  }
-
   const inUrl = new URL(req.url);
   // Everything after /api/meta becomes the Graph API path (e.g. /act_123/insights)
   const subPath = inUrl.pathname.replace(/^\/api\/meta/, '');
@@ -22,6 +14,18 @@ export default async (req) => {
     return new Response(
       JSON.stringify({ error: { message: 'Endpoint not allowed.' } }),
       { status: 403, headers: { 'content-type': 'application/json' } }
+    );
+  }
+
+  // The SSD account lives in a different app, so it uses its own token.
+  const SSD_ACCT = '1757389631850436';
+  const TOKEN = subPath.includes('act_' + SSD_ACCT)
+    ? (process.env.META_TOKEN_SSD || process.env.META_TOKEN)
+    : process.env.META_TOKEN;
+  if (!TOKEN) {
+    return new Response(
+      JSON.stringify({ error: { message: 'Server token is not configured.' } }),
+      { status: 500, headers: { 'content-type': 'application/json' } }
     );
   }
 
