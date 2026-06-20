@@ -92,8 +92,9 @@ h1 { font-family: var(--font-display); font-size: 19px; font-weight: 400; color:
   border-bottom: 1px solid #24262B;
 }
 .cards { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 36px; }
-.card { background: #0A0A0C; border: 1px solid #24262B; border-radius: 6px; padding: 20px; transition: border-color .15s; }
-.card:hover { border-color: #1E3C73; }
+.card { background: #0A0A0C; border: 1px solid #24262B; border-radius: 6px; padding: 20px;
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
+.card:hover { border-color: #1E3C73; transform: translateY(-2px); box-shadow: 0 8px 28px -12px rgba(50,99,193,.5); }
 .card-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #A0A3AB; margin-bottom: 8px; }
 .card-value { font-family: var(--font-display); font-size: 24px; font-weight: 400; color: #FFFFFF; letter-spacing: 0.01em; }
 .card-value.green { color: #4ade80; }
@@ -103,6 +104,40 @@ h1 { font-family: var(--font-display); font-size: 19px; font-weight: 400; color:
 .card-delta.up   { color: #4ade80; }
 .card-delta.down { color: #A0A3AB; }
 .card-delta .cmp-base { color: #475569; font-weight: 500; margin-left: 2px; }
+
+/* ── Motion: subtle, precise (brand) ── */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: no-preference) {
+  /* Staggered entrance for the hero cards */
+  #dashboard.visible .cards .card { opacity: 0; animation: fadeUp .5s ease both; }
+  #dashboard.visible .cards .card:nth-child(1) { animation-delay: .04s; }
+  #dashboard.visible .cards .card:nth-child(2) { animation-delay: .10s; }
+  #dashboard.visible .cards .card:nth-child(3) { animation-delay: .16s; }
+  #dashboard.visible .cards .card:nth-child(4) { animation-delay: .22s; }
+  /* Sections + panels ease in */
+  #dashboard.visible .section-title,
+  #dashboard.visible .chart-box,
+  #dashboard.visible .funnel-wrap,
+  #dashboard.visible .table-box,
+  #dashboard.visible .week-cards,
+  #dashboard.visible .aov-cards,
+  #dashboard.visible .dp-bar { animation: fadeUp .55s ease both; }
+  .gate-box { animation: fadeUp .5s ease both; }
+  .brand-logo { animation: fadeIn .8s ease both; }
+}
+/* Chart panels: gentle lift on hover */
+.chart-box, .funnel-wrap, .table-box { transition: border-color .2s ease, box-shadow .2s ease; }
+.chart-box:hover, .funnel-wrap:hover { border-color: #1E3C73; box-shadow: 0 8px 30px -14px rgba(50,99,193,.45); }
+/* Winning-ad bars & funnel bars grow smoothly */
+.winning-bar-fill { transition: width .7s cubic-bezier(.22,1,.36,1); }
+.funnel-bar { transition: height .7s cubic-bezier(.22,1,.36,1); }
+.cr-row-bar-fill { transition: width .7s cubic-bezier(.22,1,.36,1); }
+/* Smooth interactions */
+.dp-btn, .dp-compare-select, .exit-btn, .week-card, .aov-card { transition: all .18s ease; }
+.week-card:hover, .aov-card:hover { border-color: #1E3C73; transform: translateY(-2px); }
+#loginBtn { transition: background .15s, box-shadow .25s, transform .12s; }
+#loginBtn:active { transform: translateY(1px); }
 
 /* Comparison selector */
 .dp-compare { display: inline-flex; align-items: center; gap: 8px; }
@@ -670,6 +705,25 @@ let G_compareMode = 'none'; // comparison period: none | prev | prevmonth | prev
 const GC = '#24262B', TC = '#A0A3AB';
 const fmt$  = (v, d=2) => G_curr + v.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
 const fmtN  = v => v.toLocaleString();
+
+// Smoothly count a stat element up/down to its new value (easeOutCubic).
+const _reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function animateValue(el, to, render) {
+  if (!el) return;
+  if (!isFinite(to)) { el.__val = NaN; el.textContent = render(to); return; }
+  const from = (typeof el.__val === 'number' && isFinite(el.__val)) ? el.__val : 0;
+  el.__val = to;
+  if (_reduceMotion || from === to) { el.textContent = render(to); return; }
+  if (el.__raf) cancelAnimationFrame(el.__raf);
+  const dur = 550, t0 = performance.now();
+  const step = now => {
+    const p = Math.min(1, (now - t0) / dur);
+    const e = 1 - Math.pow(1 - p, 3);
+    el.textContent = render(from + (to - from) * e);
+    if (p < 1) el.__raf = requestAnimationFrame(step); else el.__raf = null;
+  };
+  el.__raf = requestAnimationFrame(step);
+}
 const META_API = 'https://graph.facebook.com/v19.0';
 const PROXY_API = '/api/meta';
 // Proxy mode turns on automatically when no token is embedded in the page
@@ -1289,9 +1343,9 @@ function renderRange(startIso, endIso) {
   const fmtLbl = iso => new Date(iso+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
   const periodLabel = days === 1 ? fmtLbl(startIso) : `${fmtLbl(startIso)} – ${fmtLbl(endIso)}`;
 
-  document.getElementById('totalSpend').textContent   = fmt$(Math.floor(totalSpend), 0);
-  document.getElementById('totalRevenue').textContent = fmt$(totalRev);
-  document.getElementById('avgRoas').textContent      = roas + (roas !== '—' ? 'x' : '');
+  animateValue(document.getElementById('totalSpend'),   totalSpend, v => fmt$(Math.floor(v), 0));
+  animateValue(document.getElementById('totalRevenue'), totalRev,   v => fmt$(v));
+  animateValue(document.getElementById('avgRoas'),      adjTotal > 0 ? totalRev / adjTotal : NaN, v => isFinite(v) ? v.toFixed(2) + 'x' : '—');
   document.getElementById('cardPeriod').textContent   = periodLabel;
 
   // Comparison deltas (Shopify-style) — async, fills card deltas when ready
@@ -1300,7 +1354,7 @@ function renderRange(startIso, endIso) {
   const totClicks  = G_adsets.reduce((s,a)=>s+a.clicks, 0);
   const totImpr    = G_adsets.reduce((s,a)=>s+a.impressions, 0);
   const totAdSpend = G_adsets.reduce((s,a)=>s+a.spend, 0);
-  document.getElementById('avgCtr').textContent = (totClicks/totImpr*100).toFixed(2)+'%';
+  animateValue(document.getElementById('avgCtr'), totImpr > 0 ? totClicks / totImpr * 100 : NaN, v => isFinite(v) ? v.toFixed(2) + '%' : '—');
 
   document.getElementById('revTitle').textContent   = `Daily Result Value Revenue — ${periodLabel}`;
   document.getElementById('spendTitle').textContent = `Daily Spend — ${periodLabel}`;
