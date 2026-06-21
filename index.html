@@ -575,6 +575,13 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
     <div class="funnel-stages" id="funnelStages"></div>
   </div>
 
+  <!-- DAILY REVENUE (vertical columns, excludes the messaging campaign) -->
+  <div class="section-title">Daily Revenue</div>
+  <div class="chart-box" style="margin-bottom:24px">
+    <div class="chart-title" id="dailyRevTitle">Revenue by Day — excl. Message Campaign</div>
+    <div style="position:relative;height:280px"><canvas id="dailyRevenueChart"></canvas></div>
+  </div>
+
   <!-- WEEKLY REVENUE (calendar weeks of the selected month) -->
   <div class="section-title" id="weeklyTitle">Weekly Revenue — Monthly Breakdown</div>
   <div class="week-cards" id="weekCards"></div>
@@ -794,7 +801,7 @@ async function ensureDates(startIso, endIso) {
   const url = `${API_BASE}/act_${G_accountId}/insights?${metaAuth(token)}level=account&time_increment=1&time_range=${tr}&fields=spend,action_values&limit=500`;
   // Also fetch MESSAGE_CBO_SALES daily spend for accurate ROAS
   const msgFilter = encodeURIComponent('[{"field":"campaign.name","operator":"CONTAIN","value":"MESSAGE_CBO_SALES"}]');
-  const msgUrl = `${API_BASE}/act_${G_accountId}/insights?${metaAuth(token)}level=campaign&time_increment=1&time_range=${tr}&filtering=${msgFilter}&fields=spend&limit=500`;
+  const msgUrl = `${API_BASE}/act_${G_accountId}/insights?${metaAuth(token)}level=campaign&time_increment=1&time_range=${tr}&filtering=${msgFilter}&fields=spend,action_values&limit=500`;
 
   try {
     let next = url;
@@ -808,7 +815,8 @@ async function ensureDates(startIso, endIso) {
         G_liveCache.set(row.date_start, {
           spend:    parseFloat(row.spend) || 0,
           revenue:  rev ? parseFloat(rev.value) : 0,
-          msgSpend: existing.msgSpend || 0
+          msgSpend: existing.msgSpend || 0,
+          msgRevenue: existing.msgRevenue || 0
         });
       });
       next = json.paging?.next || null;
@@ -821,7 +829,8 @@ async function ensureDates(startIso, endIso) {
       if (json.error) break;
       (json.data || []).forEach(row => {
         const existing = G_liveCache.get(row.date_start) || { spend:0, revenue:0, msgSpend:0 };
-        G_liveCache.set(row.date_start, { ...existing, msgSpend: parseFloat(row.spend) || 0 });
+        const mrev = (row.action_values || []).find(a => a.action_type === 'purchase');
+        G_liveCache.set(row.date_start, { ...existing, msgSpend: parseFloat(row.spend) || 0, msgRevenue: mrev ? parseFloat(mrev.value) : 0 });
       });
       mnext = json.paging?.next || null;
     }
@@ -858,6 +867,7 @@ function sliceFromCache(startIso, endIso) {
     spends:    isoList.map(d => G_liveCache.get(d)?.spend    ?? 0),
     revenues:  isoList.map(d => G_liveCache.get(d)?.revenue  ?? 0),
     msgSpends: isoList.map(d => G_liveCache.get(d)?.msgSpend ?? 0),
+    msgRevenues: isoList.map(d => G_liveCache.get(d)?.msgRevenue ?? 0),
     labels:    isoList.map(d => {
       const dt = new Date(d + 'T12:00:00');
       return dt.toLocaleDateString('en-US', {month:'short', day:'numeric'});
@@ -1335,7 +1345,7 @@ async function refreshAdsForRange(startIso, endIso) {
 }
 
 function renderRange(startIso, endIso) {
-  const { isoList, spends, revenues, msgSpends, labels } = sliceFromCache(startIso, endIso);
+  const { isoList, spends, revenues, msgSpends, msgRevenues, labels } = sliceFromCache(startIso, endIso);
   const days        = isoList.length;
   const totalSpend  = spends.reduce((a,v)=>a+v, 0);
   const totalRev    = revenues.reduce((a,v)=>a+v, 0);
@@ -1404,6 +1414,17 @@ function renderRange(startIso, endIso) {
        scales:{x:{grid:{display:false},ticks:{color:TC,font:{size:10},maxTicksLimit:singleDay?10:tickLimit}},
                y:{grid:{color:GC},ticks:{color:TC,callback:v=>G_curr+v.toLocaleString()}}}});
   }
+
+  // Daily Revenue — vertical bars, excludes the messaging campaign's revenue
+  const dailyRevExcl = revenues.map((v,i) => Math.max(0, v - (msgRevenues[i] || 0)));
+  const dailyRevTitleEl = document.getElementById('dailyRevTitle');
+  if (dailyRevTitleEl) dailyRevTitleEl.textContent = `Revenue by Day — excl. Message Campaign — ${periodLabel}`;
+  mkChart('dailyRevenueChart','bar',{
+    labels,
+    datasets:[{data:dailyRevExcl, backgroundColor:'rgba(74,222,128,.7)', borderRadius:4, borderSkipped:false}]},
+    {plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt$(c.raw)}}},
+     scales:{x:{grid:{display:false},ticks:{color:TC,font:{size:10},maxTicksLimit:tickLimit}},
+             y:{grid:{color:GC},ticks:{color:TC,callback:v=>G_curr+v.toLocaleString()}}}});
 
   // ROAS trend line chart
   const roasTitleEl = document.getElementById('roasTitle');
@@ -1672,6 +1693,7 @@ const I18N = {
   'AOV':'متوسط قيمة الطلب', 'Average Order Value':'متوسط قيمة الطلب',
   'Daily Result Value Revenue':'إيرادات قيمة النتائج اليومية', 'Daily Spend':'الإنفاق اليومي',
   'Revenue by Week':'الإيرادات حسب الأسبوع', 'Spend vs Revenue by Week':'الإنفاق مقابل الإيرادات حسب الأسبوع',
+  'Daily Revenue':'الإيرادات اليومية', 'Revenue by Day':'الإيرادات حسب اليوم', 'excl. Message Campaign':'باستثناء حملة الرسائل',
   'AOV by Ads':'متوسط قيمة الطلب حسب الإعلان', 'AOV vs ROAS':'متوسط قيمة الطلب مقابل العائد',
   'Top 5 Winning Ads':'أفضل 5 إعلانات', 'Full Period':'كامل الفترة',
   'Conversion Funnel by Ad Set':'قمع التحويل حسب الإعلان',
