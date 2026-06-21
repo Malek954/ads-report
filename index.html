@@ -1415,15 +1415,20 @@ function renderRange(startIso, endIso) {
                y:{grid:{color:GC},ticks:{color:TC,callback:v=>G_curr+v.toLocaleString()}}}});
   }
 
-  // Daily Revenue — vertical bars, excludes the messaging campaign's revenue
+  // Revenue by day of week (Sun–Sat), excludes the messaging campaign's revenue
   const dailyRevExcl = revenues.map((v,i) => Math.max(0, v - (msgRevenues[i] || 0)));
+  const dowRev = [0,0,0,0,0,0,0];
+  isoList.forEach((iso,i) => { dowRev[new Date(iso+'T12:00:00').getDay()] += dailyRevExcl[i]; });
+  const wdNames = (G_lang === 'ar')
+    ? ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت']
+    : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const dailyRevTitleEl = document.getElementById('dailyRevTitle');
-  if (dailyRevTitleEl) dailyRevTitleEl.textContent = `Revenue by Day — excl. Message Campaign — ${periodLabel}`;
+  if (dailyRevTitleEl) dailyRevTitleEl.textContent = `Revenue by Day of Week — excl. Message Campaign — ${periodLabel}`;
   mkChart('dailyRevenueChart','bar',{
-    labels,
-    datasets:[{data:dailyRevExcl, backgroundColor:'rgba(74,222,128,.7)', borderRadius:4, borderSkipped:false}]},
+    labels: wdNames,
+    datasets:[{data:dowRev, backgroundColor:'rgba(74,222,128,.7)', borderRadius:4, borderSkipped:false}]},
     {plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt$(c.raw)}}},
-     scales:{x:{grid:{display:false},ticks:{color:TC,font:{size:10},maxTicksLimit:tickLimit}},
+     scales:{x:{grid:{display:false},ticks:{color:TC,font:{size:11}}},
              y:{grid:{color:GC},ticks:{color:TC,callback:v=>G_curr+v.toLocaleString()}}}});
 
   // ROAS trend line chart
@@ -1693,7 +1698,7 @@ const I18N = {
   'AOV':'متوسط قيمة الطلب', 'Average Order Value':'متوسط قيمة الطلب',
   'Daily Result Value Revenue':'إيرادات قيمة النتائج اليومية', 'Daily Spend':'الإنفاق اليومي',
   'Revenue by Week':'الإيرادات حسب الأسبوع', 'Spend vs Revenue by Week':'الإنفاق مقابل الإيرادات حسب الأسبوع',
-  'Daily Revenue':'الإيرادات اليومية', 'Revenue by Day':'الإيرادات حسب اليوم', 'excl. Message Campaign':'باستثناء حملة الرسائل',
+  'Daily Revenue':'الإيرادات اليومية', 'Revenue by Day of Week':'الإيرادات حسب أيام الأسبوع', 'excl. Message Campaign':'باستثناء حملة الرسائل',
   'AOV by Ads':'متوسط قيمة الطلب حسب الإعلان', 'AOV vs ROAS':'متوسط قيمة الطلب مقابل العائد',
   'Top 5 Winning Ads':'أفضل 5 إعلانات', 'Full Period':'كامل الفترة',
   'Conversion Funnel by Ad Set':'قمع التحويل حسب الإعلان',
