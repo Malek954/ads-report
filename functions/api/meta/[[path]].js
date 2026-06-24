@@ -11,8 +11,8 @@ export async function onRequest(context) {
   const segs = Array.isArray(params.path) ? params.path : [params.path];
   const subPath = '/' + segs.join('/');
 
-  // Only allow read-style insight calls — never expose write endpoints
-  if (!/^\/act_\d+\/insights\/?$/.test(subPath)) {
+  // Only allow read-style calls — insights + the ads list (for live status)
+  if (!/^\/act_\d+\/(insights|ads)\/?$/.test(subPath)) {
     return json({ error: { message: 'Endpoint not allowed.' } }, 403);
   }
 

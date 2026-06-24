@@ -9,8 +9,8 @@ export default async (req) => {
   // Everything after /api/meta becomes the Graph API path (e.g. /act_123/insights)
   const subPath = inUrl.pathname.replace(/^\/api\/meta/, '');
 
-  // Only allow read-style insight calls — never expose write endpoints through the proxy
-  if (!/^\/act_\d+\/insights\/?$/.test(subPath)) {
+  // Only allow read-style calls — insights + the ads list (for live status)
+  if (!/^\/act_\d+\/(insights|ads)\/?$/.test(subPath)) {
     return new Response(
       JSON.stringify({ error: { message: 'Endpoint not allowed.' } }),
       { status: 403, headers: { 'content-type': 'application/json' } }
