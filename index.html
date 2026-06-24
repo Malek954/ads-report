@@ -172,10 +172,12 @@ tbody tr:hover { background: #141418; }
 td { padding: 11px 14px; color: #cbd5e1; vertical-align: middle; }
 td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .campaign-tag { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 3px; display: inline-block; white-space: nowrap; }
-.tag-testing  { background: rgba(50,99,193,.18); color: #4374D6; }
-.tag-retarget { background: #1e3d2e; color: #4ade80; }
-.tag-message  { background: #3d2a1e; color: #fb923c; }
-.tag-ksa      { background: #141418; color: #A0A3AB; }
+.tag-testing   { background: rgba(50,99,193,.18); color: #4374D6; }
+.tag-retarget  { background: #1e3d2e; color: #4ade80; }
+.tag-message   { background: #3d2a1e; color: #fb923c; }
+.tag-scale     { background: #2e1e3d; color: #c084fc; }
+.tag-retention { background: #14363a; color: #2dd4bf; }
+.tag-ksa       { background: #141418; color: #A0A3AB; }
 .spend-bar-wrap { display: flex; align-items: center; gap: 10px; }
 .spend-bar { height: 6px; border-radius: 3px; background: #3263C1; min-width: 2px; }
 .pill-zero { color: #475569; }
@@ -1752,12 +1754,14 @@ document.addEventListener('click', e => {
 });
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
+// Classify a campaign into one of the 5 types from its name.
 function campaignTag(c) {
-  if(c.includes('RETARGET')) return `<span class="campaign-tag tag-retarget">RETARGET</span>`;
-  if(c.includes('MESSAGE'))  return `<span class="campaign-tag tag-message">MESSAGE</span>`;
-  if(c.includes('KSA'))      return `<span class="campaign-tag tag-ksa">TESTING KSA</span>`;
-  if(c.includes('SCALING'))  return `<span class="campaign-tag tag-retarget">SCALING</span>`;
-  return `<span class="campaign-tag tag-testing">TESTING</span>`;
+  const u = (c || '').toUpperCase();
+  if (u.includes('MESSAGE'))   return `<span class="campaign-tag tag-message">MESSAGES</span>`;
+  if (u.includes('RETENTION')) return `<span class="campaign-tag tag-retention">RETENTION</span>`;
+  if (u.includes('RETARGET'))  return `<span class="campaign-tag tag-retarget">RETARGET</span>`;
+  if (u.includes('SCAL'))      return `<span class="campaign-tag tag-scale">SCALE</span>`;   // SCALE / SCALING
+  return `<span class="campaign-tag tag-testing">TESTING</span>`;                            // testing / sales (default)
 }
 
 // ── ARABIC TRANSLATION (RTL) ────────────────────────────────────────────────────
