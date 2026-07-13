@@ -263,6 +263,20 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .menu-btn .ham { display: block; width: 16px; height: 2px; background: #A0A3AB; border-radius: 2px; transition: background .15s; }
 .menu-btn:hover { border-color: #3263C1; }
 .menu-btn:hover .ham { background: #4374D6; }
+.menu-wrap { position: relative; }
+.nav-menu { position: absolute; top: calc(100% + 6px); right: 0; z-index: 900;
+  background: #0A0A0C; border: 1px solid #24262B; border-radius: 8px; padding: 6px;
+  min-width: 200px; box-shadow: 0 20px 50px -20px rgba(0,0,0,.8);
+  display: none; flex-direction: column; gap: 2px; }
+.nav-menu.open { display: flex; }
+.nav-item { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  background: none; border: none; color: #cbd5e1; font-size: 13px; font-weight: 500;
+  font-family: var(--font-body); padding: 10px 12px; border-radius: 6px; cursor: pointer; }
+.nav-item:hover { background: #141418; color: #fff; }
+.nav-item.active { color: #4374D6; }
+.nav-ico { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+.nav-ico.rep { background: #3263C1; }
+.nav-ico.sea { background: #d9a441; }
 
 /* Playbook drawer */
 .pb-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 1000; opacity: 0; pointer-events: none; transition: opacity .25s ease; }
@@ -486,9 +500,15 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
       <p class="subtitle" id="dashSubtitle">Loading…</p>
     </div>
     <div class="topbar-btns">
-      <button class="exit-btn menu-btn" onclick="openPlaybook()" title="Seasonality & Offers Playbook" aria-label="Open playbook">
-        <span class="ham"></span><span class="ham"></span><span class="ham"></span>
-      </button>
+      <div class="menu-wrap">
+        <button class="exit-btn menu-btn" onclick="toggleNav(event)" title="Menu" aria-label="Open menu">
+          <span class="ham"></span><span class="ham"></span><span class="ham"></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+          <button class="nav-item" onclick="navGo('report')"><span class="nav-ico rep"></span>Report Sheet</button>
+          <button class="nav-item" onclick="navGo('season')"><span class="nav-ico sea"></span>Seasonality &amp; Offers</button>
+        </div>
+      </div>
       <button class="exit-btn lang-btn" id="langBtn" onclick="toggleLang()">العربية</button>
       <button class="exit-btn" onclick="confirmExit()">&#x2715; Exit Report</button>
     </div>
@@ -1900,7 +1920,21 @@ function openPlaybook() {
   document.addEventListener('keydown', pbEsc);
 }
 function closePlaybook() { document.getElementById('pbOverlay').classList.remove('open'); document.removeEventListener('keydown', pbEsc); }
-function pbEsc(e) { if (e.key === 'Escape') closePlaybook(); }
+function pbEsc(e) { if (e.key === 'Escape') { closePlaybook(); closeNav(); } }
+
+// Top-right nav menu: choose between the Report Sheet and the Seasonality view
+function toggleNav(e) { if (e) e.stopPropagation(); document.getElementById('navMenu').classList.toggle('open'); }
+function closeNav() { const m = document.getElementById('navMenu'); if (m) m.classList.remove('open'); }
+function navGo(where) {
+  closeNav();
+  if (where === 'season') openPlaybook();
+  else closePlaybook();   // 'report' — return to the dashboard
+}
+// Close the nav menu when clicking anywhere else
+document.addEventListener('click', e => {
+  const w = e.target.closest && e.target.closest('.menu-wrap');
+  if (!w) closeNav();
+});
 
 // ── ARABIC TRANSLATION (RTL) ────────────────────────────────────────────────────
 const I18N = {
