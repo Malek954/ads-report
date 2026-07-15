@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Impact Systems — Performance Report</title>
+<title>Impact Systems - Performance Report</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -77,17 +77,17 @@
 body {
   background: #000000; color: #e2e8f0;
   font-family: var(--font-body);
-  font-size: 14px; line-height: 1.6;
+  font-size: clamp(13px, 12px + 0.25vw, 16px); line-height: 1.6;
   padding: 32px 24px; max-width: 1400px; margin: 0 auto;
 }
 #dashboard { display: none; }
 #dashboard.visible { display: block; }
 
-h1 { font-family: var(--font-display); font-size: 19px; font-weight: 400; color: #FFFFFF; margin-bottom: 4px; letter-spacing: 0.02em; }
-.subtitle { color: #A0A3AB; font-size: 13px; margin-bottom: 24px; }
+h1 { font-family: var(--font-display); font-size: clamp(15px, 13px + 0.6vw, 24px); font-weight: 400; color: #FFFFFF; margin-bottom: 4px; letter-spacing: 0.02em; }
+.subtitle { color: #A0A3AB; font-size: clamp(11px, 10px + 0.25vw, 14px); margin-bottom: 24px; }
 .section-title {
   font-family: var(--font-display);
-  font-size: 11px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.12em;
+  font-size: clamp(10px, 9px + 0.2vw, 13px); font-weight: 400; text-transform: uppercase; letter-spacing: 0.12em;
   color: #A0A3AB; margin-bottom: 16px; margin-top: 40px; padding-bottom: 8px;
   border-bottom: 1px solid #24262B;
 }
@@ -95,8 +95,8 @@ h1 { font-family: var(--font-display); font-size: 19px; font-weight: 400; color:
 .card { background: #0A0A0C; border: 1px solid #24262B; border-radius: 6px; padding: 20px;
   transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
 .card:hover { border-color: #1E3C73; transform: translateY(-2px); box-shadow: 0 8px 28px -12px rgba(50,99,193,.5); }
-.card-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #A0A3AB; margin-bottom: 8px; }
-.card-value { font-family: var(--font-display); font-size: 24px; font-weight: 400; color: #FFFFFF; letter-spacing: 0.01em; }
+.card-label { font-size: clamp(10px, 9px + 0.2vw, 12px); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #A0A3AB; margin-bottom: 8px; }
+.card-value { font-family: var(--font-display); font-size: clamp(16px, 13px + 0.9vw, 30px); font-weight: 400; color: #FFFFFF; letter-spacing: 0.01em; }
 .card-value.green { color: #4ade80; }
 .card-sub { font-size: 11px; color: #475569; margin-top: 4px; }
 .card-delta { display: none; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; margin-top: 6px; }
@@ -124,7 +124,7 @@ h1 { font-family: var(--font-display); font-size: 19px; font-weight: 400; color:
   #dashboard.visible .cards .card:nth-child(2) { animation-delay: .10s; }
   #dashboard.visible .cards .card:nth-child(3) { animation-delay: .16s; }
   #dashboard.visible .cards .card:nth-child(4) { animation-delay: .22s; }
-  /* Sections + panels ease in (NOT the date bar — its panel must not be clipped) */
+  /* Sections + panels ease in (NOT the date bar - its panel must not be clipped) */
   #dashboard.visible .section-title,
   #dashboard.visible .chart-box,
   #dashboard.visible .funnel-wrap,
@@ -159,11 +159,11 @@ h1 { font-family: var(--font-display); font-size: 19px; font-weight: 400; color:
 
 .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
 .chart-box { background: #0A0A0C; border: 1px solid #24262B; border-radius: 6px; padding: 24px; }
-.chart-title { font-size: 13px; font-weight: 600; color: #94a3b8; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.06em; }
+.chart-title { font-size: clamp(11px, 10px + 0.3vw, 15px); font-weight: 600; color: #94a3b8; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.06em; }
 
 .table-box { background: #0A0A0C; border: 1px solid #24262B; border-radius: 6px; padding: 24px; overflow-x: auto; margin-bottom: 24px; }
 .table-title { font-size: 13px; font-weight: 600; color: #94a3b8; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.06em; }
-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+table { width: 100%; border-collapse: collapse; font-size: clamp(11px, 10px + 0.25vw, 14px); }
 thead th { text-align: left; padding: 10px 14px; color: #A0A3AB; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; border-bottom: 1px solid #24262B; white-space: nowrap; }
 thead th.num { text-align: right; }
 tbody tr { border-bottom: 1px solid #24262B; transition: background 0.15s; }
@@ -237,7 +237,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .dp-apply:hover    { background: #4374D6; }
 .dp-apply:disabled { background: #24262B; color: #475569; cursor: default; }
 
-/* Funnel — Shopify style */
+/* Funnel - Shopify style */
 .funnel-wrap { background: #0A0A0C; border: 1px solid #24262B; border-radius: 6px; padding: 28px 24px 24px; margin-bottom: 28px; }
 .funnel-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 24px; }
 .funnel-overall-pct { font-size: 36px; font-weight: 800; color: #FFFFFF; line-height: 1; }
@@ -280,7 +280,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .nav-ico.plan { background: #3fd07f; }
 
 /* Playbook drawer */
-.pb-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 1000; opacity: 0; pointer-events: none; transition: opacity .25s ease; }
+.pb-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 1000; opacity: 0; pointer-events: none; transition: opacity .25s ease; overflow: hidden; }
 .pb-overlay.open { opacity: 1; pointer-events: auto; }
 .pb-drawer { position: absolute; top: 0; right: 0; height: 100%; width: 440px; max-width: 92vw;
   background: #050506; border-left: 1px solid #24262B; overflow-y: auto; padding: 24px 22px 40px;
@@ -340,7 +340,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .aov-cards { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
 .aov-card { background: #0A0A0C; border: 1px solid #24262B; border-radius: 6px; padding: 20px; }
 .aov-card-label { font-size: 11px; color: #A0A3AB; margin-bottom: 4px; }
-.aov-card-value { font-size: 22px; font-weight: 800; color: #FFFFFF; }
+.aov-card-value { font-size: clamp(15px, 12px + 0.8vw, 26px); font-weight: 800; color: #FFFFFF; }
 .aov-card-sub   { font-size: 11px; color: #475569; margin-top: 3px; }
 
 /* Top Winning Ads */
@@ -372,8 +372,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 
   /* Tighter section headers + titles */
   .section-title { margin-top: 28px; }
-  h1 { font-size: 15px; letter-spacing: 0; white-space: nowrap; }
-  .subtitle { font-size: 11px; }
+  h1 { letter-spacing: 0; white-space: nowrap; }
 
   /* Header: float buttons to the top-right so the title gets the full width (one line) */
   .dash-topbar { position: relative; }
@@ -387,10 +386,10 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   .dash-topbar { gap: 10px; align-items: flex-start; }
   .exit-btn { padding: 7px 12px; }
 
-  /* Summary cards: 2 columns — shrink numbers so long EGP values fit, never overflow */
+  /* Summary cards: 2 columns - shrink numbers so long EGP values fit, never overflow */
   .cards { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
   .card { padding: 14px; min-width: 0; }
-  .card-value { font-size: 16px; letter-spacing: 0; overflow-wrap: anywhere; }
+  .card-value { letter-spacing: 0; overflow-wrap: anywhere; }
   .card-label { font-size: 10px; }
   .card-sub { font-size: 10px; }
   .card-delta { font-size: 11px; }
@@ -470,14 +469,14 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
     <button id="loginBtn" onclick="checkLogin()">View My Report</button>
     <div id="loginError"></div>
   </div>
-  <!-- Token setup — shown only when no token is saved yet -->
+  <!-- Token setup - shown only when no token is saved yet -->
   <div id="tokenSetup" style="margin-top:8px;text-align:center">
     <span id="tokenToggleLink" style="font-size:12px;color:#475569;cursor:pointer;text-decoration:underline"
           onclick="document.getElementById('tokenBox').style.display=document.getElementById('tokenBox').style.display==='none'?'flex':'none'">
       ⚙ Setup API token for live data
     </span>
     <div id="tokenBox" style="display:none;flex-direction:column;gap:10px;margin-top:12px;background:#0A0A0C;border:1px solid #24262B;border-radius:12px;padding:20px;min-width:340px">
-      <p style="font-size:12px;color:#A0A3AB;text-align:left">Paste your Meta access token once — it's saved locally in this browser and never sent anywhere except the Meta API.</p>
+      <p style="font-size:12px;color:#A0A3AB;text-align:left">Paste your Meta access token once - it's saved locally in this browser and never sent anywhere except the Meta API.</p>
       <input id="tokenInput" class="gate-input" type="password" placeholder="EAASnJz..." autocomplete="off" />
       <button onclick="saveToken()" style="background:#3263C1;color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer">Save Token</button>
       <div id="tokenMsg" style="font-size:12px;color:#4ade80;min-height:16px"></div>
@@ -647,7 +646,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 
   <!-- TOP 5 WINNING ADS -->
   <div class="chart-box" style="margin-top:20px;margin-bottom:0">
-    <div class="chart-title">Top 5 Winning Ads — Full Period</div>
+    <div class="chart-title">Top 5 Winning Ads - Full Period</div>
     <div class="winning-list" id="winningList"></div>
   </div>
 
@@ -656,7 +655,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   <div class="funnel-wrap" id="funnelWrap">
     <div class="funnel-header">
       <div class="funnel-overall-pct" id="funnelOverallPct">—</div>
-      <div class="funnel-overall-label">overall conversion rate<br><span style="font-size:11px;color:#475569">Website Purchases ÷ Landing Page Views — Full Period</span></div>
+      <div class="funnel-overall-label">overall conversion rate<br><span style="font-size:11px;color:#475569">Website Purchases ÷ Landing Page Views - Full Period</span></div>
     </div>
     <div class="funnel-stages" id="funnelStages"></div>
   </div>
@@ -664,7 +663,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   <!-- DAILY REVENUE (ranked by day of week, excludes the messaging campaign) -->
   <div class="section-title">Daily Revenue</div>
   <div class="table-box" style="margin-bottom:24px">
-    <div class="table-title" id="dailyRevTitle">Revenue by Day — excl. Message Campaign</div>
+    <div class="table-title" id="dailyRevTitle">Revenue by Day - excl. Message Campaign</div>
     <table class="dow-table">
       <thead><tr><th>Day</th><th class="num">Revenue</th><th></th></tr></thead>
       <tbody id="dailyRevBody"></tbody>
@@ -672,7 +671,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   </div>
 
   <!-- WEEKLY REVENUE (calendar weeks of the selected month) -->
-  <div class="section-title" id="weeklyTitle">Weekly Revenue — Monthly Breakdown</div>
+  <div class="section-title" id="weeklyTitle">Weekly Revenue - Monthly Breakdown</div>
   <div class="week-cards" id="weekCards"></div>
   <div class="charts">
     <div class="chart-box">
@@ -686,7 +685,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   </div>
 
   <!-- AOV -->
-  <div class="section-title">AOV — Average Order Value</div>
+  <div class="section-title">AOV - Average Order Value</div>
   <div class="aov-cards" id="aovSummary"></div>
   <div class="charts">
     <div class="chart-box">
@@ -699,8 +698,8 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
     </div>
   </div>
 
-  <!-- LIVE ADS — currently running right now (real-time status from the Ads API) -->
-  <div class="section-title"><span class="live-dot"></span>Live Ads — Running Now <span id="liveAdsCount" class="live-count">—</span></div>
+  <!-- LIVE ADS - currently running right now (real-time status from the Ads API) -->
+  <div class="section-title"><span class="live-dot"></span>Live Ads - Running Now <span id="liveAdsCount" class="live-count">—</span></div>
   <div class="table-box">
     <div class="table-title">Only ads with status ACTIVE · performance for the selected range</div>
     <table>
@@ -713,7 +712,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   </div>
 
   <div class="table-box" style="margin-top:0">
-    <div class="table-title">Conversion Funnel by Ad Set — Full Period</div>
+    <div class="table-title">Conversion Funnel by Ad Set - Full Period</div>
     <table>
       <thead><tr>
         <th>Ad Set</th><th>Campaign</th>
@@ -737,7 +736,7 @@ const ACCOUNTS = {
   'SSD_impact':     { id:'1757389631850436', name:'SSD Impact',    currency:'E£', adsets:null, dailySpend:null, dailyRevenue:null, dailyMsgSpend:null }
 };
 
-// ── EMBEDDED DATA — replaced by update-dashboard.ps1 ──────────────────────────
+// ── EMBEDDED DATA - replaced by update-dashboard.ps1 ──────────────────────────
 // @@DATA_START@@
 const ACCESS_TOKEN = '';
 const ISO_DATES = ['2025-02-24','2025-02-25','2025-02-26','2025-02-27','2025-02-28','2025-03-01','2025-03-02','2025-03-03','2025-03-04','2025-03-05','2025-03-06','2025-03-07','2025-03-08','2025-03-09','2025-03-10','2025-03-11','2025-03-12','2025-03-13','2025-03-14','2025-03-15','2025-03-16','2025-03-17','2025-03-18','2025-03-19','2025-03-20','2025-03-21','2025-03-22','2025-03-23','2025-03-24','2025-03-25','2025-03-26','2025-03-27','2025-03-28','2025-03-29','2025-03-30','2025-03-31','2025-04-01','2025-04-02','2025-04-03','2025-04-04','2025-04-05','2025-04-06','2025-04-07','2025-04-08','2025-04-09','2025-04-10','2025-04-11','2025-04-12','2025-04-13','2025-04-14','2025-04-15','2025-04-16','2025-04-17','2025-04-18','2025-04-19','2025-04-20','2025-04-21','2025-04-22','2025-04-23','2025-04-24','2025-04-25','2025-04-26','2025-04-27','2025-04-28','2025-04-29','2025-04-30','2025-05-01','2025-05-02','2025-05-03','2025-05-04','2025-05-05','2025-05-06','2025-05-07','2025-05-08','2025-05-09','2025-05-10','2025-05-11','2025-05-12','2025-05-13','2025-05-14','2025-05-15','2025-05-16','2025-05-17','2025-05-18','2025-05-19','2025-05-20','2025-05-21','2025-05-22','2025-05-23','2025-05-24','2025-05-25','2025-05-26','2025-05-27','2025-05-28','2025-05-29','2025-05-30','2025-05-31','2025-06-01','2025-06-02','2025-06-03','2025-06-04','2025-06-05','2025-06-06','2025-06-07','2025-06-08','2025-06-09','2025-06-10','2025-06-11','2025-06-12','2025-06-13','2025-06-14','2025-06-15','2025-06-16','2025-06-17','2025-06-18','2025-06-19','2025-06-20','2025-06-21','2025-06-22','2025-06-23','2025-06-24','2025-06-25','2025-06-26','2025-06-27','2025-06-28','2025-06-29','2025-06-30','2025-07-01','2025-07-02','2025-07-03','2025-07-04','2025-07-05','2025-07-06','2025-07-07','2025-07-08','2025-07-09','2025-07-10','2025-07-11','2025-07-12','2025-07-13','2025-07-14','2025-07-15','2025-07-16','2025-07-17','2025-07-18','2025-07-19','2025-07-20','2025-07-21','2025-07-22','2025-07-23','2025-07-24','2025-07-25','2025-07-26','2025-07-27','2025-07-28','2025-07-29','2025-07-30','2025-07-31','2025-08-01','2025-08-02','2025-08-03','2025-08-04','2025-08-05','2025-08-06','2025-08-07','2025-08-08','2025-08-09','2025-08-10','2025-08-11','2025-08-12','2025-08-13','2025-08-14','2025-08-15','2025-08-16','2025-08-17','2025-08-18','2025-08-19','2025-08-20','2025-08-21','2025-08-22','2025-08-23','2025-08-24','2025-08-25','2025-08-26','2025-08-27','2025-08-28','2025-08-29','2025-08-30','2025-08-31','2025-09-01','2025-09-02','2025-09-03','2025-09-04','2025-09-05','2025-09-06','2025-09-07','2025-09-08','2025-09-09','2025-09-10','2025-09-11','2025-09-12','2025-09-13','2025-09-14','2025-09-15','2025-09-16','2025-09-17','2025-09-18','2025-09-19','2025-09-20','2025-09-21','2025-09-22','2025-09-23','2025-09-24','2025-09-25','2025-09-26','2025-09-27','2025-09-28','2025-09-29','2025-09-30','2025-10-01','2025-10-02','2025-10-03','2025-10-04','2025-10-05','2025-10-06','2025-10-07','2025-10-08','2025-10-09','2025-10-10','2025-10-11','2025-10-12','2025-10-13','2025-10-14','2025-10-15','2025-10-16','2025-10-17','2025-10-18','2025-10-19','2025-10-20','2025-10-21','2025-10-22','2025-10-23','2025-10-24','2025-10-25','2025-10-26','2025-10-27','2025-10-28','2025-10-29','2025-10-30','2025-10-31','2025-11-01','2025-11-02','2025-11-03','2025-11-04','2025-11-05','2025-11-06','2025-11-07','2025-11-08','2025-11-09','2025-11-10','2025-11-11','2025-11-12','2025-11-13','2025-11-14','2025-11-15','2025-11-16','2025-11-17','2025-11-18','2025-11-19','2025-11-20','2025-11-21','2025-11-22','2025-11-23','2025-11-24','2025-11-25','2025-11-26','2025-11-27','2025-11-28','2025-11-29','2025-11-30','2025-12-01','2025-12-02','2025-12-03','2025-12-04','2025-12-05','2025-12-06','2025-12-07','2025-12-08','2025-12-09','2025-12-10','2025-12-11','2025-12-12','2025-12-13','2025-12-14','2025-12-15','2025-12-16','2025-12-17','2025-12-18','2025-12-19','2025-12-20','2025-12-21','2025-12-22','2025-12-23','2025-12-24','2025-12-25','2025-12-26','2025-12-27','2025-12-28','2025-12-29','2025-12-30','2025-12-31','2026-01-01','2026-01-02','2026-01-03','2026-01-04','2026-01-05','2026-01-06','2026-01-07','2026-01-08','2026-01-09','2026-01-10','2026-01-11','2026-01-12','2026-01-13','2026-01-14','2026-01-15','2026-01-16','2026-01-17','2026-01-18','2026-01-19','2026-01-20','2026-01-21','2026-01-22','2026-01-23','2026-01-24','2026-01-25','2026-01-26','2026-01-27','2026-01-28','2026-01-29','2026-01-30','2026-01-31','2026-02-01','2026-02-02','2026-02-03','2026-02-04','2026-02-05','2026-02-06','2026-02-07','2026-02-08','2026-02-09','2026-02-10','2026-02-11','2026-02-12','2026-02-13','2026-02-14','2026-02-15','2026-02-16','2026-02-17','2026-02-18','2026-02-19','2026-02-20','2026-02-21','2026-02-22','2026-02-23','2026-02-24','2026-02-25','2026-02-26','2026-02-27','2026-02-28','2026-03-01','2026-03-02','2026-03-03','2026-03-04','2026-03-05','2026-03-06','2026-03-07','2026-03-08','2026-03-09','2026-03-10','2026-03-11','2026-03-12','2026-03-13','2026-03-14','2026-03-15','2026-03-16','2026-03-17','2026-03-18','2026-03-19','2026-03-20','2026-03-21','2026-03-22','2026-03-23','2026-03-24','2026-03-25','2026-03-26','2026-03-27','2026-03-28','2026-03-29','2026-03-30','2026-03-31','2026-04-01','2026-04-02','2026-04-03','2026-04-04','2026-04-05','2026-04-06','2026-04-07','2026-04-08','2026-04-09','2026-04-10','2026-04-11','2026-04-12','2026-04-13','2026-04-14','2026-04-15','2026-04-16','2026-04-17','2026-04-18','2026-04-19','2026-04-20','2026-04-21','2026-04-22','2026-04-23','2026-04-24','2026-04-25','2026-04-26','2026-04-27','2026-04-28','2026-04-29','2026-04-30','2026-05-01','2026-05-02','2026-05-03','2026-05-04','2026-05-05','2026-05-06','2026-05-07','2026-05-08','2026-05-09','2026-05-10','2026-05-11','2026-05-12','2026-05-13','2026-05-14','2026-05-15','2026-05-16','2026-05-17','2026-05-18','2026-05-19','2026-05-20','2026-05-21','2026-05-22','2026-05-23','2026-05-24','2026-05-25','2026-05-26','2026-05-27','2026-05-28','2026-05-29','2026-05-30','2026-05-31','2026-06-01','2026-06-02','2026-06-03','2026-06-04','2026-06-05','2026-06-06','2026-06-07','2026-06-08','2026-06-09','2026-06-10','2026-06-11','2026-06-12','2026-06-13','2026-06-14','2026-06-15','2026-06-16','2026-06-17','2026-06-18','2026-06-19','2026-06-20','2026-06-21','2026-06-22','2026-06-23','2026-06-24','2026-06-25','2026-06-26','2026-06-27','2026-06-28','2026-06-29','2026-06-30','2026-07-01','2026-07-02','2026-07-03','2026-07-04','2026-07-05','2026-07-06','2026-07-07','2026-07-08','2026-07-09','2026-07-10','2026-07-11','2026-07-12','2026-07-13','2026-07-14','2026-07-15'];
@@ -857,7 +856,7 @@ function saveToken() {
   const val = document.getElementById('tokenInput').value.trim();
   if (!val) return;
   localStorage.setItem('metaToken', val);
-  document.getElementById('tokenMsg').textContent = '✓ Token saved — log in to load your data';
+  document.getElementById('tokenMsg').textContent = '✓ Token saved - log in to load your data';
   document.getElementById('tokenInput').value = '';
 }
 
@@ -1084,13 +1083,13 @@ function checkLogin() {
     seedCache(ISO_DATES, acc.dailySpend, acc.dailyRevenue, acc.dailyMsgSpend);
   }
 
-  document.getElementById('dashTitle').textContent    = acc.name.split(' ')[0] + ' — Performance Report';
+  document.getElementById('dashTitle').textContent    = acc.name.split(' ')[0] + ' - Performance Report';
   document.getElementById('dashSubtitle').textContent = `Account ${acc.id} · Loading 2 years of history…`;
   G_liveAds = [];
   initDashboard(acc.adsets || []);
   fetchLiveAds();   // pull currently-active ads (real-time)
 
-  // Background prefetch — updates subtitle and refreshes view when done
+  // Background prefetch - updates subtitle and refreshes view when done
   prefetchHistory().then(() => {
     const todayIso = dpTodayIso();
     document.getElementById('dashSubtitle').textContent =
@@ -1206,7 +1205,7 @@ function buildWinningAds() {
 }
 
 function buildFunnel() {
-  // Prefer adset-level LPV globals (set by refreshAdsForRange) — exact Meta CVR formula
+  // Prefer adset-level LPV globals (set by refreshAdsForRange) - exact Meta CVR formula
   // Fall back to ad-level aggregates from G_adsets for embedded/offline mode
   const totalLPV      = (window.G_funnelLPV      != null) ? window.G_funnelLPV      : G_adsets.reduce((s,a)=>s+(a.landingPageViews||0),0);
   const totalCart     = (window.G_funnelCart     != null) ? window.G_funnelCart     : G_adsets.reduce((s,a)=>s+(a.addToCart||0),0);
@@ -1316,7 +1315,7 @@ function buildWeekly(anchorIso) {
     return sc.spends.reduce((s,v,i)=>s+Math.max(0,v-(sc.msgSpends[i]||0)),0);
   });
   const wt = document.getElementById('weeklyTitle');
-  if (wt) wt.textContent = `Weekly Revenue — ${anchorDt.toLocaleDateString('en-US',{month:'long',year:'numeric'})}`;
+  if (wt) wt.textContent = `Weekly Revenue - ${anchorDt.toLocaleDateString('en-US',{month:'long',year:'numeric'})}`;
   const wc = document.getElementById('weekCards');
   wc.innerHTML = '';
   weeks.forEach((w,i)=>{
@@ -1381,7 +1380,7 @@ async function refreshAdsForRange(startIso, endIso) {
   const tr = encodeURIComponent(JSON.stringify({since: startIso, until: endIso}));
 
   try {
-    // Fetch ad-level data (for names, ROAS, Top 5) — no LPV at this level
+    // Fetch ad-level data (for names, ROAS, Top 5) - no LPV at this level
     const adUrl = `${API_BASE}/act_${G_accountId}/insights?${metaAuth(token)}level=ad&time_range=${tr}&fields=ad_name,adset_name,campaign_name,spend,impressions,inline_link_clicks,ctr,cpc,cpm,frequency,actions,action_values&limit=500`;
     const ads = await fetchPages(adUrl);
     if (!ads.length) return;
@@ -1413,7 +1412,7 @@ async function refreshAdsForRange(startIso, endIso) {
     });
 
     // Adset-level fetch for funnel metrics (landing_page_view is in actions array)
-    // Used exclusively for the Conversion Rate funnel — excludes MESSAGE_CBO_SALES
+    // Used exclusively for the Conversion Rate funnel - excludes MESSAGE_CBO_SALES
     const adsetUrl = `${API_BASE}/act_${G_accountId}/insights?${metaAuth(token)}level=adset&time_range=${tr}&fields=adset_name,campaign_name,actions,action_values&limit=500`;
     const adsets = await fetchPages(adsetUrl);
     const salesAdsets = adsets.filter(a => !(a.campaign_name||'').includes('MESSAGE_CBO_SALES'));
@@ -1421,7 +1420,7 @@ async function refreshAdsForRange(startIso, endIso) {
       const acts = a.actions || [];
       return s + +((acts.find(x=>x.action_type===type)||{}).value||0);
     }, 0);
-    // Website purchases only — matches Meta's "Website CVR" (offsite pixel purchases,
+    // Website purchases only - matches Meta's "Website CVR" (offsite pixel purchases,
     // not the omni/all-sources "purchase" total which over-counts conversions)
     const gactWebPurch = (rows) => rows.reduce((s,a) => {
       const acts = a.actions || [];
@@ -1441,7 +1440,7 @@ async function refreshAdsForRange(startIso, endIso) {
     buildAdsetTable();
     buildAOV();
     buildLiveAds();   // re-join live ads with this range's performance
-  } catch(e) { /* silently skip — embedded data stays */ }
+  } catch(e) { /* silently skip - embedded data stays */ }
 }
 
 // ── LIVE ADS (currently running) ────────────────────────────────────────────────
@@ -1496,7 +1495,7 @@ function renderRange(startIso, endIso) {
   const totalSpend  = spends.reduce((a,v)=>a+v, 0);
   const totalRev    = revenues.reduce((a,v)=>a+v, 0);
 
-  // Exact per-day MESSAGE_CBO_SALES spend from cache — subtract for ROAS denominator
+  // Exact per-day MESSAGE_CBO_SALES spend from cache - subtract for ROAS denominator
   const adjSpends   = spends.map((v,i) => Math.max(0, v - (msgSpends[i] || 0)));
   const adjTotal    = adjSpends.reduce((a,v)=>a+v, 0);
   const roas        = adjTotal > 0 ? (totalRev / adjTotal).toFixed(2) : '—';
@@ -1512,7 +1511,7 @@ function renderRange(startIso, endIso) {
   animateValue(document.getElementById('avgRoas'),      adjTotal > 0 ? totalRev / adjTotal : NaN, v => isFinite(v) ? v.toFixed(2) + 'x' : '—');
   document.getElementById('cardPeriod').textContent   = periodLabel;
 
-  // Comparison deltas (Shopify-style) — async, fills card deltas when ready
+  // Comparison deltas (Shopify-style) - async, fills card deltas when ready
   applyComparison(startIso, endIso, { spend: totalSpend, rev: totalRev, roas: adjTotal > 0 ? totalRev / adjTotal : null });
 
   const totClicks  = G_adsets.reduce((s,a)=>s+a.clicks, 0);
@@ -1520,8 +1519,8 @@ function renderRange(startIso, endIso) {
   const totAdSpend = G_adsets.reduce((s,a)=>s+a.spend, 0);
   animateValue(document.getElementById('avgCtr'), totImpr > 0 ? totClicks / totImpr * 100 : NaN, v => isFinite(v) ? v.toFixed(2) + '%' : '—');
 
-  document.getElementById('revTitle').textContent   = `Daily Result Value Revenue — ${periodLabel}`;
-  document.getElementById('spendTitle').textContent = `Daily Spend — ${periodLabel}`;
+  document.getElementById('revTitle').textContent   = `Daily Result Value Revenue - ${periodLabel}`;
+  document.getElementById('spendTitle').textContent = `Daily Spend - ${periodLabel}`;
 
   const singleDay = days === 1;
   const tickLimit = Math.max(6, Math.min(16, Math.ceil(days/14)));
@@ -1569,7 +1568,7 @@ function renderRange(startIso, endIso) {
     ? ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت']
     : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const dailyRevTitleEl = document.getElementById('dailyRevTitle');
-  if (dailyRevTitleEl) dailyRevTitleEl.textContent = `Revenue by Day — excl. Message Campaign — ${periodLabel}`;
+  if (dailyRevTitleEl) dailyRevTitleEl.textContent = `Revenue by Day - excl. Message Campaign - ${periodLabel}`;
   const dowBody = document.getElementById('dailyRevBody');
   if (dowBody) {
     const ranked = wdNames.map((name, d) => ({ name, rev: dowRev[d] })).sort((a,b) => b.rev - a.rev);
@@ -1584,7 +1583,7 @@ function renderRange(startIso, endIso) {
 
   // ROAS trend line chart
   const roasTitleEl = document.getElementById('roasTitle');
-  if (roasTitleEl) roasTitleEl.textContent = `Daily ROAS — excl. Message Campaigns — ${periodLabel}`;
+  if (roasTitleEl) roasTitleEl.textContent = `Daily ROAS - excl. Message Campaigns - ${periodLabel}`;
   const roasDS = singleDay
     ? {data:dailyRoas, backgroundColor:'rgba(250,204,21,.8)', borderRadius:8, borderSkipped:false}
     : {data:dailyRoas, borderColor:'#facc15', backgroundColor:'rgba(250,204,21,.06)', tension:.35, fill:true,
@@ -1612,7 +1611,7 @@ function renderRange(startIso, endIso) {
 
 function mkChart(id,type,data,options) {
   const el = document.getElementById(id);
-  if (!el) return; // canvas removed from layout — skip
+  if (!el) return; // canvas removed from layout - skip
   if (charts[id]) charts[id].destroy();
   const o = {responsive:true,maintainAspectRatio:false,...options};
   if (typeof G_lang !== 'undefined' && G_lang === 'ar') {
@@ -1837,66 +1836,66 @@ function campaignTag(c) {
 const PB_GULF = [
   { id:'Q1', months:'Jan → Mar', posture:'Scale for volume', cls:'a',
     events:[{d:'~Feb 18',n:'Ramadan begins',s:1},{d:'~Mar 20',n:'Eid al-Fitr',s:1},{d:'Feb 25',n:'Kuwait National Day'}],
-    offers:['<b>Ramadan Collection early-access</b> — drop the new range 2–3 weeks before Ramadan (newness, not discount).',
+    offers:['<b>Ramadan Collection early-access</b> - drop the new range 2–3 weeks before Ramadan (newness, not discount).',
       '<b>“Eid Ready” edit</b> + guaranteed delivery before Eid; free express delivery over a KWD threshold during Eid week.',
-      'Premium <b>Eid gift wrapping</b> — reinforces the higher-end feel Gulf buyers pay for.',
-      'Light “Eid treat” 10–15% on <b>select styles only</b> — never sitewide (protect brand).'] },
+      'Premium <b>Eid gift wrapping</b> - reinforces the higher-end feel Gulf buyers pay for.',
+      'Light “Eid treat” 10–15% on <b>select styles only</b> - never sitewide (protect brand).'] },
   { id:'Q2', months:'Apr → Jun', posture:'Scale for profit', cls:'b',
     events:[{d:'~May 27',n:'Eid al-Adha',s:1},{d:'Jun',n:'Summer / travel edit'}],
-    offers:['<b>New spring/summer lightweight abayas</b> — push hard while ROAS is at its best.',
+    offers:['<b>New spring/summer lightweight abayas</b> - push hard while ROAS is at its best.',
       '<b>“Travel & Eid getaway” edit</b> for the GCC holiday season.',
-      'Early-access to new arrivals for <b>past buyers (retention)</b> — no discount needed.',
+      'Early-access to new arrivals for <b>past buyers (retention)</b> - no discount needed.',
       'Free express delivery over threshold as the steady lever.'] },
   { id:'Q3', months:'Jul → Sep', posture:'Volume · beat fatigue', cls:'c',
     events:[{d:'Jul–Aug',n:'Summer clearance window'},{d:'Sep 23',n:'Saudi National Day'}],
-    offers:['<b>End-of-season clearance</b> — the one time deeper % off is on-brand (move old stock).',
+    offers:['<b>End-of-season clearance</b> - the one time deeper % off is on-brand (move old stock).',
       '<b>Saudi National Day</b> themed offer + free express delivery (expand into KSA).',
-      'Refresh creative constantly — fatigue is what erodes ROAS here.',
+      'Refresh creative constantly - fatigue is what erodes ROAS here.',
       'Late Sep: tease the <b>new autumn collection</b>.'] },
   { id:'Q4', months:'Oct → Dec', posture:'Protect ROAS', cls:'d',
     events:[{d:'Nov 27',n:'White Friday',s:1},{d:'Dec 2',n:'UAE National Day',s:1},{d:'Dec 16/18',n:'Bahrain · Qatar Nat’l'}],
-    offers:['<b>White Friday</b> — the ONE big sitewide sale Gulf shoppers wait for; go strong.',
+    offers:['<b>White Friday</b> - the ONE big sitewide sale Gulf shoppers wait for; go strong.',
       '<b>National Day</b> themed drops + free express delivery (UAE, Qatar, Bahrain).',
-      '<b>Winter collection launch</b> — cooler weather brings abaya season back.',
-      'Lean on <b>Retarget + Retention</b> (VIP early access) — warm audiences convert cheaper while CPMs spike.'] }
+      '<b>Winter collection launch</b> - cooler weather brings abaya season back.',
+      'Lean on <b>Retarget + Retention</b> (VIP early access) - warm audiences convert cheaper while CPMs spike.'] }
 ];
 const PB_EGYPT_AMENAA = [
   { id:'Q1', months:'Jan → Mar', posture:'Scale for volume', cls:'a',
     events:[{d:'Jan 7',n:'Coptic Christmas'},{d:'Feb 14',n:'Valentine’s'},{d:'~Feb 18',n:'Ramadan begins',s:1},{d:'~Mar 20',n:'Eid al-Fitr',s:1},{d:'Mar 21',n:'Mother’s Day (huge in Egypt)',s:1}],
-    offers:['<b>“Ramadan Ready” new-arrivals drop</b> — everyday modest edit; run ads <b>9pm–2am</b> (post-iftar shopping surge).',
-      '<b>Free shipping over ~EGP 2,500</b> all Ramadan — your #1 lever (lifts AOV above the ~1,950 average). Always say <b>“الدفع عند الاستلام / COD”</b>.',
+    offers:['<b>“Ramadan Ready” new-arrivals drop</b> - everyday modest edit; run ads <b>9pm–2am</b> (post-iftar shopping surge).',
+      '<b>Free shipping over ~EGP 2,500</b> all Ramadan - your #1 lever (lifts AOV above the ~1,950 average). Always say <b>“الدفع عند الاستلام / COD”</b>.',
       '<b>Eid new-looks edit</b> + guaranteed delivery before Eid.',
-      '<b>Mother’s Day (Mar 21)</b> — “treat her / treat yourself,” light 15% + free shipping (gifting angle, no bundle).'] },
+      '<b>Mother’s Day (Mar 21)</b> - “treat her / treat yourself,” light 15% + free shipping (gifting angle, no bundle).'] },
   { id:'Q2', months:'Apr → Jun', posture:'Scale for profit', cls:'b',
     events:[{d:'~Apr',n:'Sham El-Nessim (spring outings)',s:1},{d:'~May 27',n:'Eid al-Adha'},{d:'Jun',n:'Sahel / summer launch'}],
-    offers:['<b>Sham El-Nessim spring collection</b> — light, outdoor/picnic looks + free shipping (Egyptians buy new clothes for the day).',
-      '<b>Summer / North-Coast (Sahel) modest collection</b> launch in June — lightweight fabrics.',
-      'Keep <b>free shipping over threshold + COD</b> as the constant levers — this is your best-ROAS quarter, so scale, don’t discount.',
+    offers:['<b>Sham El-Nessim spring collection</b> - light, outdoor/picnic looks + free shipping (Egyptians buy new clothes for the day).',
+      '<b>Summer / North-Coast (Sahel) modest collection</b> launch in June - lightweight fabrics.',
+      'Keep <b>free shipping over threshold + COD</b> as the constant levers - this is your best-ROAS quarter, so scale, don’t discount.',
       'Early access for repeat buyers (retention).'] },
   { id:'Q3', months:'Jul → Sep', posture:'Volume · beat fatigue', cls:'c',
     events:[{d:'Jul–Aug',n:'Sahel summer peak'},{d:'late Aug–Sep',n:'Back-to-school'}],
-    offers:['<b>Mid-season sale</b> — the on-brand moment for a real % (clear summer stock).',
-      '<b>Back-to-school “new season” modest edit</b> (Sep) — university girls & teachers.',
+    offers:['<b>Mid-season sale</b> - the on-brand moment for a real % (clear summer stock).',
+      '<b>Back-to-school “new season” modest edit</b> (Sep) - university girls & teachers.',
       'Refresh creative weekly; keep <b>COD + free shipping</b> messaging front-and-centre.',
       'Broaden beyond Cairo/Alex into <b>Delta & Upper Egypt</b> governorates.'] },
   { id:'Q4', months:'Oct → Dec', posture:'Protect ROAS', cls:'d',
     events:[{d:'Oct 6',n:'Armed Forces Day'},{d:'late Nov',n:'Egyptian Black Friday',s:1},{d:'Dec',n:'Winter collection / year-end'}],
-    offers:['<b>Winter modest collection</b> (heavier fabrics, layering) — launch Oct–Nov.',
-      '<b>Egyptian Black Friday (late Nov)</b> — THE one deep sitewide sale; Egyptian shoppers wait for it, so go strong.',
+    offers:['<b>Winter modest collection</b> (heavier fabrics, layering) - launch Oct–Nov.',
+      '<b>Egyptian Black Friday (late Nov)</b> - THE one deep sitewide sale; Egyptian shoppers wait for it, so go strong.',
       '<b>Year-end clearance</b> (Dec) to close the year.',
       'Free shipping + COD throughout; lean on <b>Retarget/Retention</b> while prospecting CPMs are high.'] }
 ];
 const PLAYBOOK = {
   '401990560846482': { brand:'Bayan · Gulf (Kuwait / GCC)',
-    persona:'Gulf women — abaya & modest occasion wear. Value newness, quality & fast delivery; less discount-driven than Egypt.',
+    persona:'Gulf women - abaya & modest occasion wear. Value newness, quality & fast delivery; less discount-driven than Egypt.',
     lever:'<b>Lead with new collections & limited drops + fast/express delivery.</b> Reserve real discounts for White Friday and end-of-season only.',
     quarters:PB_GULF },
   '2638156416541971': { brand:'Amenaa · Egypt',
     persona:'Egyptian women 25–54 (core 35–44) · everyday modest wear · AOV ≈ EGP 1,950 · mid-market, trust-driven, COD-first.',
-    lever:'<b>Lead with New Arrivals + Cash-on-Delivery + Free shipping over ~EGP 2,500</b> (lifts AOV). Save real % discounts for Ramadan, Mother’s Day, Black Friday & end-of-season only — no bundles.',
+    lever:'<b>Lead with New Arrivals + Cash-on-Delivery + Free shipping over ~EGP 2,500</b> (lifts AOV). Save real % discounts for Ramadan, Mother’s Day, Black Friday & end-of-season only - no bundles.',
     quarters:PB_EGYPT_AMENAA },
   '1757389631850436': { brand:'SSD · Egypt',
-    persona:'Egyptian modest-fashion audience. Same market calendar as Amenaa — tune the offers to this brand’s price tier & product mix.',
+    persona:'Egyptian modest-fashion audience. Same market calendar as Amenaa - tune the offers to this brand’s price tier & product mix.',
     lever:'<b>Egypt-market template.</b> COD + free-shipping threshold + newness as the base levers; discount only on Ramadan / Black Friday / clearance.',
     quarters:PB_EGYPT_AMENAA }
 };
@@ -1938,7 +1937,7 @@ function navGo(where) {
   closeNav();
   if (where === 'season') openPlaybook();
   else if (where === 'plan') window.location.href = 'plan-bayan.html';
-  else closePlaybook();   // 'report' — return to the dashboard
+  else closePlaybook();   // 'report' - return to the dashboard
 }
 // Close the nav menu when clicking anywhere else
 document.addEventListener('click', e => {
@@ -1961,7 +1960,7 @@ const I18N = {
   'selected period':'الفترة المحددة',
   // Sections / charts
   'Performance Overview':'نظرة عامة على الأداء', 'Conversion Rate Breakdown':'تفصيل معدل التحويل',
-  'Weekly Revenue':'الإيرادات الأسبوعية', 'AOV — Average Order Value':'متوسط قيمة الطلب',
+  'Weekly Revenue':'الإيرادات الأسبوعية', 'AOV - Average Order Value':'متوسط قيمة الطلب',
   'AOV':'متوسط قيمة الطلب', 'Average Order Value':'متوسط قيمة الطلب',
   'Daily Result Value Revenue':'إيرادات قيمة النتائج اليومية', 'Daily Spend':'الإنفاق اليومي',
   'Revenue by Week':'الإيرادات حسب الأسبوع', 'Spend vs Revenue by Week':'الإنفاق مقابل الإيرادات حسب الأسبوع',
@@ -2008,11 +2007,11 @@ function trPhrase(s) {
   const key = s.trim();
   if (!key) return null;
   if (I18N[key] !== undefined) return s.replace(key, I18N[key]);
-  if (key.indexOf('—') !== -1) {           // "PREFIX — rest" (em dash)
-    const parts = key.split('—').map(p => p.trim());
+  if (key.indexOf(' - ') !== -1) {           // "PREFIX - rest" (spaced hyphen separator)
+    const parts = key.split(' - ').map(p => p.trim());
     let changed = false;
     const tp = parts.map(p => { if (I18N[p] !== undefined) { changed = true; return I18N[p]; } return p; });
-    if (changed) return tp.join(' — ');
+    if (changed) return tp.join(' - ');
   }
   return null;
 }
