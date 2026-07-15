@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bayan — Marketing Plan · July & August</title>
+<style>
+  .back-btn{position:fixed;top:16px;right:16px;z-index:500;display:inline-flex;align-items:center;gap:6px;
+    padding:8px 16px;background:rgba(0,0,0,.7);border:1px solid #23262f;border-radius:6px;color:#9aa0ac;
+    font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;font-family:system-ui,sans-serif}
+  .back-btn:hover{border-color:#3263c1;color:#4374d6}
+</style>
+<style>
+  :root{
+    --bg:#050506; --card:#0c0d11; --card2:#12141a; --line:#23262f;
+    --ink:#fff; --mut:#9aa0ac; --dim:#6a6f7b;
+    --blue:#3263c1; --blue2:#4374d6; --green:#3fd07f; --gold:#d9a441; --red:#e5657a;
+    --disp:"Arial Narrow","Helvetica Neue",system-ui,sans-serif;
+    --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    --mono:ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.55}
+  .wrap{max-width:900px;margin:0 auto;padding:44px 20px 70px}
+  .brand{font-family:var(--disp);text-transform:uppercase;letter-spacing:.3em;font-size:12px;color:var(--mut)}
+  .brand b{color:#fff}.brand span{color:var(--blue2)}
+  h1{font-family:var(--disp);text-transform:uppercase;font-weight:800;font-size:clamp(26px,5vw,44px);letter-spacing:.05em;line-height:1.05;margin:16px 0 8px}
+  .sub{color:var(--mut);font-size:14px;max-width:62ch}
+  .why{margin:26px 0 8px;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:16px 18px}
+  .why h4{font-family:var(--disp);text-transform:uppercase;letter-spacing:.12em;font-size:11px;color:var(--gold);margin-bottom:8px}
+  .why ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+  .why li{font-size:13px;color:var(--mut);padding-left:14px;position:relative}
+  .why li::before{content:"";position:absolute;left:0;top:8px;width:5px;height:5px;border-radius:50%;background:var(--gold)}
+  .why li b{color:#fff}
+
+  .month{margin-top:36px}
+  .m-head{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:14px}
+  .m-name{font-family:var(--disp);text-transform:uppercase;font-weight:800;font-size:24px;letter-spacing:.06em}
+  .m-theme{color:var(--mut);font-size:13px}
+  .wk{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:10px;display:grid;grid-template-columns:120px 1fr;gap:14px}
+  .wk-when{font-family:var(--disp);font-weight:800;font-size:13px;letter-spacing:.04em;line-height:1.35}
+  .wk-when i{display:block;font-style:normal;font-size:10px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+  .wk-what{font-size:13px;color:var(--mut)}
+  .wk-what b{color:#fff}
+  .tag{display:inline-block;font-family:var(--disp);text-transform:uppercase;font-size:9.5px;font-weight:800;letter-spacing:.08em;padding:3px 8px;border-radius:4px;margin:0 0 6px}
+  .t-launch{background:#1b2f57;color:#9cc0ff}.t-sale{background:#3a2c11;color:#f0cf8f}
+  .t-push{background:#12362a;color:#8bf0bb}.t-prep{background:#1a1c22;color:#9aa0ac}
+  .wk ul{list-style:none;margin-top:4px;display:flex;flex-direction:column;gap:4px}
+  .wk li{padding-left:13px;position:relative}
+  .wk li::before{content:"→";position:absolute;left:0;color:var(--blue2)}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+  .box{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+  .box h3{font-family:var(--disp);text-transform:uppercase;letter-spacing:.1em;font-size:11px;color:var(--dim);margin-bottom:10px}
+  .box table{width:100%;border-collapse:collapse;font-size:12.5px}
+  .box td{padding:6px 4px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+  .box tr:last-child td{border-bottom:none}
+  .box td:first-child{color:#fff;font-weight:600;white-space:nowrap}
+  a.ex{color:var(--blue2);text-decoration:none;font-weight:600;white-space:nowrap}
+  a.ex:hover{text-decoration:underline}
+  .n{font-family:var(--mono);color:var(--green)!important;font-weight:700;text-align:right;white-space:nowrap}
+  .rules{margin-top:26px;background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:10px;padding:18px 20px}
+  .rules h4{font-family:var(--disp);text-transform:uppercase;letter-spacing:.12em;font-size:12px;margin-bottom:10px}
+  .rules ol{padding-left:18px;display:flex;flex-direction:column;gap:7px;font-size:13px;color:var(--mut)}
+  .rules b{color:#fff}
+  .urgent{background:#1c0d12;border:1px solid #3a1620;border-left:3px solid var(--red);border-radius:10px;padding:14px 18px;margin:24px 0 0;font-size:13px;color:#f3a3b1}
+  .urgent b{color:#fff}
+  .foot{margin-top:28px;color:var(--dim);font-size:11px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+  @media(max-width:640px){.wk{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
+</style>
+
+</head>
+<body>
+<a class="back-btn" href="./">&#x2190; Back to Report</a>
+<div class="wrap">
+  <div class="brand"><b>IMPACT<span>·</span>SYSTEMS</b> · Bayan — Monthly Marketing Plan</div>
+  <h1>July &amp; August Plan</h1>
+  <div class="why">
+    <h4>Why this plan — 4 facts from the data</h4>
+    <ul>
+      <li><b>Mid-July is the danger zone.</b> Last year sales crashed Jul 8–21 (return dropped to 1.5×) then recovered strongly from Jul 22. We place the sale exactly there.</li>
+      <li><b>End of August is the biggest week of the year.</b> Last year Aug 26–31 made the most revenue of any week (4.9× return). That's when the new collection launches.</li>
+      <li><b>"Best-Seller" carousel ads are the strongest thing running now</b> — 6–7.5× return, double everything else. We run one every week.</li>
+      <li><b>الدوامات (swirl-print) is July's winning style with competitors</b> — Bayan needs its own version in front of customers now.</li>
+    </ul>
+  </div>
+
+
+  <!-- JULY -->
+  <div class="month">
+    <div class="m-head"><span class="m-name">July</span><span class="m-theme">Theme: Summer lightweight + الدوامات · beat the mid-month dip</span></div>
+
+    <div class="wk">
+      <div class="wk-when">Week 1–2 <i>Jul 1 – 14</i></div>
+      <div class="wk-what"><span class="tag t-push">Push winners · No discount</span>
+        <ul>
+          <li>Push the proven winners at full price: <b>FJ</b> (top seller), <b>Soft Olive</b>, Best-Sellers carousel.</li>
+          <li>Launch Bayan's <b>الدوامات (swirl) pieces</b> — it's the style winning in Kuwait right now. Feature fabric movement in video.</li>
+          <li>Message: <b>خامات صيفية خفيفة</b> — light summer fabrics, travel-friendly.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="wk">
+      <div class="wk-when">Week 3 <i>Jul 15 – 21</i></div>
+      <div class="wk-what"><span class="tag t-sale">Mid-Summer Sale · 15–20%</span>
+        <ul>
+          <li>This was last year's weakest week — don't fight it, <b>convert it</b>: “تخفيضات منتصف الصيف” on <b>selected summer styles only</b> (never sitewide). Start it <b>Wednesday Jul 15, 8 pm</b> (a strong day carries the announcement).</li>
+          <li>15–20% off slower styles + last season pieces. Winners (FJ, Soft Olive) stay <b>full price</b>.</li>
+          <li>Retarget everyone who visited in the last 30 days with the sale.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="wk">
+      <div class="wk-when">Week 4 <i>Jul 22 – 31</i></div>
+      <div class="wk-what"><span class="tag t-push">Back to full price · Scale</span>
+        <ul>
+          <li>End the sale on time — last year demand <b>jumped from Jul 22</b> on its own (4.4× return). Scale budget on winners.</li>
+          <li>Tease: “قريباً — مجموعة الخريف” (autumn collection coming) to build anticipation.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="box">
+        <h3>Collections to focus on — July</h3>
+        <table>
+          <tr><td>الدوامات (swirl prints)</td><td>the winning style in Kuwait this month — lead with it</td></tr>
+          <tr><td>Light summer fabrics</td><td>خامات خفيفة — travel &amp; heat-friendly pieces</td></tr>
+          <tr><td>FJ &amp; Soft Olive</td><td>proven winners — keep them front and center, full price</td></tr>
+        </table>
+      </div>
+      <div class="box">
+        <h3>Discount calendar — July (1 window)</h3>
+        <table>
+          <tr><td>Jul 15–21</td><td>Mid-summer sale · selected slow styles only</td><td class="n">15–20%</td></tr>
+          <tr><td>All other weeks</td><td>Full price</td><td class="n">0%</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUGUST -->
+  <div class="month">
+    <div class="m-head"><span class="m-name">August</span><span class="m-theme">Theme: clear summer stock → launch autumn collection into the year's biggest week</span></div>
+
+    <div class="wk">
+      <div class="wk-when">Week 1–2 <i>Aug 1 – 14</i></div>
+      <div class="wk-what"><span class="tag t-push">Steady push + prep</span>
+        <ul>
+          <li>Keep scaling winners at full price — August carried strong volume all month last year.</li>
+          <li><b>Photograph & prepare the autumn collection now</b> (shoot videos by Aug 10 — see content plan).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="wk">
+      <div class="wk-when">Week 3 <i>Aug 15 – 22</i></div>
+      <div class="wk-what"><span class="tag t-sale">Summer clearance · 20–25%</span>
+        <ul>
+          <li>Final clearance on remaining summer stock: “تصفية الصيف — آخر القطع”. Urgency: sizes running out (true scarcity).</li>
+          <li>Purpose: free cash & attention for the autumn launch. Keep it to 7 days max.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="wk">
+      <div class="wk-when">Week 4 <i>Aug 23 – 31</i></div>
+      <div class="wk-what"><span class="tag t-launch">🚀 Autumn Collection Launch · Full price</span>
+        <ul>
+          <li><b>Launch the new autumn collection Saturday Aug 22, 8 pm</b> — the account's strongest day &amp; hour, riding into last year's biggest revenue week (Aug 26–31, 4.9× return). Fresh product, not discounts.</li>
+          <li>VIP early access Thu–Fri Aug 20–21 for past customers (WhatsApp/retention) before the public launch.</li>
+          <li>Full launch push: new videos + carousel + retarget the clearance traffic with the new collection.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="box">
+        <h3>Collections to focus on — August</h3>
+        <table>
+          <tr><td>Aug 1–14</td><td>Continue summer winners (FJ, Soft Olive, الدوامات) — full price</td></tr>
+          <tr><td>Aug 15–22</td><td>Summer clearance — old stock only</td></tr>
+          <tr><td>Aug 22 onward</td><td><b>New autumn collection</b> — richer fabrics, deeper colors — the star of the month</td></tr>
+        </table>
+      </div>
+      <div class="box">
+        <h3>Discount calendar — August (1 window)</h3>
+        <table>
+          <tr><td>Aug 15–22</td><td>Summer clearance · old stock only</td><td class="n">20–25%</td></tr>
+          <tr><td>Aug 22–31</td><td>Autumn launch — <b>strictly full price</b></td><td class="n">0%</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT PLAN -->
+  <div class="grid2">
+    <div class="box">
+      <h3>Weekly content quota (every week)</h3>
+      <table>
+        <tr><td>New videos (Reels)</td><td>what converts: model try-on + fabric movement</td><td class="n">2 / week</td></tr>
+        <tr><td>Best-Seller carousel</td><td>your highest-return ad type (6–7.5×). Competitor winning carousels to copy the style from:
+          <a class="ex" href="https://www.instagram.com/p/DL5cbvSsMQI/" target="_blank" rel="noopener noreferrer" onclick="window.open(this.href,'_blank');return false">1↗</a>
+          <a class="ex" href="https://www.instagram.com/p/DMDtU5WswZc/" target="_blank" rel="noopener noreferrer" onclick="window.open(this.href,'_blank');return false">2↗</a>
+          <a class="ex" href="https://www.instagram.com/p/DMIy40Tsq7J/" target="_blank" rel="noopener noreferrer" onclick="window.open(this.href,'_blank');return false">3↗</a>
+          <a class="ex" href="https://www.instagram.com/p/DM0iMLLsjcu/" target="_blank" rel="noopener noreferrer" onclick="window.open(this.href,'_blank');return false">4↗</a></td><td class="n">1 / week</td></tr>
+        <tr><td>Total per month</td><td>8 videos + 4 carousels</td><td class="n">12 ads</td></tr>
+      </table>
+    </div>
+    <div class="box">
+      <h3>Video types that win (in order)</h3>
+      <table>
+        <tr><td>1 · Try-on &amp; walk</td><td>model wearing the piece — fabric flows in motion. Bayan's #1 ad right now (5.4× return) · <a class="ex" href="https://www.instagram.com/p/DZ195PEDX4G/" target="_blank" rel="noopener noreferrer" onclick="window.open(this.href,'_blank');return false">FJ video ↗</a></td></tr>
+        <tr><td>2 · Fabric movement close-up</td><td>fabric flow, texture &amp; details up close — proves quality without words · <a class="ex" href="https://www.instagram.com/p/DZPM0CXjCP1/" target="_blank" rel="noopener noreferrer" onclick="window.open(this.href,'_blank');return false">LEN video ↗</a></td></tr>
+        <tr><td>3 · Styled full look</td><td>the piece styled complete with bag/accessories — daily / work / evening looks · <a class="ex" href="https://www.instagram.com/p/DZIz6AOGp9b/" target="_blank" rel="noopener noreferrer" onclick="window.open(this.href,'_blank');return false">IN video ↗</a></td></tr>
+        <tr><td>4 · Best-seller social proof</td><td>“الأكثر مبيعاً هذا الشهر” — the long-running proven winner style · <a class="ex" href="https://www.instagram.com/p/DYsgx1wH-t0/" target="_blank" rel="noopener noreferrer" onclick="window.open(this.href,'_blank');return false">Soft Olive video ↗</a></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="rules">
+    <h4>5 rules for the owner</h4>
+    <ol>
+      <li><b>Never discount the winners.</b> FJ and Soft Olive sell at full price — discounts go to slow styles only.</li>
+      <li><b>Only 2 sale windows in 2 months.</b> More sales = customers learn to wait. Bayan sells newness &amp; quality.</li>
+      <li><b>Every week needs fresh content</b> (2 videos + 1 carousel). Summer ad costs are the year's highest — old creative dies fast.</li>
+      <li><b>The autumn launch (Aug 23) is the most important date of the summer.</b> Everything in August builds toward it.</li>
+      <li><b>Judge results on week-old numbers</b>, never on the last 2–3 days (they always look low before purchases finish counting).</li>
+    </ol>
+  </div>
+
+</div>
+</body>
+</html>
