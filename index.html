@@ -1936,7 +1936,7 @@ function toggleNav(e) {
 function closeNav() { const m = document.getElementById('navMenu'); if (m) m.classList.remove('open'); }
 function navGo(where) {
   closeNav();
-  if (where === 'season') openPlaybook();
+  if (where === 'season') window.location.href = 'seasonality.html';
   else if (where === 'plan') window.location.href = 'plan-bayan.html';
   else closePlaybook();   // 'report' - return to the dashboard
 }

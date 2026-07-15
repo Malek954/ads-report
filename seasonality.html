@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Seasonality & Offers Playbook</title>
+<style>
+  :root{
+    --bg:#050506; --card:#0c0d11; --card2:#12141a; --line:#23262f;
+    --ink:#fff; --mut:#9aa0ac; --dim:#6a6f7b;
+    --blue:#3263c1; --blue2:#4374d6; --green:#3fd07f; --gold:#d9a441; --red:#e5657a;
+    --disp:"Arial Narrow","Helvetica Neue",system-ui,sans-serif;
+    --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    --mono:ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.55}
+  .top-btns{position:fixed;top:16px;right:16px;z-index:500;display:flex;gap:8px}
+  .tbtn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(0,0,0,.7);
+    border:1px solid var(--line);border-radius:6px;color:var(--mut);font-size:12px;font-weight:600;cursor:pointer;
+    text-decoration:none;font-family:var(--body)}
+  .tbtn:hover{border-color:var(--blue);color:var(--blue2)}
+  .wrap{max-width:1400px;margin:0 auto;padding:44px 24px 70px}
+  .brand{font-family:var(--disp);text-transform:uppercase;letter-spacing:.3em;font-size:clamp(12px,11px + 0.2vw,14px);color:var(--mut)}
+  .brand b{color:#fff}.brand span{color:var(--blue2)}
+  h1{font-family:var(--disp);text-transform:uppercase;font-weight:800;font-size:clamp(26px,4vw,42px);letter-spacing:.05em;line-height:1.05;margin:16px 0 6px}
+  .persona{color:var(--mut);font-size:clamp(13px,12px + 0.3vw,16px);max-width:90ch}
+  .lever{margin:22px 0 8px;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:10px;
+    padding:16px 18px;font-size:clamp(13px,12px + 0.3vw,16px);color:#cbd5e1}
+  .lever b{color:#fff}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px}
+  .q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+  .q::before{content:"";position:absolute;inset:0 auto 0 0;width:3px}
+  .q.a::before{background:var(--blue)} .q.b::before{background:var(--green)}
+  .q.c::before{background:var(--gold)} .q.d::before{background:var(--red)}
+  .q-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
+  .q-id{font-family:var(--disp);font-weight:800}
+  .q-id .n{font-size:26px;line-height:.9}
+  .q-id .m{display:block;color:var(--dim);font-size:11px;letter-spacing:.18em;margin-top:5px;font-weight:600;text-transform:uppercase}
+  .posture{font-family:var(--disp);text-transform:uppercase;letter-spacing:.09em;font-size:11px;font-weight:800;padding:6px 11px;border-radius:5px;white-space:nowrap}
+  .p-a{background:#1b2f57;color:#9cc0ff} .p-b{background:#12362a;color:#8bf0bb}
+  .p-c{background:#3a2c11;color:#f0cf8f} .p-d{background:#3a1620;color:#f3a3b1}
+  .ev{display:flex;gap:8px;font-size:clamp(12px,11px + 0.25vw,15px);color:var(--mut);margin:7px 0;align-items:baseline;flex-wrap:wrap}
+  .ev .date{font-family:var(--mono);font-size:.85em;color:#fff;background:var(--card2);border:1px solid var(--line);border-radius:4px;padding:1px 6px;white-space:nowrap}
+  .ev .star{color:var(--gold)}
+  .off-h{font-size:clamp(10px,9px + 0.2vw,12px);text-transform:uppercase;letter-spacing:.1em;color:var(--dim);margin:12px 0 7px}
+  .off{list-style:none;display:flex;flex-direction:column;gap:7px}
+  .off li{font-size:clamp(12px,11px + 0.3vw,15px);color:#cbd5e1;padding-left:16px;position:relative;line-height:1.5}
+  .off li::before{content:"→";position:absolute;left:0;color:var(--blue2);font-weight:700}
+  .off li b{color:#fff}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="top-btns">
+  <a class="tbtn" href="./">&#x2190; Back to Report</a>
+</div>
+<div class="wrap">
+  <div class="brand"><b>IMPACT<span>·</span>SYSTEMS</b> · Seasonality &amp; Offers Playbook</div>
+  <h1 id="pbBrand">Seasonality &amp; Offers</h1>
+  <p class="persona" id="pbPersona"></p>
+  <div class="lever" id="pbLever"></div>
+  <div class="grid" id="pbGrid"></div>
+</div>
+
+<script>
+const PB_GULF = [
+  { id:'Q1', months:'Jan → Mar', posture:'Scale for volume', cls:'a',
+    events:[{d:'~Feb 18',n:'Ramadan begins',s:1},{d:'~Mar 20',n:'Eid al-Fitr',s:1},{d:'Feb 25',n:'Kuwait National Day'}],
+    offers:['<b>Ramadan Collection early-access</b> - drop the new range 2–3 weeks before Ramadan (newness, not discount).',
+      '<b>"Eid Ready" edit</b> + guaranteed delivery before Eid; free express delivery over a KWD threshold during Eid week.',
+      'Premium <b>Eid gift wrapping</b> - reinforces the higher-end feel Gulf buyers pay for.',
+      'Light "Eid treat" 10–15% on <b>select styles only</b> - never sitewide (protect brand).'] },
+  { id:'Q2', months:'Apr → Jun', posture:'Scale for profit', cls:'b',
+    events:[{d:'~May 27',n:'Eid al-Adha',s:1},{d:'Jun',n:'Summer / travel edit'}],
+    offers:['<b>New spring/summer lightweight abayas</b> - push hard while ROAS is at its best.',
+      '<b>"Travel &amp; Eid getaway" edit</b> for the GCC holiday season.',
+      'Early-access to new arrivals for <b>past buyers (retention)</b> - no discount needed.',
+      'Free express delivery over threshold as the steady lever.'] },
+  { id:'Q3', months:'Jul → Sep', posture:'Volume · beat fatigue', cls:'c',
+    events:[{d:'Jul–Aug',n:'Summer clearance window'},{d:'Sep 23',n:'Saudi National Day'}],
+    offers:['<b>End-of-season clearance</b> - the one time deeper % off is on-brand (move old stock).',
+      '<b>Saudi National Day</b> themed offer + free express delivery (expand into KSA).',
+      'Refresh creative constantly - fatigue is what erodes ROAS here.',
+      'Late Sep: tease the <b>new autumn collection</b>.'] },
+  { id:'Q4', months:'Oct → Dec', posture:'Protect ROAS', cls:'d',
+    events:[{d:'Nov 27',n:'White Friday',s:1},{d:'Dec 2',n:'UAE National Day',s:1},{d:'Dec 16/18',n:'Bahrain · Qatar Nat\'l'}],
+    offers:['<b>White Friday</b> - the ONE big sitewide sale Gulf shoppers wait for; go strong.',
+      '<b>National Day</b> themed drops + free express delivery (UAE, Qatar, Bahrain).',
+      '<b>Winter collection launch</b> - cooler weather brings abaya season back.',
+      'Lean on <b>Retarget + Retention</b> (VIP early access) - warm audiences convert cheaper while CPMs spike.'] }
+];
+const PB_EGYPT = [
+  { id:'Q1', months:'Jan → Mar', posture:'Scale for volume', cls:'a',
+    events:[{d:'Jan 7',n:'Coptic Christmas'},{d:'Feb 14',n:'Valentine\'s'},{d:'~Feb 18',n:'Ramadan begins',s:1},{d:'~Mar 20',n:'Eid al-Fitr',s:1},{d:'Mar 21',n:'Mother\'s Day (huge in Egypt)',s:1}],
+    offers:['<b>"Ramadan Ready" new-arrivals drop</b> - everyday modest edit; run ads <b>9pm–2am</b> (post-iftar shopping surge).',
+      '<b>Free shipping over ~EGP 2,500</b> all Ramadan - your #1 lever (lifts AOV above the ~1,950 average). Always say <b>"الدفع عند الاستلام / COD"</b>.',
+      '<b>Eid new-looks edit</b> + guaranteed delivery before Eid.',
+      '<b>Mother\'s Day (Mar 21)</b> - "treat her / treat yourself," light 15% + free shipping (gifting angle, no bundle).'] },
+  { id:'Q2', months:'Apr → Jun', posture:'Scale for profit', cls:'b',
+    events:[{d:'~Apr',n:'Sham El-Nessim (spring outings)',s:1},{d:'~May 27',n:'Eid al-Adha'},{d:'Jun',n:'Sahel / summer launch'}],
+    offers:['<b>Sham El-Nessim spring collection</b> - light, outdoor/picnic looks + free shipping (Egyptians buy new clothes for the day).',
+      '<b>Summer / North-Coast (Sahel) modest collection</b> launch in June - lightweight fabrics.',
+      'Keep <b>free shipping over threshold + COD</b> as the constant levers - this is your best-ROAS quarter, so scale, don\'t discount.',
+      'Early access for repeat buyers (retention).'] },
+  { id:'Q3', months:'Jul → Sep', posture:'Volume · beat fatigue', cls:'c',
+    events:[{d:'Jul–Aug',n:'Sahel summer peak'},{d:'late Aug–Sep',n:'Back-to-school'}],
+    offers:['<b>Mid-season sale</b> - the on-brand moment for a real % (clear summer stock).',
+      '<b>Back-to-school "new season" modest edit</b> (Sep) - university girls &amp; teachers.',
+      'Refresh creative weekly; keep <b>COD + free shipping</b> messaging front-and-centre.',
+      'Broaden beyond Cairo/Alex into <b>Delta &amp; Upper Egypt</b> governorates.'] },
+  { id:'Q4', months:'Oct → Dec', posture:'Protect ROAS', cls:'d',
+    events:[{d:'Oct 6',n:'Armed Forces Day'},{d:'late Nov',n:'Egyptian Black Friday',s:1},{d:'Dec',n:'Winter collection / year-end'}],
+    offers:['<b>Winter modest collection</b> (heavier fabrics, layering) - launch Oct–Nov.',
+      '<b>Egyptian Black Friday (late Nov)</b> - THE one deep sitewide sale; Egyptian shoppers wait for it, so go strong.',
+      '<b>Year-end clearance</b> (Dec) to close the year.',
+      'Free shipping + COD throughout; lean on <b>Retarget/Retention</b> while prospecting CPMs are high.'] }
+];
+const PLAYBOOK = {
+  'bayan_impact2': { brand:'Bayan · Gulf (Kuwait / GCC)',
+    persona:'Gulf women - abaya &amp; modest occasion wear. Value newness, quality &amp; fast delivery; less discount-driven than Egypt.',
+    lever:'<b>Primary lever · Lead with new collections &amp; limited drops + fast/express delivery.</b> Reserve real discounts for White Friday and end-of-season only.',
+    quarters:PB_GULF },
+  'amenaa_impact1': { brand:'Amenaa · Egypt',
+    persona:'Egyptian women 25–54 (core 35–44) · everyday modest wear · AOV ≈ EGP 1,950 · mid-market, trust-driven, COD-first.',
+    lever:'<b>Primary lever · Lead with New Arrivals + Cash-on-Delivery + Free shipping over ~EGP 2,500</b> (lifts AOV). Save real % discounts for Ramadan, Mother\'s Day, Black Friday &amp; end-of-season only - no bundles.',
+    quarters:PB_EGYPT },
+  'ssd_impact': { brand:'SSD · Egypt',
+    persona:'Egyptian modest-fashion audience. Same market calendar as Amenaa - tune the offers to this brand\'s price tier &amp; product mix.',
+    lever:'<b>Primary lever · Egypt-market template.</b> COD + free-shipping threshold + newness as the base levers; discount only on Ramadan / Black Friday / clearance.',
+    quarters:PB_EGYPT }
+};
+(function render() {
+  let session = null;
+  try { session = (localStorage.getItem('impactSession') || '').toLowerCase(); } catch(e) {}
+  const pb = PLAYBOOK[session] || PLAYBOOK['bayan_impact2'];
+  document.getElementById('pbBrand').innerHTML   = pb.brand;
+  document.getElementById('pbPersona').innerHTML = pb.persona;
+  document.getElementById('pbLever').innerHTML   = pb.lever;
+  document.getElementById('pbGrid').innerHTML = pb.quarters.map(q => `
+    <div class="q ${q.cls}">
+      <div class="q-top">
+        <div class="q-id"><span class="n">${q.id}</span><span class="m">${q.months}</span></div>
+        <div class="posture p-${q.cls}">${q.posture}</div>
+      </div>
+      ${q.events.map(e => `<div class="ev"><span class="date">${e.d}</span> ${e.n}${e.s ? ' <span class="star">★</span>' : ''}</div>`).join('')}
+      <div class="off-h">Recommended offers</div>
+      <ul class="off">${q.offers.map(o => `<li>${o}</li>`).join('')}</ul>
+    </div>`).join('');
+})();
+</script>
+</body>
+</html>
