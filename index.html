@@ -6,7 +6,7 @@
 <title>Impact Systems - Performance Report</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Michroma&family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Michroma&family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <style>
 :root {
@@ -80,6 +80,10 @@ body {
   font-size: 14px; line-height: 1.6;
   padding: 32px 24px; max-width: 1400px; margin: 0 auto;
 }
+/* Arabic mode: Tajawal is the brand's Arabic typeface */
+#dashboard[dir="rtl"], #gate[dir="rtl"] { font-family: 'Tajawal', var(--font-body); }
+#dashboard[dir="rtl"] h1, #dashboard[dir="rtl"] .section-title,
+#dashboard[dir="rtl"] .chart-title, #dashboard[dir="rtl"] .table-title { font-family: 'Tajawal', var(--font-display); font-weight: 700; letter-spacing: 0; }
 #dashboard { display: none; }
 #dashboard.visible { display: block; }
 
