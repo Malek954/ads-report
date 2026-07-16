@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Michroma&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <title>Bayan - Marketing Plan · July & August</title>
 <style>
   .top-btns{position:fixed;top:16px;right:16px;z-index:500;display:flex;gap:8px}
@@ -16,8 +19,8 @@
     --bg:#050506; --card:#0c0d11; --card2:#12141a; --line:#23262f;
     --ink:#fff; --mut:#9aa0ac; --dim:#6a6f7b;
     --blue:#3263c1; --blue2:#4374d6; --green:#3fd07f; --gold:#d9a441; --red:#e5657a;
-    --disp:"Arial Narrow","Helvetica Neue",system-ui,sans-serif;
-    --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    --disp:'Michroma','Arial Narrow',system-ui,sans-serif;
+    --body:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
     --mono:ui-monospace,Menlo,monospace;
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -149,15 +152,7 @@
       </div>
     </div>
 
-    <div class="grid2">
-      <div class="box">
-        <h3 data-i18n="stock_h">Stock notes (store data · Jun 1 – Jul 15) - pre-order stays open</h3>
-        <table>
-          <tr><td>Krs</td><td data-i18n="s1b"><b>Out of stock (1 left) but demand is proven</b> (18 sold) - sales continue via pay-to-prepare; restock to keep delivery fast</td></tr>
-          <tr><td>Soft Olive</td><td data-i18n="s2b"><b>18 pieces left</b> - a top-3 seller with a winning ad; restock to keep delivery times short</td></tr>
-          <tr><td>FJ</td><td data-i18n="s3b">194 in stock - healthy, keep scaling</td></tr>
-        </table>
-      </div>
+    <div class="grid2" style="grid-template-columns:1fr">
       <div class="box">
         <h3 data-i18n="prio_h">Product priorities (what actually sells)</h3>
         <table>
@@ -297,10 +292,6 @@ const AR = {
   jul_disc_h:'جدول التخفيضات - يوليو (نافذة واحدة)',
   d1b:'تخفيضات منتصف الصيف - الهدف الرئيسي: <b>D31</b> (1,070 قطعة بالمخزون، بيعه بطيء) + موديلات بطيئة أخرى',
   d2a:'باقي الأسابيع', d2b:'سعر كامل',
-  stock_h:'ملاحظات المخزون (بيانات المتجر · 1 يونيو – 15 يوليو) - الطلب المسبق مفتوح',
-  s1b:'<b>نفد المخزون (بقيت قطعة) لكن الطلب مثبت</b> (18 مبيعة) - البيع مستمر بنظام الدفع للتجهيز؛ أعد التخزين لتسريع التسليم',
-  s2b:'<b>بقيت 18 قطعة</b> - من أفضل 3 منتجات مع إعلان رابح؛ أعد التخزين للحفاظ على سرعة التسليم',
-  s3b:'194 قطعة بالمخزون - وضع ممتاز، واصل التوسع',
   prio_h:'أولويات المنتجات (ما يبيع فعلاً)',
   p1a:'توسّع', p1b:'FJ (مبيع 45) · Len (مبيع 30) - محركات الإيراد بسعر 45 د.ك',
   p2a:'أعد التخزين ووسّع', p2b:'Krs (مبيع 18) · Soft Olive (مبيع 15)',
