@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Michroma&family=Inter:wght@400;500;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<title>Amenaa - Marketing Plan · July & August</title>
+<style>
+  .top-btns{position:fixed;top:16px;right:16px;z-index:500;display:flex;gap:8px}
+  .tbtn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(0,0,0,.7);
+    border:1px solid #23262f;border-radius:6px;color:#9aa0ac;font-size:12px;font-weight:600;cursor:pointer;
+    text-decoration:none;font-family:system-ui,sans-serif}
+  .tbtn:hover{border-color:#3263c1;color:#4374d6}
+</style>
+<style>
+  :root{
+    --bg:#050506; --card:#0c0d11; --card2:#12141a; --line:#23262f;
+    --ink:#fff; --mut:#9aa0ac; --dim:#6a6f7b;
+    --blue:#3263c1; --blue2:#4374d6; --green:#3fd07f; --gold:#d9a441; --red:#e5657a;
+    --disp:'Michroma','Arial Narrow',system-ui,sans-serif;
+    --body:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+    --mono:ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.55}
+  .wrap{max-width:1400px;margin:0 auto;padding:44px 24px 70px}
+  .brand{font-family:var(--disp);text-transform:uppercase;letter-spacing:.3em;font-size:clamp(12px, 11px + 0.2vw, 14px);color:var(--mut)}
+  .brand b{color:#fff}.brand span{color:var(--blue2)}
+  h1{font-family:var(--disp);text-transform:uppercase;font-weight:800;font-size:clamp(26px,5vw,44px);letter-spacing:.05em;line-height:1.05;margin:16px 0 8px}
+  .why{margin:26px 0 8px;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:16px 18px}
+  .why h4{font-family:var(--disp);text-transform:uppercase;letter-spacing:.12em;font-size:clamp(11px, 10px + 0.2vw, 13px);color:var(--gold);margin-bottom:8px}
+  .why ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+  .why li{font-size:clamp(13px, 12px + 0.3vw, 16px);color:var(--mut);padding-left:14px;position:relative}
+  .why li::before{content:"";position:absolute;left:0;top:8px;width:5px;height:5px;border-radius:50%;background:var(--gold)}
+  .why li b{color:#fff}
+
+  .month{margin-top:36px}
+  .m-head{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:14px}
+  .m-name{font-family:var(--disp);text-transform:uppercase;font-weight:800;font-size:24px;letter-spacing:.06em}
+  .m-theme{color:var(--mut);font-size:clamp(13px, 12px + 0.3vw, 16px)}
+  .wk{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:10px;display:grid;grid-template-columns:120px 1fr;gap:14px}
+  .wk-when{font-family:var(--disp);font-weight:800;font-size:clamp(13px, 12px + 0.3vw, 16px);letter-spacing:.04em;line-height:1.35}
+  .wk-when i{display:block;font-style:normal;font-size:clamp(10px, 9px + 0.15vw, 12px);color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+  .wk-what{font-size:clamp(13px, 12px + 0.3vw, 16px);color:var(--mut)}
+  .wk-what b{color:#fff}
+  .tag{display:inline-block;font-family:var(--disp);text-transform:uppercase;font-size:clamp(9.5px, 9px + 0.15vw, 11.5px);font-weight:800;letter-spacing:.08em;padding:3px 8px;border-radius:4px;margin:0 0 6px}
+  .t-launch{background:#1b2f57;color:#9cc0ff}.t-sale{background:#3a2c11;color:#f0cf8f}
+  .t-push{background:#12362a;color:#8bf0bb}.t-prep{background:#1a1c22;color:#9aa0ac}
+  .wk ul{list-style:none;margin-top:4px;display:flex;flex-direction:column;gap:4px}
+  .wk li{padding-left:13px;position:relative}
+  .wk li::before{content:"→";position:absolute;left:0;color:var(--blue2)}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+  .box{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+  .box h3{font-family:var(--disp);text-transform:uppercase;letter-spacing:.1em;font-size:clamp(11px, 10px + 0.2vw, 13px);color:var(--dim);margin-bottom:10px}
+  .box table{width:100%;border-collapse:collapse;font-size:clamp(12px, 11px + 0.3vw, 15px)}
+  .box td{padding:6px 4px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+  .box tr:last-child td{border-bottom:none}
+  .box td:first-child{color:#fff;font-weight:600;white-space:nowrap}
+  a.ex{color:var(--blue2);text-decoration:none;font-weight:600;white-space:nowrap}
+  a.ex:hover{text-decoration:underline}
+  .n{font-family:var(--mono);color:var(--green)!important;font-weight:700;text-align:right;white-space:nowrap}
+  .rules{margin-top:26px;background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:10px;padding:18px 20px}
+  .rules h4{font-family:var(--disp);text-transform:uppercase;letter-spacing:.12em;font-size:12px;margin-bottom:10px}
+  .rules ol{padding-left:18px;display:flex;flex-direction:column;gap:7px;font-size:clamp(13px, 12px + 0.3vw, 16px);color:var(--mut)}
+  .rules b{color:#fff}
+  @media(max-width:640px){.wk{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
+
+  /* RTL adjustments when Arabic is active - Tajawal is the brand's Arabic face */
+  .wrap[dir="rtl"]{font-size:15px;font-family:'Tajawal',var(--body)}
+  .wrap[dir="rtl"] h1, .wrap[dir="rtl"] .m-name, .wrap[dir="rtl"] .wk-when,
+  .wrap[dir="rtl"] .tag, .wrap[dir="rtl"] .box h3, .wrap[dir="rtl"] .rules h4,
+  .wrap[dir="rtl"] .why h4, .wrap[dir="rtl"] .brand span[data-i18n]{font-family:'Tajawal',sans-serif;font-weight:700;letter-spacing:0}
+  .wrap[dir="rtl"] .why li{padding-left:0;padding-right:14px}
+  .wrap[dir="rtl"] .why li::before{left:auto;right:0}
+  .wrap[dir="rtl"] .wk li{padding-left:0;padding-right:13px}
+  .wrap[dir="rtl"] .wk li::before{left:auto;right:0;content:"←"}
+  .wrap[dir="rtl"] .why{border-left:1px solid var(--line);border-right:3px solid var(--gold)}
+  .wrap[dir="rtl"] .rules{border-left:1px solid var(--line);border-right:3px solid var(--blue)}
+  .wrap[dir="rtl"] .rules ol{padding-left:0;padding-right:18px}
+  .wrap[dir="rtl"] .n{text-align:left}
+</style>
+</head>
+<body>
+<div class="top-btns">
+  <button class="tbtn" id="langBtn" onclick="toggleLang()">العربية</button>
+  <a class="tbtn" href="./" data-i18n="back">&#x2190; Back to Report</a>
+</div>
+<div class="wrap" id="wrap">
+  <div class="brand"><b>IMPACT<span>·</span>SYSTEMS</b> · <span data-i18n="brandsub">Amenaa - Monthly Marketing Plan</span></div>
+  <h1 data-i18n="title">July &amp; August Plan</h1>
+  <div class="why">
+    <h4 data-i18n="why_h">Why this plan - 4 facts from the data</h4>
+    <ul>
+      <li data-i18n="why_1"><b>Linen Shirt is the hero right now</b> - 22-43x return on its ads, the best in the account. Shirt Dress is #1 by revenue (EGP 146K in 30 days). Push both hard.</li>
+      <li data-i18n="why_2"><b>Catalog / Best-Seller ads are the strongest ad type</b> - 11-26x return. One runs every week, always.</li>
+      <li data-i18n="why_3"><b>Buyers shop midday (11am-5pm) and 9pm</b>, and Wednesday &amp; Saturday are the strongest days - every launch and new ad goes live on those windows.</li>
+      <li data-i18n="why_4"><b>The account was OFF last July-August</b> - so this plan follows the Egyptian summer calendar: Sahel season is peaking now, back-to-school lands late August.</li>
+    </ul>
+  </div>
+
+  <!-- JULY -->
+  <div class="month">
+    <div class="m-head"><span class="m-name" data-i18n="jul">July</span><span class="m-theme" data-i18n="jul_theme">Theme: Sahel summer peak · push the winners, no discounts needed</span></div>
+
+    <div class="wk">
+      <div class="wk-when"><span data-i18n="w12">Week 1-2</span> <i>Jul 1 - 14</i></div>
+      <div class="wk-what"><span class="tag t-push" data-i18n="tag_push">Push winners · Full price</span>
+        <ul>
+          <li data-i18n="jul_w12_1">Scale the proven winners: <b>Linen Shirt</b>, <b>Shirt Dress</b>, <b>Maxi Denim Dress</b> - returns are 12-43x, there is zero reason to discount.</li>
+          <li data-i18n="jul_w12_2">Lead with the <b>Sahel / summer light edit</b> - breathable fabrics, beach-to-street modest looks.</li>
+          <li data-i18n="jul_w12_3">Every ad says <b>الدفع عند الاستلام (COD)</b> + <b>free shipping over EGP 2,500</b> - the two trust levers that close Egyptian buyers.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="wk">
+      <div class="wk-when"><span data-i18n="w3">Week 3</span> <i>Jul 15 - 22</i></div>
+      <div class="wk-what"><span class="tag t-launch" data-i18n="tag_drop">New arrivals drop</span>
+        <ul>
+          <li data-i18n="jul_w3_1"><b>Mid-summer new-arrivals drop</b> (no discount - newness is the offer). Go live <b>Saturday Jul 18, 1 pm</b> - the strongest day and the midday buying peak.</li>
+          <li data-i18n="jul_w3_2">Retarget the last 30 days of visitors with the new pieces + free-shipping reminder.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="wk">
+      <div class="wk-when"><span data-i18n="w4">Week 4</span> <i>Jul 23 - 31</i></div>
+      <div class="wk-what"><span class="tag t-sale" data-i18n="tag_flash">Revolution Day flash · 15%</span>
+        <ul>
+          <li data-i18n="jul_w4_1"><b>Jul 23 (Revolution Day) flash offer - 3 days only (Jul 23-25)</b>: 15% on selected styles + free shipping. Short and scarce, so the brand never looks discount-driven.</li>
+          <li data-i18n="jul_w4_2">Back to full price Jul 26 and keep scaling winners into August.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="box">
+        <h3 data-i18n="jul_col_h">Collections to focus on - July</h3>
+        <table>
+          <tr><td data-i18n="c1a">Linen / breathable</td><td data-i18n="c1b">the hero fabric of the account right now (Linen Shirt 22-43x)</td></tr>
+          <tr><td data-i18n="c2a">Dresses</td><td data-i18n="c2b">Shirt Dress (#1 revenue) + Maxi Denim Dress - everyday modest dresses</td></tr>
+          <tr><td data-i18n="c3a">Sahel summer edit</td><td data-i18n="c3b">light, coastal-friendly modest looks for the North Coast season</td></tr>
+        </table>
+      </div>
+      <div class="box">
+        <h3 data-i18n="jul_disc_h">Discount calendar - July (1 flash only)</h3>
+        <table>
+          <tr><td>Jul 23-25</td><td data-i18n="d1b">Revolution Day flash · selected styles + free shipping</td><td class="n">15%</td></tr>
+          <tr><td data-i18n="d2a">All other days</td><td data-i18n="d2b">Full price - returns are 16-20x, discounts would only cut profit</td><td class="n">0%</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUGUST -->
+  <div class="month">
+    <div class="m-head"><span class="m-name" data-i18n="aug">August</span><span class="m-theme" data-i18n="aug_theme">Theme: finish summer strong → clear stock → launch the back-to-school / autumn edit</span></div>
+
+    <div class="wk">
+      <div class="wk-when"><span data-i18n="w12">Week 1-2</span> <i>Aug 1 - 14</i></div>
+      <div class="wk-what"><span class="tag t-push" data-i18n="tag_steady">Steady push + prep</span>
+        <ul>
+          <li data-i18n="aug_w12_1">Keep scaling Linen Shirt, Shirt Dress and the weekly Best-Seller catalog at full price.</li>
+          <li data-i18n="aug_w12_2"><b>Shoot the back-to-school / early-autumn collection now</b> (videos ready by Aug 10 - see content plan).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="wk">
+      <div class="wk-when"><span data-i18n="w3">Week 3</span> <i>Aug 15 - 21</i></div>
+      <div class="wk-what"><span class="tag t-sale" data-i18n="tag_sale2">End-of-summer sale · 20-25%</span>
+        <ul>
+          <li data-i18n="aug_w3_1">Clear remaining summer stock: <b>"تصفية الصيف - آخر القطع"</b>. Real scarcity - sizes running out. 7 days maximum.</li>
+          <li data-i18n="aug_w3_2">Winners stay full price. The sale frees cash and attention for the new-season launch.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="wk">
+      <div class="wk-when"><span data-i18n="w4">Week 4</span> <i>Aug 22 - 31</i></div>
+      <div class="wk-what"><span class="tag t-launch" data-i18n="tag_launch">🚀 Back-to-school / autumn launch · Full price</span>
+        <ul>
+          <li data-i18n="aug_w4_1"><b>Launch the new-season edit Saturday Aug 22, 1 pm</b> (strongest day + midday peak). Back-to-school is a major Egyptian buying moment - university students and working women refresh their modest wardrobe.</li>
+          <li data-i18n="aug_w4_2">VIP early access Thu-Fri Aug 20-21 for past customers via WhatsApp before the public launch.</li>
+          <li data-i18n="aug_w4_3">Full push: new videos + Best-Seller catalog + retarget the clearance traffic with the new collection.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="box">
+        <h3 data-i18n="aug_col_h">Collections to focus on - August</h3>
+        <table>
+          <tr><td>Aug 1-14</td><td data-i18n="ac1b">Summer winners (Linen Shirt, Shirt Dress, dresses) - full price</td></tr>
+          <tr><td>Aug 15-21</td><td data-i18n="ac2b">End-of-summer clearance - old stock only</td></tr>
+          <tr><td data-i18n="ac3a">Aug 22 onward</td><td data-i18n="ac3b"><b>Back-to-school / early-autumn edit</b> - practical everyday modest wear, the star of the month</td></tr>
+        </table>
+      </div>
+      <div class="box">
+        <h3 data-i18n="aug_disc_h">Discount calendar - August (1 window)</h3>
+        <table>
+          <tr><td>Aug 15-21</td><td data-i18n="ad1b">End-of-summer clearance · old stock only</td><td class="n">20-25%</td></tr>
+          <tr><td>Aug 22-31</td><td data-i18n="ad2b">New-season launch - <b>strictly full price</b></td><td class="n">0%</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT PLAN -->
+  <div class="grid2">
+    <div class="box">
+      <h3 data-i18n="quota_h">Weekly content quota (every week)</h3>
+      <table>
+        <tr><td data-i18n="q1a">New videos (Reels)</td><td data-i18n="q1b">what converts: on-model try-on + fabric texture</td><td class="n" data-i18n="q1n">2 / week</td></tr>
+        <tr><td data-i18n="q2a">Best-Seller catalog</td><td data-i18n="q2b">the account's strongest ad type (11-26x return) - refresh the product set weekly</td><td class="n" data-i18n="q2n">1 / week</td></tr>
+        <tr><td data-i18n="q3a">Total per month</td><td data-i18n="q3b">8 videos + 4 catalogs</td><td class="n" data-i18n="q3n">12 ads</td></tr>
+      </table>
+    </div>
+    <div class="box">
+      <h3 data-i18n="vid_h">Video types that win (in order)</h3>
+      <table>
+        <tr><td data-i18n="v1a">1 · Try-on &amp; walk</td><td data-i18n="v1b">the piece worn and moving - the account's #1 revenue ad · <a class="ex" href="https://www.instagram.com/p/DZfuGsSAFeu/" target="_blank" rel="noopener noreferrer" onclick="window.open(this.href,'_blank');return false">Shirt Dress video ↗</a></td></tr>
+        <tr><td data-i18n="v2a">2 · Fabric &amp; texture close-up</td><td data-i18n="v2b">linen texture, breathability, quality details · <a class="ex" href="https://www.instagram.com/p/DZ0K0z-ALMx/" target="_blank" rel="noopener noreferrer" onclick="window.open(this.href,'_blank');return false">Linen Shirt video ↗</a></td></tr>
+        <tr><td data-i18n="v3a">3 · Styled full look</td><td data-i18n="v3b">complete outfit styling - day to evening · <a class="ex" href="https://www.instagram.com/p/DaSbnsMg92_/" target="_blank" rel="noopener noreferrer" onclick="window.open(this.href,'_blank');return false">Striped Shirt video ↗</a></td></tr>
+        <tr><td data-i18n="v4a">4 · Best-seller social proof</td><td data-i18n="v4b">"الأكثر مبيعاً" catalog style - the 26x performer · <a class="ex" href="https://www.instagram.com/p/DaitG9JgnOu/" target="_blank" rel="noopener noreferrer" onclick="window.open(this.href,'_blank');return false">Best-Seller video ↗</a></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="rules">
+    <h4 data-i18n="rules_h">5 rules for the owner</h4>
+    <ol>
+      <li data-i18n="r1"><b>Never discount the winners.</b> Linen Shirt and Shirt Dress sell at full price - the returns prove it.</li>
+      <li data-i18n="r2"><b>Maximum 2 short offer windows in 2 months.</b> Amenaa is mid-market, not a discount brand - customers must never learn to wait for sales.</li>
+      <li data-i18n="r3"><b>COD + free shipping over EGP 2,500 appear in every single ad.</b> They are the #1 trust and AOV levers in Egypt.</li>
+      <li data-i18n="r4"><b>Launch everything Saturday or Wednesday, 11am-1pm.</b> That is when Egyptian women actually buy.</li>
+      <li data-i18n="r5"><b>Judge results on week-old numbers</b>, never the last 2-3 days (they always look low before purchases finish counting).</li>
+    </ol>
+  </div>
+</div>
+
+<script>
+const AR = {
+  back:'&#x2192; العودة للتقرير',
+  brandsub:'أمينة - الخطة التسويقية الشهرية',
+  title:'خطة يوليو وأغسطس',
+  why_h:'لماذا هذه الخطة - 4 حقائق من البيانات',
+  why_1:'<b>قميص الكتان هو البطل حالياً</b> - عائد 22-43× على إعلاناته، الأفضل في الحساب. والشيرت دريس رقم 1 بالإيراد (146 ألف جنيه في 30 يوم). ادفع بالاثنين بقوة.',
+  why_2:'<b>إعلانات الكتالوج / الأكثر مبيعاً هي أقوى نوع إعلان</b> - عائد 11-26×. واحد يعمل كل أسبوع دائماً.',
+  why_3:'<b>العميلات يشترين وقت الظهيرة (11ص-5م) والساعة 9م</b>، والأربعاء والسبت أقوى الأيام - كل إطلاق وإعلان جديد ينزل في هذه الأوقات.',
+  why_4:'<b>الحساب كان متوقفاً يوليو-أغسطس الماضي</b> - لذلك الخطة تتبع تقويم الصيف المصري: موسم الساحل في ذروته الآن، والعودة للمدارس أواخر أغسطس.',
+  jul:'يوليو', aug:'أغسطس',
+  jul_theme:'الفكرة: ذروة صيف الساحل · ادفع بالرابحين، لا حاجة للتخفيضات',
+  aug_theme:'الفكرة: إنهاء الصيف بقوة ← تصفية المخزون ← إطلاق تشكيلة العودة للمدارس/الخريف',
+  w12:'الأسبوع 1-2', w3:'الأسبوع 3', w4:'الأسبوع 4',
+  tag_push:'ادفع بالرابحين · سعر كامل',
+  tag_drop:'إطلاق وصولات جديدة',
+  tag_flash:'عرض ثورة يوليو · 15%',
+  tag_steady:'استمرار الدفع + التجهيز',
+  tag_sale2:'تصفية نهاية الصيف · 20-25%',
+  tag_launch:'🚀 إطلاق العودة للمدارس/الخريف · سعر كامل',
+  jul_w12_1:'وسّع الرابحين المثبتين: <b>قميص الكتان</b>، <b>الشيرت دريس</b>، <b>فستان الدنيم الماكسي</b> - العوائد 12-43×، لا يوجد أي سبب للتخفيض.',
+  jul_w12_2:'تصدّر بـ<b>تشكيلة الساحل / الصيف الخفيفة</b> - خامات تتنفس وإطلالات محتشمة للمصيف.',
+  jul_w12_3:'كل إعلان يذكر <b>الدفع عند الاستلام</b> + <b>شحن مجاني فوق 2,500 جنيه</b> - أهم عاملين لكسب ثقة العميلة المصرية.',
+  jul_w3_1:'<b>إطلاق وصولات جديدة منتصف الصيف</b> (بدون تخفيض - الجديد هو العرض). النزول <b>السبت 18 يوليو، 1 ظهراً</b> - أقوى يوم وذروة شراء الظهيرة.',
+  jul_w3_2:'أعد استهداف زوار آخر 30 يوم بالقطع الجديدة + تذكير الشحن المجاني.',
+  jul_w4_1:'<b>عرض ثورة 23 يوليو - 3 أيام فقط (23-25 يوليو)</b>: خصم 15% على موديلات مختارة + شحن مجاني. قصير ونادر حتى لا تبدو الماركة معتمدة على التخفيضات.',
+  jul_w4_2:'العودة للسعر الكامل من 26 يوليو ومواصلة التوسع بالرابحين نحو أغسطس.',
+  jul_col_h:'التشكيلات المستهدفة - يوليو',
+  c1a:'الكتان / الخامات الخفيفة', c1b:'خامة البطل في الحساب حالياً (قميص الكتان 22-43×)',
+  c2a:'الفساتين', c2b:'الشيرت دريس (رقم 1 بالإيراد) + فستان الدنيم الماكسي - فساتين يومية محتشمة',
+  c3a:'تشكيلة الساحل', c3b:'إطلالات محتشمة خفيفة مناسبة للساحل الشمالي',
+  jul_disc_h:'جدول التخفيضات - يوليو (عرض خاطف واحد)',
+  d1b:'عرض ثورة يوليو · موديلات مختارة + شحن مجاني',
+  d2a:'باقي الأيام', d2b:'سعر كامل - العوائد 16-20×، التخفيض سيقلل الربح فقط',
+  aug_w12_1:'واصل التوسع بقميص الكتان والشيرت دريس وكتالوج الأكثر مبيعاً الأسبوعي بالسعر الكامل.',
+  aug_w12_2:'<b>صوّر تشكيلة العودة للمدارس / أوائل الخريف الآن</b> (الفيديوهات جاهزة قبل 10 أغسطس - راجع خطة المحتوى).',
+  aug_w3_1:'صفِّ باقي مخزون الصيف: <b>"تصفية الصيف - آخر القطع"</b>. ندرة حقيقية - المقاسات تنفد. 7 أيام كحد أقصى.',
+  aug_w3_2:'الرابحون يبقون بالسعر الكامل. التصفية تحرر السيولة والانتباه لإطلاق الموسم الجديد.',
+  aug_w4_1:'<b>أطلق تشكيلة الموسم الجديد السبت 22 أغسطس، 1 ظهراً</b> (أقوى يوم + ذروة الظهيرة). العودة للمدارس لحظة شراء كبرى في مصر - طالبات الجامعة والموظفات يجددن ملابسهن المحتشمة.',
+  aug_w4_2:'وصول مبكر لكبار العميلات الخميس-الجمعة 20-21 أغسطس عبر واتساب قبل الإطلاق العام.',
+  aug_w4_3:'دفعة كاملة: فيديوهات جديدة + كتالوج الأكثر مبيعاً + إعادة استهداف زوار التصفية بالتشكيلة الجديدة.',
+  aug_col_h:'التشكيلات المستهدفة - أغسطس',
+  ac1b:'رابحو الصيف (قميص الكتان، الشيرت دريس، الفساتين) - سعر كامل',
+  ac2b:'تصفية نهاية الصيف - المخزون القديم فقط',
+  ac3a:'من 22 أغسطس', ac3b:'<b>تشكيلة العودة للمدارس / أوائل الخريف</b> - ملابس يومية عملية محتشمة، نجمة الشهر',
+  aug_disc_h:'جدول التخفيضات - أغسطس (نافذة واحدة)',
+  ad1b:'تصفية نهاية الصيف · المخزون القديم فقط',
+  ad2b:'إطلاق الموسم الجديد - <b>سعر كامل بدون استثناء</b>',
+  quota_h:'حصة المحتوى الأسبوعية (كل أسبوع)',
+  q1a:'فيديوهات جديدة (ريلز)', q1b:'ما يبيع: ارتداء على الموديل + ملمس الخامة', q1n:'2 / أسبوع',
+  q2a:'كتالوج الأكثر مبيعاً', q2b:'أقوى نوع إعلان في الحساب (عائد 11-26×) - جدد المنتجات أسبوعياً', q2n:'1 / أسبوع',
+  q3a:'الإجمالي شهرياً', q3b:'8 فيديوهات + 4 كتالوجات', q3n:'12 إعلان',
+  vid_h:'أنواع الفيديو الرابحة (بالترتيب)',
+  v1a:'1 · ارتداء ومشي', v1b:'القطعة وهي مرتداة ومتحركة - إعلان الإيراد رقم 1 في الحساب',
+  v2a:'2 · لقطة قريبة للخامة', v2b:'ملمس الكتان وتفاصيل الجودة',
+  v3a:'3 · إطلالة كاملة منسقة', v3b:'تنسيق كامل - من النهار للمساء',
+  v4a:'4 · إثبات الأكثر مبيعاً', v4b:'أسلوب كتالوج "الأكثر مبيعاً" - صاحب عائد 26×',
+  rules_h:'5 قواعد للمالك',
+  r1:'<b>لا تخفّض أسعار الرابحين أبداً.</b> قميص الكتان والشيرت دريس يباعان بالسعر الكامل - العوائد تثبت ذلك.',
+  r2:'<b>نافذتا عروض قصيرتان كحد أقصى في شهرين.</b> أمينة ماركة متوسطة السعر وليست ماركة تخفيضات - العميلة يجب ألا تتعلم الانتظار.',
+  r3:'<b>الدفع عند الاستلام + الشحن المجاني فوق 2,500 جنيه في كل إعلان.</b> هما أقوى عاملي ثقة ورفع لمتوسط الطلب في مصر.',
+  r4:'<b>أطلق كل شيء السبت أو الأربعاء، 11ص-1م.</b> هذا وقت الشراء الفعلي للعميلة المصرية.',
+  r5:'<b>احكم على النتائج بأرقام عمرها أسبوع</b>، وليس آخر 2-3 أيام (تبدو منخفضة دائماً قبل اكتمال تسجيل المشتريات).'
+};
+let lang = 'en';
+function applyLang(l) {
+  lang = l;
+  try { localStorage.setItem('impactLang', l); } catch(e) {}
+  const wrap = document.getElementById('wrap');
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    if (el.__en == null) el.__en = el.innerHTML;
+    if (l === 'ar' && AR[k]) {
+      const links = [...el.querySelectorAll('a.ex')].map(a => a.outerHTML).join(' ');
+      el.innerHTML = AR[k] + (links ? ' ' + links : '');
+    } else {
+      el.innerHTML = el.__en;
+    }
+  });
+  wrap.setAttribute('dir', l === 'ar' ? 'rtl' : 'ltr');
+  document.documentElement.lang = l;
+  document.getElementById('langBtn').textContent = l === 'ar' ? 'English' : 'العربية';
+}
+function toggleLang() { applyLang(lang === 'ar' ? 'en' : 'ar'); }
+try { if (localStorage.getItem('impactLang') === 'ar') applyLang('ar'); } catch(e) {}
+</script>
+</body>
+</html>

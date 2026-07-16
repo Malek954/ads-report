@@ -1931,18 +1931,22 @@ function closePlaybook() { document.getElementById('pbOverlay').classList.remove
 function pbEsc(e) { if (e.key === 'Escape') { closePlaybook(); closeNav(); } }
 
 // Top-right nav menu: choose between the Report Sheet and the Seasonality view
+// Each brand has its own Monthly Plan page
+const PLAN_PAGES = {
+  '401990560846482':  'plan-bayan.html',
+  '2638156416541971': 'plan-amenaa.html'
+};
 function toggleNav(e) {
   if (e) e.stopPropagation();
-  // The Monthly Plan page exists for the Bayan account only (for now)
   const p = document.getElementById('navPlan');
-  if (p) p.style.display = (G_accountId === '401990560846482') ? 'flex' : 'none';
+  if (p) p.style.display = PLAN_PAGES[G_accountId] ? 'flex' : 'none';
   document.getElementById('navMenu').classList.toggle('open');
 }
 function closeNav() { const m = document.getElementById('navMenu'); if (m) m.classList.remove('open'); }
 function navGo(where) {
   closeNav();
   if (where === 'season') window.location.href = 'seasonality.html';
-  else if (where === 'plan') window.location.href = 'plan-bayan.html';
+  else if (where === 'plan' && PLAN_PAGES[G_accountId]) window.location.href = PLAN_PAGES[G_accountId];
   else closePlaybook();   // 'report' - return to the dashboard
 }
 // Close the nav menu when clicking anywhere else
