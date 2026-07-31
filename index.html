@@ -672,7 +672,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   <div class="table-box" style="margin-bottom:24px">
     <div class="table-title" id="dailyRevTitle">Revenue by Day - excl. Message Campaign</div>
     <table class="dow-table">
-      <thead><tr><th>Day</th><th class="num">Revenue</th><th></th></tr></thead>
+      <thead><tr><th>Day</th><th class="num">Revenue</th><th class="num">ROAS</th><th></th></tr></thead>
       <tbody id="dailyRevBody"></tbody>
     </table>
   </div>
@@ -1626,7 +1626,12 @@ function renderRange(startIso, endIso) {
   // Revenue by day of week (ranked high→low), excludes the messaging campaign's revenue
   const dailyRevExcl = revenues.map((v,i) => Math.max(0, v - (msgRevenues[i] || 0)));
   const dowRev = [0,0,0,0,0,0,0];
-  isoList.forEach((iso,i) => { dowRev[new Date(iso+'T12:00:00').getDay()] += dailyRevExcl[i]; });
+  const dowSpend = [0,0,0,0,0,0,0];   // spend on the same basis (excl. message campaign) so ROAS matches the revenue column
+  isoList.forEach((iso,i) => {
+    const d = new Date(iso+'T12:00:00').getDay();
+    dowRev[d]   += dailyRevExcl[i];
+    dowSpend[d] += (adjSpends[i] || 0);
+  });
   const wdNames = (G_lang === 'ar')
     ? ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت']
     : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -1634,13 +1639,14 @@ function renderRange(startIso, endIso) {
   if (dailyRevTitleEl) dailyRevTitleEl.textContent = `Revenue by Day - excl. Message Campaign - ${periodLabel}`;
   const dowBody = document.getElementById('dailyRevBody');
   if (dowBody) {
-    const ranked = wdNames.map((name, d) => ({ name, rev: dowRev[d] })).sort((a,b) => b.rev - a.rev);
+    const ranked = wdNames.map((name, d) => ({ name, rev: dowRev[d], sp: dowSpend[d] })).sort((a,b) => b.rev - a.rev);
     const hiLbl = G_lang === 'ar' ? 'الأعلى' : 'highest';
     const loLbl = G_lang === 'ar' ? 'الأدنى' : 'lowest';
     dowBody.innerHTML = ranked.map((r,i) => {
       const badge = i === 0 ? `<span class="dow-tag dow-hi">▲ ${hiLbl}</span>`
                   : i === ranked.length-1 ? `<span class="dow-tag dow-lo">▼ ${loLbl}</span>` : '';
-      return `<tr><td>${r.name}</td><td class="num" style="color:#4ade80;font-weight:700">${fmt$(r.rev,0)}</td><td>${badge}</td></tr>`;
+      const roasTxt = r.sp > 0 ? (r.rev / r.sp).toFixed(2) + 'x' : '—';
+      return `<tr><td>${r.name}</td><td class="num" style="color:#4ade80;font-weight:700">${fmt$(r.rev,0)}</td><td class="num" style="color:#facc15;font-weight:700">${roasTxt}</td><td>${badge}</td></tr>`;
     }).join('');
   }
 
