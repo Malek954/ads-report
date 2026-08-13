@@ -570,10 +570,10 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
       <div class="card-sub" id="kpi3Sub">revenue ÷ spend (daily)</div>
     </div>
     <div class="card">
-      <div class="card-label">Avg CTR</div>
+      <div class="card-label" id="kpi4Label">Avg CTR</div>
       <div class="card-value" id="avgCtr">—</div>
       <div class="card-delta" id="deltaCtr"></div>
-      <div class="card-sub">weighted avg (full period)</div>
+      <div class="card-sub" id="kpi4Sub">weighted avg (full period)</div>
     </div>
   </div>
 
@@ -1162,6 +1162,10 @@ function applyReportMode() {
   set('kpi2Sub',   G_leadgen ? 'total leads'    : 'total purchase revenue');
   set('kpi3Label', G_leadgen ? 'Cost per Lead'  : 'Avg ROAS');
   set('kpi3Sub',   G_leadgen ? 'spend ÷ leads'  : 'revenue ÷ spend (daily)');
+  // No website on lead-gen accounts, so link-click CTR is meaningless.
+  // Show how many of the people who tapped the ad actually completed the form.
+  set('kpi4Label', G_leadgen ? 'Lead Rate'                 : 'Avg CTR');
+  set('kpi4Sub',   G_leadgen ? 'leads ÷ clicks on the ad'  : 'weighted avg (full period)');
 
   // Sections that only make sense for an ecommerce account
   ['funnelSection', 'weeklyRevSection', 'aovSection'].forEach(id => show(id, !G_leadgen));
@@ -1654,7 +1658,10 @@ function renderRange(startIso, endIso) {
   const totClicks  = G_adsets.reduce((s,a)=>s+a.clicks, 0);
   const totImpr    = G_adsets.reduce((s,a)=>s+a.impressions, 0);
   const totAdSpend = G_adsets.reduce((s,a)=>s+a.spend, 0);
-  animateValue(document.getElementById('avgCtr'), totImpr > 0 ? totClicks / totImpr * 100 : NaN, v => isFinite(v) ? v.toFixed(2) + '%' : '—');
+  animateValue(document.getElementById('avgCtr'),
+    G_leadgen ? (totClicks > 0 ? totalRev / totClicks * 100 : NaN)   // lead rate: leads ÷ ad clicks
+              : (totImpr   > 0 ? totClicks / totImpr * 100 : NaN),   // ecommerce: link-click CTR
+    v => isFinite(v) ? v.toFixed(2) + '%' : '—');
 
   document.getElementById('revTitle').textContent   = G_leadgen
     ? `Daily Leads - ${periodLabel}`
