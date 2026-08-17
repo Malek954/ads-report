@@ -746,7 +746,8 @@ const ACCOUNTS = {
   'amenaa_impact1': { id:'2638156416541971', name:'Amenaa Impact', currency:'E£', adsets:null, dailySpend:null, dailyRevenue:null, dailyExclSpend:null },
   'SSD_impact':     { id:'1757389631850436', name:'SSD Impact',    currency:'E£', adsets:null, dailySpend:null, dailyRevenue:null, dailyExclSpend:null },
   // Lead-gen client: no purchases or revenue, so the report swaps to Leads + Cost per Lead
-  'clinic_impact':  { id:'1561863647870277', name:'Canadian Clinic', currency:'$', type:'leadgen', adsets:null, dailySpend:null, dailyRevenue:null, dailyExclSpend:null }
+  'clinic_impact':  { id:'1561863647870277', name:'Canadian Clinic', currency:'$', type:'leadgen', adsets:null, dailySpend:null, dailyRevenue:null, dailyExclSpend:null },
+  'club29_impact':  { id:'1223465486666247', name:'The 29th Club',   currency:'QR', adsets:null, dailySpend:null, dailyRevenue:null, dailyExclSpend:null }
 };
 
 // ── EMBEDDED DATA - replaced by update-dashboard.ps1 ──────────────────────────
@@ -1213,7 +1214,9 @@ function checkLogin() {
     seedCache(ISO_DATES, acc.dailySpend, acc.dailyRevenue, acc.dailyExclSpend ?? acc.dailyMsgSpend);
   }
 
-  document.getElementById('dashTitle').textContent    = acc.name.split(' ')[0] + ' - Performance Report';
+  // Drop a trailing " Impact" but keep multi-word brand names intact
+  // ("Bayan Impact" -> "Bayan", but "The 29th Club" stays whole)
+  document.getElementById('dashTitle').textContent    = acc.name.replace(/\s+Impact$/, '') + ' - Performance Report';
   document.getElementById('dashSubtitle').textContent = `Account ${acc.id} · Loading 2 years of history…`;
   G_liveAds = [];
   initDashboard(acc.adsets || []);
