@@ -1113,8 +1113,17 @@ function clearDeltas() {
 function setDelta(elId, cur, prev, cmpLabel) {
   const el = document.getElementById(elId);
   if (!el) return;
-  if (prev == null || !isFinite(prev) || prev === 0 || cur == null || !isFinite(cur)) {
-    el.className = 'card-delta'; el.innerHTML = ''; return;
+  if (cur == null || !isFinite(cur)) { el.className = 'card-delta'; el.innerHTML = ''; return; }
+  // A zero/absent baseline makes "% change" undefined. Rather than leaving the card
+  // silent - which reads as broken - say plainly there was nothing to compare against.
+  if (prev == null || !isFinite(prev) || prev === 0) {
+    if (cur > 0) {
+      el.className = 'card-delta show up';
+      el.innerHTML = '<span class="cmp-arrow">\u2197</span>new<span class="cmp-base">vs ' + cmpLabel + ' (was 0)</span>';
+    } else {
+      el.className = 'card-delta'; el.innerHTML = '';
+    }
+    return;
   }
   const pct = (cur - prev) / Math.abs(prev) * 100;
   const up  = pct >= 0;                       // up = green, down = grey (per brand spec)
