@@ -1216,6 +1216,9 @@ function checkLogin() {
   }
   G_accountId = acc.id;
   const seq = ++G_sessionSeq;                 // invalidate any in-flight work from the previous account
+  // Clear every per-account leftover so nothing from the previous client survives
+  window.G_funnelLPV = window.G_funnelCart = window.G_funnelCheckout = window.G_funnelPurch = null;
+  G_adsets = [];
   G_roasExclIds = new Set(); G_roasExclNames = new Set(); G_roasExclReady = false;
   G_curr = acc.currency || '$';   // account currency ($ for USD accounts, E£ for EGP)
   G_leadgen = (acc.type === 'leadgen');
@@ -1521,9 +1524,9 @@ async function fetchPages(url) {
   return rows;
 }
 
-async function refreshAdsForRange(startIso, endIso) {
+async function refreshAdsForRange(startIso, endIso, seq) {
   const token = effectiveToken();
-  if (!token || !G_accountId) return;
+  if (!token || !G_accountId || !seqOk(seq)) return;
   const tr = encodeURIComponent(JSON.stringify({since: startIso, until: endIso}));
 
   try {
@@ -1533,7 +1536,9 @@ async function refreshAdsForRange(startIso, endIso) {
     if (!ads.length) return;
 
     await loadRoasExclusions();
-    G_adsets = ads.filter(a => +a.spend > 0 && !isRoasExcluded(null, a.campaign_name)).map(a => {
+    // Lead-gen accounts have no OUTCOME_SALES campaigns, so the ROAS exclusion would
+    // filter out every ad and leave the ad-level sections empty. Keep them all.
+    G_adsets = ads.filter(a => +a.spend > 0 && (G_leadgen || !isRoasExcluded(null, a.campaign_name))).map(a => {
       const acts  = a.actions || [];
       const avs   = a.action_values || [];
       const gact  = type => +((acts.find(x=>x.action_type===type)||{}).value||0);
@@ -1577,11 +1582,13 @@ async function refreshAdsForRange(startIso, endIso) {
       return s + +((web || gen || {}).value || 0);
     }, 0);
     // Store funnel totals globally so buildFunnel can use them
+    if (!seqOk(seq)) return;   // account changed mid-flight - discard
     window.G_funnelLPV      = gact2(salesAdsets, 'landing_page_view');
     window.G_funnelCart     = gact2(salesAdsets, 'add_to_cart');
     window.G_funnelCheckout = gact2(salesAdsets, 'initiate_checkout');
     window.G_funnelPurch    = gactWebPurch(salesAdsets);
 
+    updateRateCard();   // ad-level data just landed - refresh the CTR / Lead Rate card
     buildWinningAds();
     buildFunnel();
     buildBarChart();
@@ -1638,6 +1645,20 @@ function buildLiveAds() {
   </tr>`).join('');
 }
 
+// 4th KPI card. Ad-level data (clicks/impressions) arrives asynchronously, so this is
+// called again once it lands - otherwise the card is stuck on the pre-fetch value.
+function updateRateCard() {
+  const el = document.getElementById('avgCtr');
+  if (!el) return;
+  const rows = G_adsets || [];
+  const totClicks = rows.reduce((s,a)=>s+(a.clicks||0), 0);
+  const totImpr   = rows.reduce((s,a)=>s+(a.impressions||0), 0);
+  const leads     = document.getElementById('totalRevenue').__val || 0;
+  const val = G_leadgen ? (totClicks > 0 ? leads / totClicks * 100 : NaN)
+                        : (totImpr   > 0 ? totClicks / totImpr * 100 : NaN);
+  animateValue(el, val, v => isFinite(v) ? v.toFixed(2) + '%' : '—');
+}
+
 function renderRange(startIso, endIso) {
   const { isoList, spends, revenues, exclSpends, exclRevenues, labels } = sliceFromCache(startIso, endIso);
   const days        = isoList.length;
@@ -1645,7 +1666,11 @@ function renderRange(startIso, endIso) {
   const totalRev    = revenues.reduce((a,v)=>a+v, 0);
 
   // Exact per-day non-sales campaign spend from cache - subtract for ROAS denominator
-  const adjSpends   = spends.map((v,i) => Math.max(0, v - (exclSpends[i] || 0)));
+  // Lead-gen accounts have no OUTCOME_SALES campaigns, so every campaign lands in the
+  // ROAS exclusion list. Excluding it all would zero the Cost-per-Lead denominator,
+  // so lead-gen uses gross spend - all of it is genuinely buying leads.
+  const adjSpends   = G_leadgen ? spends.slice()
+                                : spends.map((v,i) => Math.max(0, v - (exclSpends[i] || 0)));
   const adjTotal    = adjSpends.reduce((a,v)=>a+v, 0);
   const roas        = adjTotal > 0 ? (totalRev / adjTotal).toFixed(2) : '—';
 
@@ -1673,13 +1698,8 @@ function renderRange(startIso, endIso) {
   // Comparison deltas (Shopify-style) - async, fills card deltas when ready
   applyComparison(startIso, endIso, { spend: totalSpend, rev: totalRev, roas: adjTotal > 0 ? totalRev / adjTotal : null });
 
-  const totClicks  = G_adsets.reduce((s,a)=>s+a.clicks, 0);
-  const totImpr    = G_adsets.reduce((s,a)=>s+a.impressions, 0);
+  updateRateCard();
   const totAdSpend = G_adsets.reduce((s,a)=>s+a.spend, 0);
-  animateValue(document.getElementById('avgCtr'),
-    G_leadgen ? (totClicks > 0 ? totalRev / totClicks * 100 : NaN)   // lead rate: leads ÷ ad clicks
-              : (totImpr   > 0 ? totClicks / totImpr * 100 : NaN),   // ecommerce: link-click CTR
-    v => isFinite(v) ? v.toFixed(2) + '%' : '—');
 
   document.getElementById('revTitle').textContent   = G_leadgen
     ? `Daily Leads - ${periodLabel}`
@@ -1784,7 +1804,7 @@ function renderRange(startIso, endIso) {
   buildWeekly(endIso);
 
   // Refresh ad-level breakdown sections to match selected date range
-  refreshAdsForRange(startIso, endIso);
+  refreshAdsForRange(startIso, endIso, G_sessionSeq);
 }
 
 function mkChart(id,type,data,options) {
