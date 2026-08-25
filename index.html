@@ -106,6 +106,7 @@ h1 { font-family: var(--font-display); font-size: 19px; font-weight: 400; color:
 .card-delta { display: none; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; margin-top: 6px; }
 .card-delta.show { display: inline-flex; }
 .card-delta.up   { color: #4ade80; }
+.card-delta.flat { color: #6a6f7b; }
 .card-delta.down { color: #A0A3AB; }
 .card-delta .cmp-base { color: #475569; font-weight: 500; margin-left: 2px; }
 .dow-table td { padding: 11px 14px; }
@@ -1117,15 +1118,11 @@ function setDelta(elId, cur, prev, cmpLabel, fmt) {
   if (cur == null || !isFinite(cur)) { el.className = 'card-delta'; el.innerHTML = ''; return; }
   // A zero/absent baseline makes "% change" undefined. Rather than leaving the card
   // silent - which reads as broken - say plainly there was nothing to compare against.
+  // No usable baseline -> show a dash, the same convention Shopify uses when a
+  // comparison cannot be calculated. Never invent a percentage.
   if (prev == null || !isFinite(prev) || prev === 0) {
-    if (cur > 0) {
-      // Growth from a zero baseline has no finite percentage. Keep the card in the
-      // same % format as every other comparison and mark the baseline inline.
-      el.className = 'card-delta show up';
-      el.innerHTML = '<span class="cmp-arrow">\u2197</span>\u221E%<span class="cmp-base">vs ' + cmpLabel + ' (was 0)</span>';
-    } else {
-      el.className = 'card-delta'; el.innerHTML = '';
-    }
+    el.className = 'card-delta show flat';
+    el.innerHTML = '\u2014<span class="cmp-base">vs ' + cmpLabel + '</span>';
     return;
   }
   const pct = (cur - prev) / Math.abs(prev) * 100;
