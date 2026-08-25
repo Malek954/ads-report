@@ -838,6 +838,11 @@ let G_curr = '$';         // currency symbol for the current account (e.g. '$' o
 // Lead-gen accounts (clinics etc.) have no purchases or revenue. In this mode the
 // "revenue" slot in the cache holds a LEAD COUNT, and ROAS is replaced by cost per lead.
 let G_leadgen = false;
+// Bumped on every login/exit. Async fetches capture it and refuse to write their
+// results if the user has since switched accounts - otherwise one client's numbers
+// can land in another client's report.
+let G_sessionSeq = 0;
+const seqOk = s => (s === undefined || s === G_sessionSeq);
 const fmtLeads = n => Math.round(n || 0).toLocaleString();
 let G_compareMode = 'none'; // comparison period: none | prev | prevmonth | prevyear
 let G_liveAds = [];         // ads currently ACTIVE (live status from the Ads API)
@@ -857,7 +862,7 @@ let G_roasExclNames = new Set();  // same campaigns by lowercased name (ad rows 
 let G_roasExclReady = false;      // false -> fall back to the legacy name check
 
 // Build the exclusion list once per account from ad set objective + optimisation goal.
-async function loadRoasExclusions() {
+async function loadRoasExclusions(seq) {
   if (G_roasExclReady) return;
   const token = effectiveToken();
   if (!token || !G_accountId) return;
@@ -878,6 +883,7 @@ async function loadRoasExclusions() {
     seen.forEach((v, id) => {
       if (!v.sales) { ids.add(String(id)); if (v.name) names.add(v.name.toLowerCase()); }
     });
+    if (!seqOk(seq)) return;   // account changed mid-flight - discard
     G_roasExclIds = ids; G_roasExclNames = names; G_roasExclReady = true;
   } catch (e) { console.warn('ROAS exclusion list failed, using name fallback:', e); }
 }
@@ -981,9 +987,9 @@ function seedCache(isoList, spendArr, revArr, exclSpendArr) {
 }
 
 // Fetch any missing dates from Meta API and add them to cache
-async function ensureDates(startIso, endIso) {
+async function ensureDates(startIso, endIso, seq) {
   const token = effectiveToken();
-  if (!token || !G_accountId) return;
+  if (!token || !G_accountId || !seqOk(seq)) return;
   const needed = buildDateRange(startIso, endIso).filter(d => !G_liveCache.has(d));
   if (!needed.length) return;
 
@@ -998,6 +1004,7 @@ async function ensureDates(startIso, endIso) {
       const res  = await fetch(next);
       const json = await res.json();
       if (json.error) { console.warn('Meta API:', json.error.message); break; }
+      if (!seqOk(seq)) return;
       (json.data || []).forEach(row => {
         const rev = (row.action_values || []).find(a => a.action_type === 'purchase');
         const existing = G_liveCache.get(row.date_start) || {};
@@ -1012,7 +1019,7 @@ async function ensureDates(startIso, endIso) {
       next = json.paging?.next || null;
     }
     // Total up every non-sales campaign per day and merge into cache
-    await loadRoasExclusions();
+    await loadRoasExclusions(seq);
     const exclDaily = new Map();   // iso -> {spend, revenue}
     let cnext = campUrl;
     while (cnext) {
@@ -1029,19 +1036,21 @@ async function ensureDates(startIso, endIso) {
       });
       cnext = json.paging?.next || null;
     }
+    if (!seqOk(seq)) return;
     exclDaily.forEach((v, iso) => {
       const existing = G_liveCache.get(iso) || { spend:0, revenue:0 };
       G_liveCache.set(iso, { ...existing, exclSpend: v.spend, exclRevenue: v.revenue });
     });
   } catch(e) { console.warn('Fetch failed:', e); }
 
+  if (!seqOk(seq)) return;   // account changed mid-flight - discard
   needed.forEach(d => { if (!G_liveCache.has(d)) G_liveCache.set(d, { spend:0, revenue:0, exclSpend:0 }); });
 }
 
 // Silently prefetch 2 years of history in the background right after login
-async function prefetchHistory() {
+async function prefetchHistory(seq) {
   const token = effectiveToken();
-  if (!token || !G_accountId) return;
+  if (!token || !G_accountId || !seqOk(seq)) return;
   const todayIso  = dpTodayIso();
   const twoYrsAgo = new Date(); twoYrsAgo.setFullYear(twoYrsAgo.getFullYear() - 2);
   const startIso  = twoYrsAgo.toISOString().slice(0, 10);
@@ -1052,10 +1061,11 @@ async function prefetchHistory() {
   const CHUNK = 180;
   for (let i = 0; i < missing.length; i += CHUNK) {
     const chunk = missing.slice(i, i + CHUNK);
-    await ensureDates(chunk[0], chunk[chunk.length - 1]);
+    if (!seqOk(seq)) return;
+    await ensureDates(chunk[0], chunk[chunk.length - 1], seq);
   }
   // Refresh the currently displayed range with newly cached data
-  if (G_selStart && G_selEnd) renderRange(G_selStart, G_selEnd);
+  if (seqOk(seq) && G_selStart && G_selEnd) renderRange(G_selStart, G_selEnd);
 }
 
 // Pull spend/revenue/excluded-spend/labels from cache for a date range
@@ -1116,7 +1126,7 @@ async function applyComparison(startIso, endIso, cur) {
   if (G_compareMode === 'none') { clearDeltas(); return; }
   const cr = compareRange(startIso, endIso);
   if (!cr) { clearDeltas(); return; }
-  await ensureDates(cr.start, cr.end);
+  await ensureDates(cr.start, cr.end, G_sessionSeq);
   // Abort if the user changed the main range while we were loading
   if (G_selStart !== startIso || G_selEnd !== endIso) return;
   const { spends, revenues, exclSpends } = sliceFromCache(cr.start, cr.end);
@@ -1143,6 +1153,7 @@ function doExit() {
   try { localStorage.removeItem('impactSession'); } catch(e) {}
   // Reset all live state
   window.G_funnelLPV = window.G_funnelCart = window.G_funnelCheckout = window.G_funnelPurch = null;
+  G_sessionSeq++;   // invalidate in-flight fetches
   G_adsets = []; G_liveCache.clear(); G_accountId = null;
   G_roasExclIds = new Set(); G_roasExclNames = new Set(); G_roasExclReady = false;
   document.getElementById('exitModal').classList.remove('active');
@@ -1204,6 +1215,8 @@ function checkLogin() {
     return;
   }
   G_accountId = acc.id;
+  const seq = ++G_sessionSeq;                 // invalidate any in-flight work from the previous account
+  G_roasExclIds = new Set(); G_roasExclNames = new Set(); G_roasExclReady = false;
   G_curr = acc.currency || '$';   // account currency ($ for USD accounts, E£ for EGP)
   G_leadgen = (acc.type === 'leadgen');
   applyReportMode();
@@ -1220,10 +1233,11 @@ function checkLogin() {
   document.getElementById('dashSubtitle').textContent = `Account ${acc.id} · Loading 2 years of history…`;
   G_liveAds = [];
   initDashboard(acc.adsets || []);
-  fetchLiveAds();   // pull currently-active ads (real-time)
+  fetchLiveAds(seq);   // pull currently-active ads (real-time)
 
   // Background prefetch - updates subtitle and refreshes view when done
-  prefetchHistory().then(() => {
+  prefetchHistory(seq).then(() => {
+    if (!seqOk(seq)) return;   // a different account is on screen now
     const todayIso = dpTodayIso();
     document.getElementById('dashSubtitle').textContent =
       `Account ${acc.id} · Live data · ${G_liveCache.size} days loaded · Updated ${new Date().toLocaleTimeString()}`;
@@ -1580,9 +1594,9 @@ async function refreshAdsForRange(startIso, endIso) {
 // ── LIVE ADS (currently running) ────────────────────────────────────────────────
 // Pulls the account's ACTIVE ads in real time, so turning an ad on/off or creating
 // a new one is reflected here on the next load/refresh.
-async function fetchLiveAds() {
+async function fetchLiveAds(seq) {
   const token = effectiveToken();
-  if (!token || !G_accountId) { G_liveAds = []; buildLiveAds(); return; }
+  if (!token || !G_accountId || !seqOk(seq)) { G_liveAds = []; buildLiveAds(); return; }
   const es  = encodeURIComponent('["ACTIVE"]');
   const url = `${API_BASE}/act_${G_accountId}/ads?${metaAuth(token)}effective_status=${es}&fields=name,effective_status,campaign{name}&limit=400`;
   try {
@@ -1591,6 +1605,7 @@ async function fetchLiveAds() {
       .filter(a => a.effective_status === 'ACTIVE')
       .map(a => ({ name: a.name, campaign: (a.campaign && a.campaign.name) || '' }));
   } catch(e) { G_liveAds = []; }
+  if (!seqOk(seq)) return;   // account changed mid-flight - discard
   buildLiveAds();
 }
 
@@ -1873,7 +1888,7 @@ async function dpApply() {
   const btn=document.getElementById('dpApply');
   btn.textContent='Loading…'; btn.disabled=true;
 
-  await ensureDates(startIso, endIso);
+  await ensureDates(startIso, endIso, G_sessionSeq);
 
   btn.textContent='Apply'; btn.disabled=false;
 
