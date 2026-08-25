@@ -596,8 +596,8 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
       <span class="dp-compare-label">Compare to</span>
       <select id="cmpSelect" class="dp-compare-select" onchange="onCompareChange()">
         <option value="none">No comparison</option>
+        <option value="prev" selected>Previous period (preceding days)</option>
         <option value="prevmonth">Previous month (same dates)</option>
-        <option value="prev">Previous period (preceding days)</option>
         <option value="prevyear">Previous year (same dates)</option>
       </select>
     </div>
@@ -844,7 +844,7 @@ let G_leadgen = false;
 let G_sessionSeq = 0;
 const seqOk = s => (s === undefined || s === G_sessionSeq);
 const fmtLeads = n => Math.round(n || 0).toLocaleString();
-let G_compareMode = 'none'; // comparison period: none | prev | prevmonth | prevyear
+let G_compareMode = 'prev'; // comparison period: none | prev | prevmonth | prevyear
 let G_liveAds = [];         // ads currently ACTIVE (live status from the Ads API)
 
 // --- ROAS eligibility --------------------------------------------------------
@@ -1110,7 +1110,8 @@ function clearDeltas() {
   });
 }
 
-function setDelta(elId, cur, prev, cmpLabel) {
+function setDelta(elId, cur, prev, cmpLabel, fmt) {
+  fmt = fmt || (v => Math.round(v).toLocaleString());
   const el = document.getElementById(elId);
   if (!el) return;
   if (cur == null || !isFinite(cur)) { el.className = 'card-delta'; el.innerHTML = ''; return; }
@@ -1119,7 +1120,8 @@ function setDelta(elId, cur, prev, cmpLabel) {
   if (prev == null || !isFinite(prev) || prev === 0) {
     if (cur > 0) {
       el.className = 'card-delta show up';
-      el.innerHTML = '<span class="cmp-arrow">\u2197</span>new<span class="cmp-base">vs ' + cmpLabel + ' (was 0)</span>';
+      el.innerHTML = '<span class="cmp-arrow">\u2197</span>+' + fmt(cur) +
+                     '<span class="cmp-base">vs ' + cmpLabel + ' (was 0)</span>';
     } else {
       el.className = 'card-delta'; el.innerHTML = '';
     }
@@ -1145,9 +1147,9 @@ async function applyComparison(startIso, endIso, cur) {
   const pRoas  = pAdj > 0 ? pRev / pAdj : null;
   const sf = d => new Date(d + 'T12:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric'});
   const cmpLabel = sf(cr.start) + '–' + sf(cr.end);
-  setDelta('deltaSpend',   cur.spend, pSpend, cmpLabel);
-  setDelta('deltaRevenue', cur.rev,   pRev,   cmpLabel);
-  setDelta('deltaRoas',    cur.roas,  pRoas,  cmpLabel);
+  setDelta('deltaSpend',   cur.spend, pSpend, cmpLabel, v => fmt$(v, 0));
+  setDelta('deltaRevenue', cur.rev,   pRev,   cmpLabel, v => G_leadgen ? fmtLeads(v) : fmt$(v, 0));
+  setDelta('deltaRoas',    cur.roas,  pRoas,  cmpLabel, v => G_leadgen ? fmt$(v) : v.toFixed(2) + 'x');
 }
 
 // ── EXIT ──────────────────────────────────────────────────────────────────────
