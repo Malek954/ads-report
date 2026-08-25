@@ -1138,13 +1138,28 @@ async function applyComparison(startIso, endIso, cur) {
   await ensureDates(cr.start, cr.end, G_sessionSeq);
   // Abort if the user changed the main range while we were loading
   if (G_selStart !== startIso || G_selEnd !== endIso) return;
-  const { spends, revenues, exclSpends } = sliceFromCache(cr.start, cr.end);
+  let win = cr;
+  // If the ads were completely off in the preceding period there is nothing to compare
+  // to. Step back to the most recent equal-length window that actually ran and label it
+  // with its real dates, rather than showing a bare dash.
+  if (sliceFromCache(cr.start, cr.end).spends.reduce((a,v)=>a+v,0) === 0) {
+    const len = buildDateRange(cr.start, cr.end).length, dayMs = 86400000;
+    for (let back = 1; back <= 26; back++) {
+      const e  = new Date(new Date(cr.end + 'T12:00:00').getTime() - back * len * dayMs);
+      const st = new Date(e.getTime() - (len - 1) * dayMs);
+      const sIso = st.toISOString().slice(0,10), eIso = e.toISOString().slice(0,10);
+      await ensureDates(sIso, eIso, G_sessionSeq);
+      if (G_selStart !== startIso || G_selEnd !== endIso) return;
+      if (sliceFromCache(sIso, eIso).spends.reduce((a,v)=>a+v,0) > 0) { win = {start:sIso, end:eIso}; break; }
+    }
+  }
+  const { spends, revenues, exclSpends } = sliceFromCache(win.start, win.end);
   const pSpend = spends.reduce((a,v) => a + v, 0);
   const pRev   = revenues.reduce((a,v) => a + v, 0);
   const pAdj   = spends.reduce((a,v,i) => a + Math.max(0, v - (exclSpends[i] || 0)), 0);
   const pRoas  = pAdj > 0 ? pRev / pAdj : null;
   const sf = d => new Date(d + 'T12:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric'});
-  const cmpLabel = sf(cr.start) + '–' + sf(cr.end);
+  const cmpLabel = sf(win.start) + '–' + sf(win.end);
   setDelta('deltaSpend',   cur.spend, pSpend, cmpLabel, v => fmt$(v, 0));
   setDelta('deltaRevenue', cur.rev,   pRev,   cmpLabel, v => G_leadgen ? fmtLeads(v) : fmt$(v, 0));
   setDelta('deltaRoas',    cur.roas,  pRoas,  cmpLabel, v => G_leadgen ? fmt$(v) : v.toFixed(2) + 'x');
