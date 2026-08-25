@@ -1119,9 +1119,10 @@ function setDelta(elId, cur, prev, cmpLabel, fmt) {
   // silent - which reads as broken - say plainly there was nothing to compare against.
   if (prev == null || !isFinite(prev) || prev === 0) {
     if (cur > 0) {
+      // Growth from a zero baseline has no finite percentage. Keep the card in the
+      // same % format as every other comparison and mark the baseline inline.
       el.className = 'card-delta show up';
-      el.innerHTML = '<span class="cmp-arrow">\u2197</span>+' + fmt(cur) +
-                     '<span class="cmp-base">vs ' + cmpLabel + ' (was 0)</span>';
+      el.innerHTML = '<span class="cmp-arrow">\u2197</span>\u221E%<span class="cmp-base">vs ' + cmpLabel + ' (was 0)</span>';
     } else {
       el.className = 'card-delta'; el.innerHTML = '';
     }
