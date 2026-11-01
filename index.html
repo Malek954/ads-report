@@ -979,8 +979,14 @@ function buildDateRange(startIso, endIso) {
 
 // Seed the live cache from the embedded arrays so cached dates are instant
 // exclSpendArr = daily spend of campaigns that are NOT website-sales campaigns
+// The snapshot's most recent days are not final: its last day was captured mid-day, and
+// Meta keeps attributing purchases to a day for weeks afterwards. Seeded days are never
+// refetched, so leaving those in would freeze them at the wrong value. Skip them and let
+// the live fetch fill them in.
+const SEED_SKIP_RECENT_DAYS = 28;
 function seedCache(isoList, spendArr, revArr, exclSpendArr) {
-  isoList.forEach((iso, i) => G_liveCache.set(iso, {
+  const lastFinal = isoList.length - SEED_SKIP_RECENT_DAYS;
+  isoList.forEach((iso, i) => i < lastFinal && G_liveCache.set(iso, {
     spend:     spendArr[i] || 0,
     revenue:   revArr[i]   || 0,
     exclSpend: exclSpendArr ? (exclSpendArr[i] || 0) : 0
@@ -1262,8 +1268,13 @@ function checkLogin() {
   initDashboard(acc.adsets || []);
   fetchLiveAds(seq);   // pull currently-active ads (real-time)
 
-  // Background prefetch - updates subtitle and refreshes view when done
-  prefetchHistory(seq).then(() => {
+  // Load the visible range first so the page is right within a second or two,
+  // then pull the rest of the 2-year history in the background.
+  const visStart = G_selStart, visEnd = G_selEnd;
+  ensureDates(visStart, visEnd, seq).then(() => {
+    // Skip if the account changed or the user already picked another range
+    if (seqOk(seq) && G_selStart === visStart && G_selEnd === visEnd) renderRange(visStart, visEnd);
+  }).then(() => prefetchHistory(seq)).then(() => {
     if (!seqOk(seq)) return;   // a different account is on screen now
     const todayIso = dpTodayIso();
     document.getElementById('dashSubtitle').textContent =
@@ -1274,16 +1285,14 @@ function checkLogin() {
 // ── INIT ──────────────────────────────────────────────────────────────────────
 function initDashboard(adsets) {
   G_adsets = adsets;
-  // Default: last 30 days ending at the most recent embedded date
-  const today   = new Date();
-  const todayIso= today.toISOString().slice(0,10);
-  const ago30   = new Date(today); ago30.setDate(ago30.getDate()-29);
-  const ago30Iso= ago30.toISOString().slice(0,10);
-  G_selEnd   = ISO_DATES[ISO_DATES.length-1]; // last embedded date
-  G_selStart = ISO_DATES[Math.max(0, ISO_DATES.length-30)];
-  buildStaticSections();
-  renderDynamicSync(); // render from cache (instant, no API needed for default range)
+  // The picker decides the range (last 30 days ending today), so what is shown always
+  // matches the label. This used to default to the embedded snapshot's last 30 days,
+  // which drifted months out of date and only corrected itself after pressing Apply.
   dpInit();
+  buildStaticSections();
+  // Render now only if every day is already cached; otherwise checkLogin fetches the
+  // range first, so the cards never flash zeros for days that have not loaded yet.
+  if (buildDateRange(G_selStart, G_selEnd).every(d => G_liveCache.has(d))) renderDynamicSync();
   // Move the date picker directly below the header (above the summary cards)
   const dpBar = document.getElementById('dpBar');
   const cards = document.querySelector('#dashboard .cards');
@@ -1882,9 +1891,9 @@ function dpInit() {
   // Default selection = last 30 days
   dpSelEnd  =dpToday();
   dpSelStart=new Date(dpToday()); dpSelStart.setDate(dpSelStart.getDate()-29);
-  // Use embedded data for the initial render (instant)
-  G_selStart=ISO_DATES[Math.max(0,ISO_DATES.length-30)];
-  G_selEnd  =ISO_DATES[ISO_DATES.length-1];
+  // The data shown must be exactly the range on the label
+  G_selStart=dpIso(dpSelStart);
+  G_selEnd  =dpIso(dpSelEnd);
   dpRefreshLabel();
 }
 
