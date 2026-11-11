@@ -1178,7 +1178,7 @@ function checkLogin() {
   applyReportMode();
   G_liveCache.clear();
   // Only seed from embedded data when it exists; otherwise leave the cache empty
-  // so the live prefetch actually fetches this account's data (e.g. SSD).
+  // so the live prefetch actually fetches this account's data.
   if (acc.dailySpend && acc.dailySpend.length) {
     seedCache(ISO_DATES, acc.dailySpend, acc.dailyRevenue, acc.dailyExclSpend ?? acc.dailyMsgSpend);
   }
@@ -1987,7 +1987,7 @@ function campaignTag(c) {
 }
 
 // ── SEASONALITY & OFFERS PLAYBOOK (per brand / per market) ──────────────────────
-// Gulf calendar (Bayan) and Egypt calendar (Amenaa / SSD) differ on events & posture.
+// Gulf calendar (Bayan) and Egypt calendar (Amenaa) differ on events & posture.
 const PB_GULF = [
   { id:'Q1', months:'Jan → Mar', posture:'Scale for volume', cls:'a',
     events:[{d:'~Feb 18',n:'Ramadan begins',s:1},{d:'~Mar 20',n:'Eid al-Fitr',s:1},{d:'Feb 25',n:'Kuwait National Day'}],
@@ -2049,10 +2049,6 @@ const PLAYBOOK = {
     persona:'Egyptian women 25–54 (core 35–44) · everyday modest wear · AOV ≈ EGP 1,950 · mid-market, trust-driven, COD-first.',
     lever:'<b>Lead with New Arrivals + Cash-on-Delivery + Free shipping over ~EGP 2,500</b> (lifts AOV). Save real % discounts for Ramadan, Mother’s Day, Black Friday & end-of-season only - no bundles.',
     quarters:PB_EGYPT_AMENAA },
-  '1757389631850436': { brand:'SSD · Egypt',
-    persona:'Egyptian modest-fashion audience. Same market calendar as Amenaa - tune the offers to this brand’s price tier & product mix.',
-    lever:'<b>Egypt-market template.</b> COD + free-shipping threshold + newness as the base levers; discount only on Ramadan / Black Friday / clearance.',
-    quarters:PB_EGYPT_AMENAA }
 };
 
 function openPlaybook() {

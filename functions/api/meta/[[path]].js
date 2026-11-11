@@ -20,8 +20,7 @@ export async function onRequestGet({ request, env, params, data }) {
     return json({ error: { message: 'Endpoint not allowed.' } }, 403);
   }
 
-  // The SSD account lives in a different app, so it has its own token
-  const TOKEN = (m[1] === '1757389631850436' && env.META_TOKEN_SSD) || env.META_TOKEN;
+  const TOKEN = env.META_TOKEN;
   if (!TOKEN) return json({ error: { message: 'Server token is not configured.' } }, 500);
 
   // Forward only known read parameters; never a client-supplied token
