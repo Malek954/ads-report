@@ -87,6 +87,34 @@ body {
 #dashboard { display: none; }
 #dashboard.visible { display: block; }
 
+/* ── Brand background (same as sign-in, fainter so data stays readable).
+      CSS only, transform-only motion: no images, no scripts, no repaints ── */
+html { background: #000000; }
+.bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+#dashboard.visible { position: relative; z-index: 1; }
+.bg-glow { position: absolute; border-radius: 50%; will-change: transform; }
+.bg-glow.g1 { width: 120vmax; height: 120vmax; top: -64vmax; right: -60vmax; opacity: .6;
+  background: radial-gradient(circle, rgba(50,99,193,.55) 0%, rgba(50,99,193,.18) 38%, rgba(50,99,193,0) 66%);
+  animation: bgDrift1 20s ease-in-out infinite alternate; }
+.bg-glow.g2 { width: 90vmax; height: 90vmax; bottom: -62vmax; left: -52vmax; opacity: .5;
+  background: radial-gradient(circle, rgba(30,60,115,.45) 0%, rgba(30,60,115,0) 62%);
+  animation: bgDrift2 26s ease-in-out infinite alternate; }
+.bg-grid { position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(67,116,214,.05) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(67,116,214,.05) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 75% 20%, #000 0%, transparent 75%);
+          mask-image: radial-gradient(ellipse 70% 60% at 75% 20%, #000 0%, transparent 75%); }
+.bg-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; overflow: hidden;
+  background: linear-gradient(90deg, rgba(50,99,193,.25), #3263C1 50%, rgba(50,99,193,.25)); }
+.bg-bar::after { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 30%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.85), transparent);
+  transform: translateX(-100%); will-change: transform; animation: bgSweep 6s ease-in-out infinite; }
+@keyframes bgDrift1 { from { transform: translate(0,0); } to { transform: translate(-6vmax, 5vmax); } }
+@keyframes bgDrift2 { from { transform: translate(0,0); } to { transform: translate(7vmax, -4vmax); } }
+@keyframes bgSweep  { 0% { transform: translateX(-100%); } 60%, 100% { transform: translateX(340%); } }
+@media (prefers-reduced-motion: reduce) { .bg-glow, .bg-bar::after { animation: none; } }
+
 h1 { font-family: var(--font-display); font-size: 19px; font-weight: 400; color: #FFFFFF; margin-bottom: 4px; letter-spacing: 0.02em; }
 .subtitle { color: #A0A3AB; font-size: 13px; margin-bottom: 24px; }
 .section-title {
@@ -384,6 +412,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   .dash-topbar { position: relative; }
   .dash-topbar-titles { width: 100%; }
   .topbar-btns { position: absolute; top: 0; right: 0; }
+  .brand-img-sm { height: 24px; margin-top: 6px; }   /* fits left of the buttons */
 
   /* Gate / login */
   .gate-box { min-width: unset; width: 92vw; padding: 28px 20px; }
@@ -478,6 +507,12 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 </div>
 
 <!-- DASHBOARD -->
+<div class="bg" aria-hidden="true">
+  <div class="bg-glow g1"></div>
+  <div class="bg-glow g2"></div>
+  <div class="bg-grid"></div>
+  <div class="bg-bar"></div>
+</div>
 <div id="dashboard">
   <div class="dash-topbar">
     <div class="dash-topbar-titles">
