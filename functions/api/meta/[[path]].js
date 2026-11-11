@@ -4,6 +4,9 @@
 //
 // Handles /api/meta/*  ->  https://graph.facebook.com/v19.0/*  (+ token)
 
+// Only the accounts that have a report login
+const ALLOWED = new Set(['401990560846482','2638156416541971','1757389631850436','1561863647870277','1223465486666247','386280680659578']);
+
 export async function onRequest(context) {
   const { request, env, params } = context;
 
@@ -12,7 +15,8 @@ export async function onRequest(context) {
   const subPath = '/' + segs.join('/');
 
   // Only allow read-style calls — insights + the ads list (for live status)
-  if (!/^\/act_\d+\/(insights|ads)\/?$/.test(subPath)) {
+  const m = subPath.match(/^\/act_(\d+)\/(insights|ads)\/?$/);
+  if (!m || !ALLOWED.has(m[1])) {
     return json({ error: { message: 'Endpoint not allowed.' } }, 403);
   }
 
@@ -26,7 +30,8 @@ export async function onRequest(context) {
   }
 
   const inUrl = new URL(request.url);
-  const params2 = inUrl.searchParams;
+  inUrl.searchParams.delete('access_token');
+  const params2 = new URLSearchParams(inUrl.search);
   params2.delete('access_token');      // ignore any client-supplied token
   params2.set('access_token', TOKEN);  // inject the real one server-side
 
@@ -34,7 +39,26 @@ export async function onRequest(context) {
 
   try {
     const r = await fetch(target);
-    const body = await r.text();
+    let body = await r.text();
+    // Meta's paging.next/previous URLs embed the server token: drop them.
+    // The browser pages with cursors (&after=), so nothing is lost.
+    try {
+      const j = JSON.parse(body);
+      if (j && j.paging) {
+        const hadNext = !!j.paging.next, after = j.paging.cursors && j.paging.cursors.after;
+        delete j.paging.next; delete j.paging.previous;
+        if (hadNext && after) {
+          // Rebuild "next" as a token-free URL back through this proxy
+          const nq = new URLSearchParams(inUrl.search);
+          nq.delete('access_token'); nq.delete('before'); nq.set('after', after);
+          j.paging.next = `/api/meta${subPath}?${nq.toString()}`;
+        }
+      }
+      body = JSON.stringify(j);
+    } catch (e) { body = '{"error":{"message":"Bad upstream response."}}'; }
+    if (body.includes(TOKEN) || /access_token/.test(body)) {
+      return json({ error: { message: 'Blocked.' } }, 502);
+    }
     return new Response(body, {
       status: r.status,
       headers: { 'content-type': 'application/json', 'cache-control': 'no-store' }
