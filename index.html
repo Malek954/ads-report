@@ -584,8 +584,8 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
       <span class="dp-compare-label">Compare to</span>
       <select id="cmpSelect" class="dp-compare-select" onchange="onCompareChange()">
         <option value="none">No comparison</option>
-        <option value="prev" selected>Previous period (preceding days)</option>
-        <option value="prevmonth">Previous month (same dates)</option>
+        <option value="prev">Previous period (preceding days)</option>
+        <option value="prevmonth" selected>Previous month (same dates)</option>
         <option value="prevyear">Previous year (same dates)</option>
       </select>
     </div>
@@ -754,7 +754,7 @@ let G_leadgen = false;
 let G_sessionSeq = 0;
 const seqOk = s => (s === undefined || s === G_sessionSeq);
 const fmtLeads = n => Math.round(n || 0).toLocaleString();
-let G_compareMode = 'prev'; // comparison period: none | prev | prevmonth | prevyear
+let G_compareMode = 'prevmonth'; // default: previous month, same dates. comparison period: none | prev | prevmonth | prevyear
 let G_liveAds = [];         // ads currently ACTIVE (live status from the Ads API)
 
 // --- ROAS eligibility --------------------------------------------------------
@@ -1010,6 +1010,12 @@ function sliceFromCache(startIso, endIso) {
 }
 
 // ── COMPARISON (Shopify-style) ──────────────────────────────────────────────────
+// Same date one month earlier, clamped to that month's last day (Mar 31 -> Feb 28/29)
+function monthBack(d) {
+  const r = new Date(d.getFullYear(), d.getMonth() - 1, 1, 12);
+  r.setDate(Math.min(d.getDate(), new Date(r.getFullYear(), r.getMonth() + 1, 0).getDate()));
+  return r;
+}
 function onCompareChange() {
   G_compareMode = document.getElementById('cmpSelect').value;
   if (G_selStart && G_selEnd) renderRange(G_selStart, G_selEnd);
@@ -1022,7 +1028,7 @@ function compareRange(startIso, endIso) {
   const lenDays = Math.round((e - s) / dayMs) + 1;
   let cs, ce;
   if (G_compareMode === 'prev')          { ce = new Date(s.getTime() - dayMs); cs = new Date(ce.getTime() - (lenDays - 1) * dayMs); }
-  else if (G_compareMode === 'prevmonth'){ cs = new Date(s); cs.setMonth(cs.getMonth() - 1); ce = new Date(e); ce.setMonth(ce.getMonth() - 1); }
+  else if (G_compareMode === 'prevmonth'){ cs = monthBack(s); ce = monthBack(e); }
   else if (G_compareMode === 'prevyear') { cs = new Date(s); cs.setFullYear(cs.getFullYear() - 1); ce = new Date(e); ce.setFullYear(ce.getFullYear() - 1); }
   else return null;
   return { start: dpIso(cs), end: dpIso(ce) };
