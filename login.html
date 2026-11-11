@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Sign In · Impact Systems</title>
+<link rel="stylesheet" href="/login.css">
+</head>
+<body>
+<main id="gate">
+  <img src="/brand-logo.png" alt="Impact Systems" class="brand-img">
+  <div class="gate-sub">Protected client report</div>
+  <form class="gate-box" id="loginForm" autocomplete="on" novalidate>
+    <h2>Sign In</h2>
+    <p>Enter your username and password to open your report.</p>
+    <input id="un" class="gate-input" name="username" type="text" placeholder="Username"
+           maxlength="64" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+    <input id="pw" class="gate-input" name="password" type="password" placeholder="Password"
+           maxlength="256" autocomplete="current-password" required>
+    <button id="loginBtn" type="submit">View My Report</button>
+    <div id="loginError" role="alert"></div>
+  </form>
+</main>
+<script src="/login.js"></script>
+</body>
+</html>
