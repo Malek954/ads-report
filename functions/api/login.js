@@ -11,7 +11,7 @@ export async function onRequestPost({ request, env }) {
   try { body = await request.json(); } catch { return json({ error: 'Bad request.' }, 400); }
   const typed = String(body.username || '').trim().slice(0, 64);
   const password = String(body.password || '').slice(0, 256);
-  if (!typed || !password) return json({ error: 'Enter your username and password.' }, 400);
+  if (!typed || !password) return json({ error: 'Enter your username.' }, 400);
 
   const ip = request.headers.get('cf-connecting-ip') || 'unknown';
   if (!(await throttleCheck(env, ip, typed))) {
@@ -24,7 +24,7 @@ export async function onRequestPost({ request, env }) {
   const ok = await verifyPassword(rec, password);
   if (!ok) {
     await throttleFail(env, ip, typed);
-    return json({ error: 'Wrong username or password.' }, 401);
+    return json({ error: 'Username not found. Try again.' }, 401);
   }
   await throttleClear(env, ip);
   const token = await makeSession(env, username, rec);
