@@ -1,13 +1,60 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { background: #000000; color: #FFFFFF; font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
 #gate {
-  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  position: relative; z-index: 1;
+  min-height: 100vh; min-height: 100dvh; display: flex; align-items: center; justify-content: center;
   flex-direction: column; gap: 24px; padding: 24px 16px;
+}
+
+/* ── Brand background: black field, Impact Blue glow from the top-right,
+      faint engineering grid, thin accent bar with a slow light sweep ── */
+html { background: #000000; }
+body { position: relative; min-height: 100vh; overflow-x: hidden; }
+.bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.bg-glow {
+  position: absolute; border-radius: 50%; will-change: transform;
+}
+.bg-glow.g1 {             /* main glow, peaks off the top-right corner */
+  width: 120vmax; height: 120vmax; top: -62vmax; right: -58vmax;
+  background: radial-gradient(circle, rgba(50,99,193,.55) 0%, rgba(50,99,193,.18) 38%, rgba(50,99,193,0) 66%);
+  animation: drift1 20s ease-in-out infinite alternate;
+}
+.bg-glow.g2 {             /* faint counter-glow, bottom-left */
+  width: 90vmax; height: 90vmax; bottom: -60vmax; left: -50vmax;
+  background: radial-gradient(circle, rgba(30,60,115,.45) 0%, rgba(30,60,115,0) 62%);
+  animation: drift2 26s ease-in-out infinite alternate;
+}
+.bg-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(67,116,214,.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(67,116,214,.07) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 70% 30%, #000 0%, transparent 75%);
+          mask-image: radial-gradient(ellipse 70% 60% at 70% 30%, #000 0%, transparent 75%);
+}
+.bg-bar {                 /* thin accent bar across the top edge */
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, rgba(50,99,193,.25), #3263C1 50%, rgba(50,99,193,.25));
+  overflow: hidden;
+}
+.bg-bar::after {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 30%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.85), transparent);
+  transform: translateX(-100%); will-change: transform;
+  animation: sweep 6s ease-in-out infinite;
+}
+/* transform-only animations: run on the GPU, no repaints */
+@keyframes drift1 { from { transform: translate(0,0); } to { transform: translate(-6vmax, 5vmax); } }
+@keyframes drift2 { from { transform: translate(0,0); } to { transform: translate(7vmax, -4vmax); } }
+@keyframes sweep  { 0% { transform: translateX(-100%); } 60%, 100% { transform: translateX(340%); } }
+@media (prefers-reduced-motion: reduce) {
+  .bg-glow, .bg-bar::after { animation: none; }
 }
 .brand-img { height: 60px; width: auto; display: block; }
 .gate-sub { font-size: 13px; color: #A0A3AB; }
 .gate-box {
-  background: #0A0A0C; border: 1px solid #24262B; border-radius: 8px;
+  background: rgba(10,10,12,.88); border: 1px solid #24262B; border-radius: 8px;
   padding: 36px 40px; display: flex; flex-direction: column; gap: 16px;
   width: 100%; max-width: 380px; text-align: center;
 }
