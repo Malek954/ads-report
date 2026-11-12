@@ -1,6 +1,6 @@
 // Runs before every request. Default deny: only listed paths are served,
 // and everything except the sign-in page needs a valid signed session.
-import { readSession, json } from '../lib/auth.js';
+import { readSession, makeSession, sessionCookie, json, SESSION_TTL, RENEW_AFTER } from '../lib/auth.js';
 
 const PUBLIC = new Set(['/login', '/login.js', '/login.css', '/brand-logo.png', '/api/login', '/favicon.ico']);
 const APP    = new Set(['/', '/index.html', '/api/me', '/api/logout']);
@@ -74,5 +74,10 @@ export async function onRequest(ctx) {
   }
 
   ctx.data.session = session;      // used by /api/meta and /api/me
-  return harden(await next(), false);
+  const res = harden(await next(), false);
+  // Sliding session: anyone who keeps using the report stays signed in
+  if (path !== '/api/logout' && session.exp - Date.now() / 1000 < SESSION_TTL - RENEW_AFTER) {
+    res.headers.append('set-cookie', sessionCookie(await makeSession(env, session.user, session.rec)));
+  }
+  return res;
 }

@@ -2283,6 +2283,10 @@ function toggleLang() { setLang(G_lang === 'ar' ? 'en' : 'ar'); }
   if (FORCE_PROXY) {
     fetch('/api/me', { credentials:'same-origin', cache:'no-store' })
       .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .catch(st => st === 401 ? Promise.reject(401)          // really signed out
+        : new Promise(ok => setTimeout(ok, 1500))             // network/server blip: retry once
+            .then(() => fetch('/api/me', { credentials:'same-origin', cache:'no-store' }))
+            .then(r => r.ok ? r.json() : Promise.reject(r.status)))
       .then(j => {
         const a = j.account;
         ACCOUNTS[j.user] = { id:a.id, name:a.name, currency:a.currency, type:a.type || undefined,
@@ -2291,7 +2295,8 @@ function toggleLang() { setLang(G_lang === 'ar' ? 'en' : 'ar'); }
         document.getElementById('unInput').value = j.user;
         checkLogin();
       })
-      .catch(() => window.location.replace('/login'));
+      .catch(st => { if (st === 401) window.location.replace('/login');
+                     else alert('Connection problem. Refresh the page to try again.'); });
     return;
   }
   let saved = null;

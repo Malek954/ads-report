@@ -40,7 +40,8 @@ export async function onRequestGet({ request, env, params, data }) {
 
   let j;
   try { j = JSON.parse(body); } catch { return json({ error: { message: 'Bad upstream response.' } }, 502); }
-  if (j.error) return json({ error: { message: 'Meta API error ' + (j.error.code || '') } }, r.status);
+  // Never pass Meta's 401/403 through: the page treats 401 as 'signed out'
+  if (j.error) return json({ error: { message: 'Meta API error ' + (j.error.code || '') } }, 502);
 
   // Meta's paging links embed the token: rebuild "next" as a token-free proxy URL
   if (j.paging) {
